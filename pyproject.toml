@@ -31,6 +31,7 @@ dependencies = [
     "uvicorn>=0.34",
     "python-multipart>=0.0.20",
     "websockets>=14",
+    "ssh-audit==3.9.0",
 ]
 
 [project.scripts]

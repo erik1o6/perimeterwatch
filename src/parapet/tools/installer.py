@@ -162,6 +162,13 @@ class Installer:
         pin = manifest().get(name)
         if pin is None:
             raise ToolError(f"{name} is not a pinned tool. See 'parapet tools list'.")
+        if pin.kind == "python":
+            state = self.verify(name)
+            if not state.verified:
+                raise ToolError(
+                    f"{name} {pin.version} comes with the project. Run 'uv sync' to install it."
+                )
+            return state
         if not force and self.verify(name).verified:
             return self.verify(name)
 
@@ -216,6 +223,11 @@ class Installer:
     def verify(self, name: str) -> ToolState:
         """Check an installed tool is the file that was verified at install time."""
         pin = manifest()[name]
+        if pin.kind == "python":
+            script = self.locator.resolve(name)
+            if script is None:
+                return ToolState(name, pin.version, False, False, None, "not installed")
+            return ToolState(name, pin.version, True, True, script, "pinned in the lock file")
         path = self.locator.install_dir(pin) / pin.binary
         record = self.locator.install_dir(pin) / HASH_FILE
         if not path.exists():

@@ -98,7 +98,7 @@ The code is open source, so anyone can also alter it to remove the authorisation
 
 **Mitigation.**
 
-- The code is licensed under Apache-2.0 and has 1,374 automated tests. It is published at https://github.com/erik1o6/parapet.
+- The code is licensed under Apache-2.0 and has 1,422 automated tests. It is published at https://github.com/erik1o6/parapet.
 - Deployment and operation are documented in `docs/operations.md`, so that another person could run the service.
 - External tools are pinned by version and checksum, so the software does not change without a person acting.
 - Organisations can export their reports as JSON and run the command-line tool themselves.

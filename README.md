@@ -41,6 +41,8 @@ last, so you see what is new.
 | Exposures | Readable config files, open admin pages | active |
 | TLS configuration | Old TLS versions and weak cipher suites still accepted | active |
 | Zone transfer | Nameservers that hand out your whole DNS zone | active |
+| SSH servers | Weak algorithms offered, and changes of host key | active |
+| Storage buckets | Buckets your DNS points at that anyone can list or write to | active |
 
 The three depths:
 

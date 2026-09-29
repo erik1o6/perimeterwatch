@@ -36,7 +36,7 @@ Every check in this table is built and works today. The command-line tool and th
 | Open ports | The 100 most common ports, by ordinary connection attempts | The organisation's hosts | Active |
 | Exposure checks | Read-only checks for exposed files and misconfiguration | nuclei, limited by the project's own rules to plain GET and HEAD requests | Active |
 
-There are 25 check modules and 69 kinds of finding. Each kind has a default severity and a written fix, held in one table in the code (`src/parapet/core/severity.py`) so that the rating rules can be reviewed.
+There are 27 check modules and 74 kinds of finding. Each kind has a default severity and a written fix, held in one table in the code (`src/parapet/core/severity.py`) so that the rating rules can be reviewed.
 
 **The exposure checks.** These use a public collection of check templates, nuclei-templates version 10.4.9. The project reads every template and admits one only if each request in it is a plain GET or HEAD with nothing attached. Of the templates in that version, 2,093 are admitted and 654 are refused. No flag or setting widens these rules.
 
@@ -124,7 +124,7 @@ Built and covered by automated tests. Never deployed.
 | Scanning engine with all checks listed above | Built. | Released as version 1.0 in M1 |
 | Command-line tool `parapet` | Built | Maintained |
 | Web service and worker | Built and tested. Never deployed. | First deployment in M1. Production use in M2 and M3. |
-| Automated tests | 1,374 pass on the development machine | Run in public on every change, in M1 |
+| Automated tests | 1,422 pass on the development machine | Run in public on every change, in M1 |
 | Consent model and safety rules | Built, with a dedicated set of security tests | Reviewed independently in M2 |
 | Separation of organisations | Built in the application, with tests | A second barrier in the database (row-level security) in M1. Reviewed independently in M2. |
 | Scheduled scans, alerts, automatic retention | Built and tested | Shown working in a real deployment in M1 and M2 |
@@ -146,7 +146,7 @@ A second breach source is present in the code and switched off by default: Hudso
 These steps work once the repository is published, which is the first item of Milestone 1. Until then the maintainer can show the same steps on a call.
 
 1. Clone the repository: https://github.com/erik1o6/parapet
-2. Run `make dev`, then `make test`. The expected result is 1,374 tests passed.
+2. Run `make dev`, then `make test`. The expected result is 1,422 tests passed.
 3. Run a passive scan against a domain the reviewer owns and open the HTML report.
 4. Or open the published sample report: **[TODO: URL, once published]**.
 

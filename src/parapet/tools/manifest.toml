@@ -120,6 +120,46 @@ kind = "data"
 url = "https://github.com/projectdiscovery/nuclei-templates/archive/refs/tags/v10.4.9.tar.gz"
 sha256 = "d7cd989935f9a84943cba8a193f567db37626dbf4e526ff57ba5b1f24badd5d6"
 
+[s3scanner]
+version = "3.1.1"
+repo = "sa7mon/S3Scanner"
+binary = "S3Scanner"
+license = "MIT"
+version_args = [
+    "-version",
+]
+kind = "binary"
+
+[s3scanner.assets.linux_amd64]
+url = "https://github.com/sa7mon/S3Scanner/releases/download/v3.1.1/S3Scanner_Linux_x86_64.tar.gz"
+sha256 = "eb502a87576ee1f407afc910e76cc258f96df8599b2acee7d8aff0c79a6e5e95"
+
+[s3scanner.assets.linux_arm64]
+url = "https://github.com/sa7mon/S3Scanner/releases/download/v3.1.1/S3Scanner_Linux_arm64.tar.gz"
+sha256 = "c063e7e67f5d29582991682a3764daef7484373e8c00a36e8ca92f82cee8cfe5"
+
+[s3scanner.assets.darwin_arm64]
+url = "https://github.com/sa7mon/S3Scanner/releases/download/v3.1.1/S3Scanner_Darwin_arm64.tar.gz"
+sha256 = "a7457a516ee624b668bc1199941a3099de597fdf7e96baeb4defad0c1ed39695"
+
+[s3scanner.assets.darwin_amd64]
+url = "https://github.com/sa7mon/S3Scanner/releases/download/v3.1.1/S3Scanner_Darwin_x86_64.tar.gz"
+sha256 = "34c4ad8e4843da1c1b0aaf67402c016ed0fa54526baae803e34008eb610f3bf4"
+
+[ssh-audit]
+version = "3.9.0"
+repo = "jtesta/ssh-audit"
+binary = "ssh-audit"
+license = "MIT"
+version_args = [
+    "--help",
+]
+kind = "python"
+
+[ssh-audit.assets.any]
+url = "https://pypi.org/project/ssh-audit/3.9.0/"
+sha256 = "3dad48d4678e0de31f6332cc7674f9d7dd1805f86babf3796f41c2fd879cb812"
+
 [subfinder]
 version = "2.16.0"
 repo = "projectdiscovery/subfinder"

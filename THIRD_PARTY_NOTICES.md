@@ -17,6 +17,8 @@ The exact versions and checksums are in `src/parapet/tools/manifest.toml`.
 | nuclei | MIT | https://github.com/projectdiscovery/nuclei |
 | nuclei-templates (data) | MIT | https://github.com/projectdiscovery/nuclei-templates |
 | betterleaks | MIT | https://github.com/betterleaks/betterleaks |
+| S3Scanner | MIT | https://github.com/sa7mon/S3Scanner |
+| ssh-audit | MIT | https://github.com/jtesta/ssh-audit |
 | trufflehog | AGPL-3.0-only | https://github.com/trufflesecurity/trufflehog |
 
 ### trufflehog and the AGPL

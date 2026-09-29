@@ -10,7 +10,7 @@ A team enters its own web address and gets back a plain list of weak points, eac
 
 It only looks at teams that ask. The web service scans nothing until the team proves the web address is its own. There is no score or grade.
 
-**What exists today.** Two working forms of the software: a command-line tool, and a web service with scheduled scans and alerts by email or chat. 1,374 automated tests pass. The code is public: https://github.com/erik1o6/parapet
+**What exists today.** Two working forms of the software: a command-line tool, and a web service with scheduled scans and alerts by email or chat. 1,422 automated tests pass. The code is public: https://github.com/erik1o6/parapet
 
 **What does not exist yet.** The web service has never been deployed, has had no independent review, and has no users.
 

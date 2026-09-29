@@ -163,7 +163,11 @@ class TestLocator:
             assert pin.assets, pin.name
             for asset in pin.assets.values():
                 assert re.fullmatch(r"[0-9a-f]{64}", asset["sha256"]), pin.name
-                assert asset["url"].startswith(f"https://github.com/{pin.repo}/"), pin.name
+                if pin.kind == "python":
+                    # Installed from PyPI with the project. The lock file pins its hashes.
+                    assert asset["url"].startswith("https://pypi.org/project/"), pin.name
+                else:
+                    assert asset["url"].startswith(f"https://github.com/{pin.repo}/"), pin.name
                 assert pin.version in asset["url"], pin.name
 
 

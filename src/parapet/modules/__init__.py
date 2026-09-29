@@ -2,6 +2,7 @@
 
 from parapet.modules import (  # noqa: F401
     breaches,
+    bucket_exposure,
     contract_control,
     dns_resolve,
     domain_registration,
@@ -20,6 +21,7 @@ from parapet.modules import (  # noqa: F401
     repo_scorecard,
     safe_multisig,
     spf_chain,
+    ssh_audit,
     subdomains,
     takeover,
     tls_certs,

@@ -185,6 +185,15 @@ Certificates that are expired, about to expire, or do not match.
 - Better with: the `tlsx` tool
 - Runs after: `dns_resolve`
 
+### Public storage buckets (`bucket_exposure`)
+
+Storage buckets your DNS points at that anyone can list or write to.
+
+- Depth: Active. Runs only with authorisation.
+- Contacts: the storage provider, asking what an anonymous visitor may do
+- Needs: the `s3scanner` tool
+- Runs after: `dns_resolve`
+
 ### Exposures and misconfigurations (`nuclei_safe`)
 
 Readable config files, open admin pages and similar, using read-only checks.
@@ -202,6 +211,15 @@ Services reachable from the internet on your own hosts.
 - Contacts: each discovered host, connection attempts on common ports
 - Needs: the `naabu` tool
 - Runs after: `dns_resolve`
+
+### SSH server settings (`ssh_audit`)
+
+Weak algorithms offered by your SSH servers, and changes of host key.
+
+- Depth: Active. Runs only with authorisation.
+- Contacts: each host with an open SSH port, a few connections without signing in
+- Needs: the `ssh-audit` tool
+- Runs after: `ports`
 
 ### TLS versions and cipher suites (`tls_config`)
 
@@ -230,6 +248,9 @@ and must then say why in the finding itself.
 | `breach.account` | breach | medium | Have this person change the password anywhere it was reused, and make sure phishing-resistant two-factor sign-in is on for their work accounts. |
 | `breach.domain_summary` | breach | info | Aggregate count only. Verify the domain to see which accounts are affected. |
 | `breach.stealer_log` | breach | high | Credentials for this address appeared in malware logs, which means a device this person used was infected. Reset their passwords, end their active sessions, rotate any keys they held, and have the device examined or rebuilt. |
+| `cloud.bucket.public_acl` | vuln | medium | Anyone can read this bucket's access settings, or change them. Remove public access to the bucket's access control list. |
+| `cloud.bucket.public_read` | vuln | medium | Anyone can list the contents of this storage bucket. That is often intended for a public website, but listing reveals every file in it. Turn off public listing, and check that nothing private is stored there. |
+| `cloud.bucket.public_write` | vuln | critical | Anyone can write to this storage bucket. If your site is served from it, anyone can replace your site. Remove public write access now. |
 | `dns.caa.missing` | surface | low | Publish CAA records naming the certificate authorities allowed to issue for this domain. This limits mis-issuance if a DNS or web account is compromised. |
 | `dns.dnssec.disabled` | surface | low | Enable DNSSEC at your DNS provider and publish the DS record at your registrar. It protects against forged DNS answers. |
 | `dns.nameserver.single_provider` | surface | info | All nameservers belong to one provider. Consider whether a second DNS provider is worth the added resilience. |
@@ -276,6 +297,8 @@ and must then say why in the finding itself.
 | `ports.open` | vuln | info | Informational. |
 | `ports.unexpected_open` | vuln | medium | This port is reachable from the internet. Close it, or restrict it to known addresses, unless it is meant to be public. |
 | `secrets.exposed` | secrets | high | Treat this credential as compromised. Revoke and replace it first, then remove it from the repository. Deleting the file is not enough: it stays in git history. |
+| `ssh.host_keys` | vuln | info | Informational. A change of host key will be reported as a change. If the server was not rebuilt or re-keyed, something else is answering on that address. |
+| `ssh.weak_algorithms` | vuln | medium | Remove these algorithms from the SSH server's configuration and keep its software up to date. Consider whether SSH needs to face the internet at all: a VPN or an allow-list of addresses is safer. |
 | `surface.archive.sensitive_url` | surface | low | Web archives list this address. Check that it no longer answers, or that it is meant to be public. Archives keep addresses long after the pages are gone. |
 | `surface.subdomain.sensitive_name` | surface | low | This name suggests an internal, staging or administrative system. Confirm it is meant to be public, and put it behind access control if not. |
 | `takeover.cname.dangling` | takeover | high | This name points at a hosted service that no longer answers for it. Someone else may be able to claim that resource and serve content on your name. Delete the DNS record, or re-create the resource if it is still needed. |

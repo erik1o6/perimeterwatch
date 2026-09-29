@@ -85,6 +85,19 @@ KNOWN: dict[str, Known] = {
         # "version" is a subcommand here, not a flag.
         version_args=("version",),
     ),
+    "s3scanner": Known(
+        repo="sa7mon/S3Scanner",
+        license="MIT",
+        assets={
+            "linux_amd64": "S3Scanner_Linux_x86_64.tar.gz",
+            "linux_arm64": "S3Scanner_Linux_arm64.tar.gz",
+            "darwin_arm64": "S3Scanner_Darwin_arm64.tar.gz",
+            "darwin_amd64": "S3Scanner_Darwin_x86_64.tar.gz",
+        },
+        checksums="checksums.txt",
+        binary="S3Scanner",
+        version_args=("-version",),
+    ),
     "nuclei-templates": Known(
         repo="projectdiscovery/nuclei-templates",
         license="MIT",

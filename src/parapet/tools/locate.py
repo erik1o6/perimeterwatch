@@ -9,10 +9,11 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 import tomllib
 from dataclasses import dataclass
 from functools import lru_cache
-from importlib import resources
+from importlib import metadata, resources
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +27,7 @@ class ToolPin:
     license: str
     version_args: tuple[str, ...]
     assets: dict[str, dict[str, str]]
-    kind: str = "binary"  # binary | data
+    kind: str = "binary"  # binary | data | python
 
 
 @lru_cache(maxsize=1)
@@ -48,6 +49,23 @@ def manifest() -> dict[str, ToolPin]:
     return pins
 
 
+def python_tool(pin: ToolPin) -> Path | None:
+    """A tool that is a Python package, installed with the project.
+
+    Its integrity comes from the project's lock file, which pins the version
+    and the hash of every file. Here the installed version is checked against
+    the manifest, so the two cannot drift apart unnoticed.
+    """
+    try:
+        installed = metadata.version(pin.name)
+    except metadata.PackageNotFoundError:
+        return None
+    if installed != pin.version:
+        return None
+    script = Path(sys.executable).parent / pin.binary
+    return script if script.is_file() and os.access(script, os.X_OK) else None
+
+
 class ToolLocator:
     def __init__(self, tools_dir: Path, *, allow_path: bool = False) -> None:
         self.tools_dir = tools_dir
@@ -58,6 +76,8 @@ class ToolLocator:
 
     def resolve(self, name: str) -> Path | None:
         pin = manifest().get(name)
+        if pin is not None and pin.kind == "python":
+            return python_tool(pin)
         if pin is not None:
             candidate = self.install_dir(pin) / pin.binary
             if pin.kind == "data":

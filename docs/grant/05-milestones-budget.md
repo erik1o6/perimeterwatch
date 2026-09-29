@@ -14,7 +14,7 @@ Every figure in this file that depends on these is a worked example and not a re
 
 ## What is already done, and is not being paid for
 
-The grant does not pay for work that exists. The following is built and passes 1,374 automated tests on the development machine: the scanning engine with all its checks, the command-line tool, the web service with sign-in, separation of organisations, domain verification, a scan queue, scheduled scans, alerts and an audit log, and the worker that runs scans and deletes old data. Drafts of the legal documents are written.
+The grant does not pay for work that exists. The following is built and passes 1,422 automated tests on the development machine: the scanning engine with all its checks, the command-line tool, the web service with sign-in, separation of organisations, domain verification, a scan queue, scheduled scans, alerts and an audit log, and the worker that runs scans and deletes old data. Drafts of the legal documents are written.
 
 The code is published at https://github.com/erik1o6/parapet. The web service has never been deployed. The deployment files and the CI workflow have never been run. No independent person has reviewed any of it. No organisation uses it.
 

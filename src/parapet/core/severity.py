@@ -454,6 +454,40 @@ KINDS: dict[str, KindInfo] = {
         "lists every host you have. Restrict zone transfers to your own secondary "
         "nameservers.",
     ),
+    "ssh.weak_algorithms": KindInfo(
+        C.VULN,
+        S.MEDIUM,
+        "Remove these algorithms from the SSH server's configuration and keep its "
+        "software up to date. Consider whether SSH needs to face the internet at all: "
+        "a VPN or an allow-list of addresses is safer.",
+        ("https://www.ssh-audit.com/hardening_guides.html",),
+    ),
+    "ssh.host_keys": KindInfo(
+        C.VULN,
+        S.INFO,
+        "Informational. A change of host key will be reported as a change. If the "
+        "server was not rebuilt or re-keyed, something else is answering on that address.",
+    ),
+    "cloud.bucket.public_write": KindInfo(
+        C.VULN,
+        S.CRITICAL,
+        "Anyone can write to this storage bucket. If your site is served from it, "
+        "anyone can replace your site. Remove public write access now.",
+        (_SEAL_911,),
+    ),
+    "cloud.bucket.public_read": KindInfo(
+        C.VULN,
+        S.MEDIUM,
+        "Anyone can list the contents of this storage bucket. That is often intended "
+        "for a public website, but listing reveals every file in it. Turn off public "
+        "listing, and check that nothing private is stored there.",
+    ),
+    "cloud.bucket.public_acl": KindInfo(
+        C.VULN,
+        S.MEDIUM,
+        "Anyone can read this bucket's access settings, or change them. Remove public "
+        "access to the bucket's access control list.",
+    ),
     # --- active --------------------------------------------------------------
     "ports.unexpected_open": KindInfo(
         C.VULN,
