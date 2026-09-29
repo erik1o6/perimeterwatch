@@ -15,7 +15,7 @@ You need:
 3. An SMTP account for sign-in links and alerts. Set up SPF, DKIM and DMARC on the sending
    domain, or sign-in mail will land in spam.
 4. Two mailboxes that someone reads: one for abuse reports, one for security reports.
-5. A page describing the scanner, for `PARAPET_CONTACT_URL`. Operators of scanned hosts will
+5. A page describing the scanner, for `PW_CONTACT_URL`. Operators of scanned hosts will
    look for it.
 
 ## Deploying
@@ -30,10 +30,10 @@ docker compose -f deploy/docker-compose.yml up -d --build
 Generate the data key once the image is built:
 
 ```sh
-docker run --rm parapet:local db new-key
+docker run --rm perimeterwatch:local db new-key
 ```
 
-Put it in `PARAPET_DATA_KEYS`. **If this key is lost, stored findings cannot be read.** Keep a
+Put it in `PW_DATA_KEYS`. **If this key is lost, stored findings cannot be read.** Keep a
 copy somewhere other than the server.
 
 Replace the placeholders in `docs/legal/security.txt` before going live. The proxy serves
@@ -44,7 +44,7 @@ Check the result:
 ```sh
 docker compose -f deploy/docker-compose.yml ps          # all services healthy
 curl -sI https://YOUR-HOST/login | grep -i strict-transport
-docker compose -f deploy/docker-compose.yml exec app parapet tools verify
+docker compose -f deploy/docker-compose.yml exec app pwatch tools verify
 ```
 
 ## Where scan traffic comes from
@@ -82,8 +82,8 @@ written permission.
 
 ## Rotating the data key
 
-1. Generate a new key: `parapet db new-key`.
-2. Set `PARAPET_DATA_KEYS=NEWKEY,OLDKEY` and restart. New data is encrypted with the new key.
+1. Generate a new key: `pwatch db new-key`.
+2. Set `PW_DATA_KEYS=NEWKEY,OLDKEY` and restart. New data is encrypted with the new key.
    Old data is still readable.
 3. Keep the old key in the list for as long as any data encrypted with it exists. With the
    default retention that is 90 days.
@@ -102,7 +102,7 @@ Test a restore before you need one.
 
 ## Retention
 
-The worker deletes scans older than `PARAPET_RETENTION_DAYS` (default 90), findings resolved
+The worker deletes scans older than `PW_RETENTION_DAYS` (default 90), findings resolved
 longer ago than that, and expired statements of authority. The latest scan of each domain
 is always kept, so the next scan has something to compare with.
 
@@ -117,23 +117,23 @@ entries about it remain.
 Someone whose host received scan traffic may ask for it to stop. `docs/legal/opt-out.md`
 is the draft policy. To act on a request:
 
-1. Add the host name, address or network to `PARAPET_NEVER_CONTACT` and restart the worker.
+1. Add the host name, address or network to `PW_NEVER_CONTACT` and restart the worker.
    From then on no scan contacts it, whatever domain it appears under.
 2. Find which organisation's scan reached it, from the audit log and scan history.
 3. If the host is not theirs, tell that organisation. A DNS record pointing at someone
    else's host is itself a finding worth knowing about.
 
 ```sh
-PARAPET_NEVER_CONTACT=["198.51.100.0/24","host.example.net"]
+PW_NEVER_CONTACT=["198.51.100.0/24","host.example.net"]
 ```
 
 ## Updating the scanning tools
 
-Tool versions and checksums are pinned in `src/parapet/tools/manifest.toml`.
+Tool versions and checksums are pinned in `src/perimeterwatch/tools/manifest.toml`.
 
 ```sh
-uv run parapet tools bump nuclei latest    # rewrites the manifest entry
-git diff src/parapet/tools/manifest.toml
+uv run pwatch tools bump nuclei latest    # rewrites the manifest entry
+git diff src/perimeterwatch/tools/manifest.toml
 ```
 
 Review the change. Compare the new checksum with the one published on the release page.
@@ -146,9 +146,9 @@ refuse, and look at a sample of the newly admitted ones:
 ```sh
 uv run python -c "
 from pathlib import Path
-from parapet.config import load_settings
-from parapet.safety.templates import select_templates
-from parapet.tools.locate import ToolLocator
+from perimeterwatch.config import load_settings
+from perimeterwatch.safety.templates import select_templates
+from perimeterwatch.tools.locate import ToolLocator
 s = load_settings()
 sel = select_templates(ToolLocator(s.resolved_tools_dir).resolve('nuclei-templates'))
 print(len(sel.admitted), 'admitted', sum(sel.rejected.values()), 'refused')
@@ -162,7 +162,7 @@ print(len(sel.admitted), 'admitted', sum(sel.rejected.values()), 'refused')
 | Nobody receives sign-in mail | SMTP settings, or the sending domain lacks SPF and DKIM | Check the `app` log. Send a test alert from the Alerts page |
 | Scans stay "waiting" | The worker is not running | `docker compose ps`, then the `worker` log |
 | A scan "did not finish" | The worker was restarted mid-scan three times, or verification was withdrawn | The scan page gives the reason |
-| "Stored data could not be decrypted" | `PARAPET_DATA_KEYS` does not hold the key the data was written with | Restore the right key. Do not generate a new one |
+| "Stored data could not be decrypted" | `PW_DATA_KEYS` does not hold the key the data was written with | Restore the right key. Do not generate a new one |
 | A check is always skipped | A tool or key is missing | The scan page says which, and how to add it |
 
 Logs are JSON on standard output. Known secret values and token-shaped strings are removed

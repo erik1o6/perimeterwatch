@@ -1,6 +1,6 @@
-# Parapet
+# Perimeterwatch
 
-Parapet shows an organisation what an outsider can find out about its systems, and
+Perimeterwatch shows an organisation what an outsider can find out about its systems, and
 tells it when that changes. It is built for crypto and web3 teams, and it only ever looks at
 an organisation's own domain, with that organisation's consent.
 
@@ -69,13 +69,13 @@ You need [uv](https://docs.astral.sh/uv/) and Python 3.13 or newer.
 
 ```sh
 uv sync
-uv run parapet init
-uv run parapet doctor            # shows what is ready and what is missing
-uv run parapet tools install --all   # optional: downloads and verifies the scanning tools
-uv run parapet scan yourproject.xyz
+uv run pwatch init
+uv run pwatch doctor            # shows what is ready and what is missing
+uv run pwatch tools install --all   # optional: downloads and verifies the scanning tools
+uv run pwatch scan yourproject.xyz
 ```
 
-The scan prints a summary and writes `report.html` and `report.json` under `parapet-reports/`.
+The scan prints a summary and writes `report.html` and `report.json` under `pw-reports/`.
 Run it again later to see what changed.
 
 Tools and keys are optional. A check that lacks one is skipped, and the report says so and
@@ -85,24 +85,24 @@ says how to enable it.
 
 ```sh
 # Tell it where else to look
-uv run parapet target add yourproject.xyz --github-org yourorg \
+uv run pwatch target add yourproject.xyz --github-org yourorg \
     --safe eth:0xYourSafeAddress --greenhouse yourboard \
     --npm @yourorg/sdk --contract eth:0xYourContract=Vault --ens yourproject.eth
 
 # Prove you control the domain, then run active checks
-uv run parapet verify init yourproject.xyz     # prints a DNS record to create
-uv run parapet verify check yourproject.xyz
-uv run parapet scan yourproject.xyz --active
+uv run pwatch verify init yourproject.xyz     # prints a DNS record to create
+uv run pwatch verify check yourproject.xyz
+uv run pwatch scan yourproject.xyz --active
 ```
 
 Keys go in the environment or in a `.env` file, never in a settings file. Copy
-`.env.example` to start. `parapet doctor` lists each key and what it enables.
+`.env.example` to start. `pwatch doctor` lists each key and what it enables.
 
 ### The web service
 
 ```sh
-uv run parapet serve      # http://127.0.0.1:8000
-uv run parapet worker     # in a second terminal
+uv run pwatch serve      # http://127.0.0.1:8000
+uv run pwatch worker     # in a second terminal
 ```
 
 In development, sign-in links are printed in the `serve` terminal instead of being emailed.
@@ -112,17 +112,17 @@ To host it, see `docs/operations.md` and `deploy/`.
 
 | Command | Purpose |
 |---|---|
-| `parapet scan DOMAIN` | Scan and write a report. Add `--probe` or `--active` to go deeper |
-| `parapet report DOMAIN` | Write a stored scan's report again. `--redact-personal` masks people |
-| `parapet diff DOMAIN` | Show what changed between two scans |
-| `parapet target add\|list\|show\|remove` | Manage domains and their details |
-| `parapet verify init\|check DOMAIN` | Prove control of a domain by DNS record |
-| `parapet authorise DOMAIN` | Record a statement of authority, where a DNS record is not possible |
-| `parapet tools list\|install\|verify` | Manage the pinned scanning tools |
-| `parapet modules list` | List every check and what it needs |
-| `parapet doctor` | Check the setup. Never prints a secret |
-| `parapet db migrate\|purge\|new-key` | Database upkeep |
-| `parapet serve`, `parapet worker` | Run the web service |
+| `pwatch scan DOMAIN` | Scan and write a report. Add `--probe` or `--active` to go deeper |
+| `pwatch report DOMAIN` | Write a stored scan's report again. `--redact-personal` masks people |
+| `pwatch diff DOMAIN` | Show what changed between two scans |
+| `pwatch target add\|list\|show\|remove` | Manage domains and their details |
+| `pwatch verify init\|check DOMAIN` | Prove control of a domain by DNS record |
+| `pwatch authorise DOMAIN` | Record a statement of authority, where a DNS record is not possible |
+| `pwatch tools list\|install\|verify` | Manage the pinned scanning tools |
+| `pwatch modules list` | List every check and what it needs |
+| `pwatch doctor` | Check the setup. Never prints a secret |
+| `pwatch db migrate\|purge\|new-key` | Database upkeep |
+| `pwatch serve`, `pwatch worker` | Run the web service |
 
 Exit codes: 0 success, 1 error, 2 invalid input, 3 a check was skipped (with `--strict`),
 4 authorisation refused.
@@ -142,6 +142,8 @@ domains you own: see `tests/integration/README.md`.
 - `docs/architecture.md`: how it is built, and how the safeguards are enforced
 - `docs/modules.md`: every check, what it contacts, and every finding it can raise
 - `docs/operations.md`: hosting, keys, backups, abuse reports, updating tools
+- `docs/hosting-perimeterwatch-org.md`: the plan for hosting the service at perimeterwatch.org
+- `docs/sample-report/`: a real report, from a scan of the project's own domain
 - `docs/report.schema.json`: the format of `report.json`
 - `docs/grant/`: funding proposal drafts
 - `docs/legal/`: terms, privacy and policy drafts, not yet reviewed by a lawyer

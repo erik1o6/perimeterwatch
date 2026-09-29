@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from parapet.safety.netguard import is_public_ip, vet
+from perimeterwatch.safety.netguard import is_public_ip, vet
 
 BLOCKED = [
     "10.0.0.1",

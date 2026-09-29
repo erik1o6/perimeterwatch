@@ -14,8 +14,8 @@ from typing import Any
 import httpx
 import pytest
 
-from parapet.core.fingerprint import finding_state_hash
-from parapet.core.models import (
+from perimeterwatch.core.fingerprint import finding_state_hash
+from perimeterwatch.core.models import (
     Asset,
     AssetType,
     Category,
@@ -26,10 +26,10 @@ from parapet.core.models import (
     Severity,
     Target,
 )
-from parapet.modules import frontend, packages, repo_scorecard
-from parapet.modules.frontend import Frontend, Origin, parse_page, resolve
-from parapet.modules.packages import Packages, valid_npm_name, valid_pypi_name, variants
-from parapet.modules.repo_scorecard import RepoScorecard, bucket, failing_checks, repo_parts
+from perimeterwatch.modules import frontend, packages, repo_scorecard
+from perimeterwatch.modules.frontend import Frontend, Origin, parse_page, resolve
+from perimeterwatch.modules.packages import Packages, valid_npm_name, valid_pypi_name, variants
+from perimeterwatch.modules.repo_scorecard import RepoScorecard, bucket, failing_checks, repo_parts
 from tests.conftest import ROOT, fixture_text
 from tests.helpers import resolved
 

@@ -4,14 +4,14 @@
 
 Status: draft for the hosted service. The service has been built but is not yet deployed.
 
-This page is for you if you operate a host that received traffic from Parapet and you want it to stop. You do not need to be a customer. You do not need to give a reason.
+This page is for you if you operate a host that received traffic from Perimeterwatch and you want it to stop. You do not need to be a customer. You do not need to give a reason.
 
 ## 1. Is the traffic from us?
 
 Web requests from the service carry this User-Agent:
 
 ```
-parapet/<version> (+<contact URL>; abuse: <abuse address>)
+perimeterwatch/<version> (+<contact URL>; abuse: <abuse address>)
 ```
 
 Connections that are not web requests, such as TLS handshakes and port checks, cannot carry a User-Agent. You can recognise them by source address: **[TO DECIDE: published address or addresses that scan traffic comes from]**.

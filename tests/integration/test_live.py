@@ -8,12 +8,12 @@ from typing import Any
 
 import pytest
 
-from parapet.config import Settings
-from parapet.core.engine import run_scan
-from parapet.core.models import Authorisation, ModuleStatus, ScanMode, Target
-from parapet.safety.domains import validate_domain
-from parapet.storage.db import open_database
-from parapet.storage.repo import TenantRepo
+from perimeterwatch.config import Settings
+from perimeterwatch.core.engine import run_scan
+from perimeterwatch.core.models import Authorisation, ModuleStatus, ScanMode, Target
+from perimeterwatch.safety.domains import validate_domain
+from perimeterwatch.storage.db import open_database
+from perimeterwatch.storage.repo import TenantRepo
 
 pytestmark = pytest.mark.live
 ALLOWLIST = Path(__file__).parent / "targets.toml"

@@ -1,10 +1,10 @@
 # Third-party notices
 
-Parapet is licensed under Apache-2.0. It uses the programs and data below. None of
-them is modified, and none is linked into Parapet: each external tool is a separate
-program that Parapet downloads, verifies and runs.
+Perimeterwatch is licensed under Apache-2.0. It uses the programs and data below. None of
+them is modified, and none is linked into Perimeterwatch: each external tool is a separate
+program that Perimeterwatch downloads, verifies and runs.
 
-The exact versions and checksums are in `src/parapet/tools/manifest.toml`.
+The exact versions and checksums are in `src/perimeterwatch/tools/manifest.toml`.
 
 ## Tools run as separate programs
 
@@ -29,7 +29,7 @@ by its authors. Its complete source code, for the exact version included, is ava
 the address above under the release tag named in the manifest. The licence text is at
 https://www.gnu.org/licenses/agpl-3.0.txt
 
-Parapet does not modify trufflehog and does not link against it. If you change
+Perimeterwatch does not modify trufflehog and does not link against it. If you change
 trufflehog and offer the result to others, including over a network, the AGPL requires you
 to publish your changes.
 
@@ -51,5 +51,5 @@ Installed from PyPI under their own licences. The full list with versions is in 
 The main ones: pydantic, SQLAlchemy, Alembic, FastAPI, Uvicorn, httpx, dnspython, checkdmarc,
 dnstwist, cryptography, Jinja2, Typer, structlog, tldextract, PyYAML, eth-utils.
 
-`src/parapet/data/takeover_services.json`, `dkim_selectors.txt` and
+`src/perimeterwatch/data/takeover_services.json`, `dkim_selectors.txt` and
 `tech_keywords.json` were written for this project.

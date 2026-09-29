@@ -7,10 +7,10 @@ from typing import Any
 
 import pytest
 
-from parapet.clients.dns import DnsAnswer, DnsStatus
-from parapet.core.models import AuthLevel, Target, utcnow
-from parapet.safety import authorisation as auth
-from parapet.storage.repo import TenantRepo
+from perimeterwatch.clients.dns import DnsAnswer, DnsStatus
+from perimeterwatch.core.models import AuthLevel, Target, utcnow
+from perimeterwatch.safety import authorisation as auth
+from perimeterwatch.storage.repo import TenantRepo
 from tests.conftest import ROOT
 
 TOKEN = "tok_" + "a" * 40
@@ -115,7 +115,7 @@ class TestDnsVerification:
         assert not result.verified
         assert NAME in result.detail
 
-    @pytest.mark.parametrize("value", [TOKEN, f"parapet-verify={TOKEN}x", f" {GOOD}", GOOD.upper()])
+    @pytest.mark.parametrize("value", [TOKEN, f"pw-verify={TOKEN}x", f" {GOOD}", GOOD.upper()])
     async def test_value_must_match_exactly(
         self, monkeypatch: pytest.MonkeyPatch, value: str
     ) -> None:

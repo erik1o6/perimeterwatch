@@ -105,7 +105,7 @@ A reviewer should not have to take the team's word.
 
 | Claim | Evidence | Can the reviewer check it independently? |
 |---|---|---|
-| Organisation X uses the service | The DNS record at `_parapet-verify.<domain>` | Yes, by a public DNS query |
+| Organisation X uses the service | The DNS record at `_perimeterwatch-verify.<domain>` | Yes, by a public DNS query |
 | Organisation X is a real, independent user | Written confirmation from a named contact person at X | Yes, by contacting them |
 | X was monitored for 60 consecutive days | Scan history for X, with dates | Partly. The history is held by the service. The contact person can confirm. |
 | X fixed finding Y | The scan comparison showing Y reported and later resolved | Yes for findings based on public records, such as email and DNS settings. The reviewer can query the present state. For other findings, the contact person can confirm. |
@@ -123,7 +123,7 @@ At least half of the organisations are asked to agree to be named publicly. The 
 
 One integration is required. Candidates, in order of how directly they follow from work already done:
 
-1. **An assessor uses the reports as evidence.** A SEAL-accredited assessor or OpSec auditing firm accepts Parapet reports for the DNS and email controls in a real assessment. The JSON output and schema are built. What is needed is a firm willing to try it and a mapping from findings to controls, which is not built.
+1. **An assessor uses the reports as evidence.** A SEAL-accredited assessor or OpSec auditing firm accepts Perimeterwatch reports for the DNS and email controls in a real assessment. The JSON output and schema are built. What is needed is a firm willing to try it and a mapping from findings to controls, which is not built.
 2. **A rating body consumes the JSON output.** This depends on the OPSEC Ratings Coalition being formed and choosing to do so. The timing is outside the team's control.
 3. **Another tool imports the JSON output.** **[TODO: name a candidate tool if you have one in mind.]**
 

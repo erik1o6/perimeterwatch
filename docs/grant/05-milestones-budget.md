@@ -16,7 +16,7 @@ Every figure in this file that depends on these is a worked example and not a re
 
 The grant does not pay for work that exists. The following is built and passes 1,422 automated tests on the development machine: the scanning engine with all its checks, the command-line tool, the web service with sign-in, separation of organisations, domain verification, a scan queue, scheduled scans, alerts and an audit log, and the worker that runs scans and deletes old data. Drafts of the legal documents are written.
 
-The code is published at https://github.com/erik1o6/parapet. The web service has never been deployed. The CI workflow runs in public on every change and passes: tests on Python 3.13 and 3.14, tests against Postgres, a dependency audit and a build of the container image. The Docker Compose deployment itself has never been started. No independent person has reviewed any of it. No organisation uses it.
+The code is published at https://github.com/erik1o6/perimeterwatch. The web service has never been deployed. The CI workflow runs in public on every change and passes: tests on Python 3.13 and 3.14, tests against Postgres, a dependency audit and a build of the container image. The Docker Compose deployment itself has never been started. No independent person has reviewed any of it. No organisation uses it.
 
 The milestones pay for closing that gap.
 
@@ -95,7 +95,7 @@ Criterion 1.17 exists because the service must not hold other organisations' dat
 
 | # | Criterion | How the reviewer checks it |
 |---|---|---|
-| 3.1 | N organisations have each proved control of their domain and been scanned on schedule for at least 60 consecutive days. | For each organisation, the reviewer queries the public DNS record at `_parapet-verify.<domain>` and inspects the scan history for that domain. |
+| 3.1 | N organisations have each proved control of their domain and been scanned on schedule for at least 60 consecutive days. | For each organisation, the reviewer queries the public DNS record at `_perimeterwatch-verify.<domain>` and inspects the scan history for that domain. |
 | 3.2 | Each of the N organisations is a crypto project, and is independent of the team. No more than two of them share an owner or a founder. | The reviewer reads the list. |
 | 3.3 | Each of the N organisations is named to the reviewer, and a contact person at each has confirmed in writing that the organisation uses the service. At least half agree to be named publicly. | The reviewer reads the confirmations and may contact any of them. |
 | 3.4 | M fixes are documented across those organisations. A fix counts when a finding was reported in one scan and recorded as resolved in a later scan in which the relevant check ran to completion. | The reviewer inspects the scan comparison for each fix. For findings based on public records, such as a missing DMARC record, the reviewer can confirm the present state independently. |
@@ -105,7 +105,7 @@ Criterion 1.17 exists because the service must not hold other organisations' dat
 
 **What counts as an integration.** One of the following, in production and used by someone other than the team.
 
-- An OpSec auditing firm or a SEAL-accredited assessor uses Parapet reports as evidence in a real assessment of a consenting organisation.
+- An OpSec auditing firm or a SEAL-accredited assessor uses Perimeterwatch reports as evidence in a real assessment of a consenting organisation.
 - A rating body, such as the group that forms under the OPSEC Ratings Coalition initiative, consumes the JSON output for a consenting organisation.
 - Another security tool or dashboard imports the JSON output through a documented interface.
 - A security firm runs its own copy of the open-source service for its clients.
@@ -183,6 +183,6 @@ Source for the subscription prices: https://haveibeenpwned.com/Subscription
 
 - Milestone 1 is a quarter of the total and the software it builds on already exists. A reviewer may ask whether 25% is too much for it. The answer in this file is that M1 pays for the first real deployment, three features, and the operational work around them. If you think that answer is weak, the honest alternatives are to lower the total, or to move the security review into M1 and the 30 days of operation into M2. The split itself stays at 25, 25 and 50.
 - Criterion 1.14 (wallet sign-in) is included because it is on the list of things not yet built. It is the item in M1 that organisations need least. Remove it if you do not want to be held to it.
-- Criterion 1.16 checks behaviour that is already built and tested (class `TestOptIn` in `tests/web/test_flows.py`). The milestone adds the proof that it holds in a real deployment. It depends on the setting `PARAPET_SCAN_REQUIRES_VERIFICATION`, which is on by default and must stay on in the deployment.
+- Criterion 1.16 checks behaviour that is already built and tested (class `TestOptIn` in `tests/web/test_flows.py`). The milestone adds the proof that it holds in a real deployment. It depends on the setting `PW_SCAN_REQUIRES_VERIFICATION`, which is on by default and must stay on in the deployment.
 - The budget items are not tied to milestones one for one, because the payment schedule and the spending schedule differ.
 - If you change N or M, change them in `09-adoption-plan.md` as well. If you change the total, change it in `07-cofunding.md` as well.

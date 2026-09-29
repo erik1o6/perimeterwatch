@@ -13,10 +13,10 @@ from typing import Any
 import pytest
 from sqlalchemy import select
 
-from parapet.config import Settings
-from parapet.core.models import utcnow
-from parapet.storage.repo import Cache
-from parapet.storage.tables import (
+from perimeterwatch.config import Settings
+from perimeterwatch.core.models import utcnow
+from perimeterwatch.storage.repo import Cache
+from perimeterwatch.storage.tables import (
     AlertChannel,
     AlertDelivery,
     AuditLog,
@@ -24,8 +24,8 @@ from parapet.storage.tables import (
     TargetRow,
     Tenant,
 )
-from parapet.worker import certwatch
-from parapet.worker.certwatch import CertWatcher, brand_label, check_url, defang, names_in
+from perimeterwatch.worker import certwatch
+from perimeterwatch.worker.certwatch import CertWatcher, brand_label, check_url, defang, names_in
 from tests.conftest import ROOT, fixture_text
 
 LOOKALIKE = "acme-protocol-app.com"
@@ -66,7 +66,7 @@ def add_org(
                 DomainVerification(
                     tenant_id=tenant.id,
                     target_id=target.id,
-                    token="parapet-verify-test",
+                    token="pw-verify-test",
                     verified_at=utcnow() if verified else None,
                 )
             )
@@ -133,7 +133,7 @@ class TestBrandLabel:
         assert brand_label(domain) == label
 
     def test_same_minimum_as_the_lookalike_scan(self) -> None:
-        from parapet.modules import lookalikes
+        from perimeterwatch.modules import lookalikes
 
         assert certwatch.MIN_BRAND_LENGTH == lookalikes.MIN_BRAND_LENGTH_FOR_CT
 
@@ -585,7 +585,14 @@ class TestNoContact:
                 imported.add(node.module or "")
         for module in imported:
             assert not module.startswith(
-                ("httpx", "socket", "dns", "urllib.request", "parapet.clients", "parapet.modules")
+                (
+                    "httpx",
+                    "socket",
+                    "dns",
+                    "urllib.request",
+                    "perimeterwatch.clients",
+                    "perimeterwatch.modules",
+                )
             ), module
 
 

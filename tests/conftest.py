@@ -11,19 +11,19 @@ from uuid import uuid4
 import httpx
 import pytest
 
-from parapet.clients.dns import DnsAnswer, DnsStatus
-from parapet.config import Settings
-from parapet.core.context import ScanContext
-from parapet.core.models import AuthLevel, Authorisation, ScanMode
-from parapet.logging import get_logger
-from parapet.safety.ratelimit import RateLimiter
-from parapet.storage.db import Database, open_database
-from parapet.tools.locate import ToolLocator
+from perimeterwatch.clients.dns import DnsAnswer, DnsStatus
+from perimeterwatch.config import Settings
+from perimeterwatch.core.context import ScanContext
+from perimeterwatch.core.models import AuthLevel, Authorisation, ScanMode
+from perimeterwatch.logging import get_logger
+from perimeterwatch.safety.ratelimit import RateLimiter
+from perimeterwatch.storage.db import Database, open_database
+from perimeterwatch.tools.locate import ToolLocator
 
 ROOT = "acme-protocol.xyz"
 
 # Set in CI to run the storage and web tests against Postgres instead of SQLite.
-POSTGRES_URL = os.environ.get("PARAPET_TEST_DATABASE_URL")
+POSTGRES_URL = os.environ.get("PW_TEST_DATABASE_URL")
 sqlite_only = pytest.mark.skipif(bool(POSTGRES_URL), reason="inspects the SQLite file directly")
 
 
@@ -99,21 +99,21 @@ def _clean_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     for name in (
         "GITHUB_TOKEN",
         "HIBP_API_KEY",
-        "PARAPET_DATA_KEYS",
-        "PARAPET_DATABASE_URL",
-        "PARAPET_TOOLS_DIR",
+        "PW_DATA_KEYS",
+        "PW_DATABASE_URL",
+        "PW_TOOLS_DIR",
         "VIRUSTOTAL_API_KEY",
         "SECURITYTRAILS_API_KEY",
         "CERTSPOTTER_API_KEY",
         "CHAOS_API_KEY",
-        "PARAPET_RPC_ETH_MAINNET",
-        "PARAPET_ALLOW_PATH_TOOLS",
-        "PARAPET_HUDSONROCK_ENABLED",
+        "PW_RPC_ETH_MAINNET",
+        "PW_ALLOW_PATH_TOOLS",
+        "PW_HUDSONROCK_ENABLED",
     ):
         monkeypatch.delenv(name, raising=False)
-    monkeypatch.setenv("PARAPET_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("PW_DATA_DIR", str(tmp_path / "data"))
     monkeypatch.chdir(tmp_path)
-    from parapet import config
+    from perimeterwatch import config
 
     config._dotenv.cache_clear()
     monkeypatch.setattr(config, "USER_CONFIG", tmp_path / "config" / "config.toml")

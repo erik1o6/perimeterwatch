@@ -1,6 +1,6 @@
 # Security policy
 
-This file covers vulnerabilities in the Parapet software: the `parapet` command-line tool and the scanning engine.
+This file covers vulnerabilities in the Perimeterwatch software: the `perimeterwatch` command-line tool and the scanning engine.
 
 ## Reporting a vulnerability
 
@@ -17,7 +17,7 @@ Please include:
 1. What the problem is and where in the code.
 2. Steps to reproduce it.
 3. What an attacker could do with it.
-4. The version you tested (`parapet --version`) and how you installed it.
+4. The version you tested (`pwatch --version`) and how you installed it.
 
 Please do not include real credentials or personal data of other people.
 
@@ -48,4 +48,4 @@ The full draft policy, including scope, safe harbour, response targets and what 
 
 ## Not a security report
 
-If you operate a host that received traffic from a Parapet scan and you want it to stop, see [docs/legal/opt-out.md](docs/legal/opt-out.md).
+If you operate a host that received traffic from a Perimeterwatch scan and you want it to stop, see [docs/legal/opt-out.md](docs/legal/opt-out.md).

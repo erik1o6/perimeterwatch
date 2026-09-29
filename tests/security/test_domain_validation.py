@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import pytest
 
-from parapet.core.errors import ValidationError
-from parapet.safety.domains import (
+from perimeterwatch.core.errors import ValidationError
+from perimeterwatch.safety.domains import (
     in_scope,
     registrable_domain,
     validate_domain,

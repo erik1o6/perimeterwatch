@@ -12,7 +12,7 @@ Source: https://paragraph.com/@thedao.fund/round-two-starts-today-ethsecurity-in
 
 ## An honest difficulty
 
-The organisations that benefit most from Parapet are small teams without a security budget. They are the least able to pledge. Asking them for money would contradict the purpose of the project.
+The organisations that benefit most from Perimeterwatch are small teams without a security budget. They are the least able to pledge. Asking them for money would contradict the purpose of the project.
 
 So the co-funding case rests on a different group: larger organisations that are harmed when the small teams around them are compromised. The small teams can contribute something else, which is a written commitment to use the service. That commitment supports the adoption milestone and shows need in a way the fund can check.
 

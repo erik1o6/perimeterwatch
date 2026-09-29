@@ -1,7 +1,7 @@
 # DRAFT. Not legal advice. Requires review by a qualified lawyer before use.
 #
 # This is a draft of an RFC 9116 security.txt file for the hosted
-# Parapet service. The service is not yet deployed.
+# Perimeterwatch service. The service is not yet deployed.
 #
 # WARNING: the bundled proxy (deploy/docker-compose.yml) serves THIS file,
 # exactly as it is, at /.well-known/security.txt. If the service is started

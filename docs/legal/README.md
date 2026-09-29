@@ -2,9 +2,9 @@
 
 # Legal and policy documents: index
 
-These documents are drafts for the hosted Parapet service.
+These documents are drafts for the hosted Perimeterwatch service.
 
-The hosted service has been built. It is not deployed, no outside organisation uses it, and it has had no independent security review. The same scanning engine is also available as an open-source command-line tool, `parapet`.
+The hosted service has been built. It is not deployed, no outside organisation uses it, and it has had no independent security review. The same scanning engine is also available as an open-source command-line tool, `perimeterwatch`.
 
 The drafts describe what the software does today. Nothing here has been reviewed by a lawyer. Nothing here claims that the service meets any law or standard.
 
@@ -41,9 +41,9 @@ Related technical documents, which these drafts rely on: `docs/architecture.md`,
 3. Jurisdiction where the entity is established.
 4. Governing law and the courts or arbitration body for disputes.
 5. Registered postal address.
-6. Public URL of the hosted service (`PARAPET_BASE_URL`, `SITE_ADDRESS`).
+6. Public URL of the hosted service (`PW_BASE_URL`, `SITE_ADDRESS`).
 7. Contact addresses: privacy, security reports, abuse reports, legal notices, general support.
-8. The contact URL and abuse address placed in the User-Agent (`PARAPET_CONTACT_URL`, `PARAPET_ABUSE_EMAIL`). Outside development mode the web service refuses to start without an abuse address. The contact URL still defaults to the project's GitHub page.
+8. The contact URL and abuse address placed in the User-Agent (`PW_CONTACT_URL`, `PW_ABUSE_EMAIL`). Outside development mode the web service refuses to start without an abuse address. The contact URL still defaults to the project's GitHub page.
 9. The fixed address or addresses that scan traffic comes from, to be published.
 10. Name and location of the hosting provider.
 11. Name and location of the email (SMTP) provider.
@@ -51,7 +51,7 @@ Related technical documents, which these drafts rely on: `docs/architecture.md`,
 13. Which subfinder sources will be switched on (the engine supports keys for VirusTotal, SecurityTrails, Cert Spotter, Chaos and GitHub).
 14. Whose Have I Been Pwned key the service uses (see open question 8).
 15. Whether Hudson Rock is ever switched on.
-16. Whether sign-up stays open to any email address (`PARAPET_SIGNUP_OPEN`, default open).
+16. Whether sign-up stays open to any email address (`PW_SIGNUP_OPEN`, default open).
 17. Data storage region or regions.
 18. Transfer mechanism for any transfer outside the EEA or UK, including to alert providers.
 19. Whether an EU or UK representative, or a data protection officer, is appointed, and their contact details.
@@ -104,7 +104,7 @@ Numbers are kept from the previous version of this list so that earlier referenc
 15. **Third-party infrastructure.** Hosts under a verified domain often sit on a CDN, cloud or SaaS provider. The engine limits port checks on CDN addresses to ports 80 and 443 but does not exclude them, and does not detect other shared platforms. Who carries the risk if a provider's terms forbid this traffic?
 16. **Closed.** Passive depth no longer makes any connection to the organisation's hosts. The MTA-STS policy file is read at probe depth or deeper only.
 17. **The typed acknowledgement in the command-line tool.** It lets a user of the command-line tool run active checks without proving domain control. The hosted service ignores it. Does publishing a tool with this feature create liability for the project or its maintainers?
-18. **Scans before verification (reworded, closed for the hosted service).** The hosted service now scans a domain only once control of it is proved. This is checked when a scan is requested, by the scheduler, and again when the scan starts. It is a setting (`PARAPET_SCAN_REQUIRES_VERIFICATION`, default on), so the operator could switch it off. What remains: should the terms forbid switching it off? The command-line tool can still run a passive scan of any domain without verification. It makes no connection to that domain's hosts. Does publishing it raise any issue? Sign-up is still open to any email address, but an account can do nothing to a domain it has not verified, apart from adding it to its list.
+18. **Scans before verification (reworded, closed for the hosted service).** The hosted service now scans a domain only once control of it is proved. This is checked when a scan is requested, by the scheduler, and again when the scan starts. It is a setting (`PW_SCAN_REQUIRES_VERIFICATION`, default on), so the operator could switch it off. What remains: should the terms forbid switching it off? The command-line tool can still run a passive scan of any domain without verification. It makes no connection to that domain's hosts. Does publishing it raise any issue? Sign-up is still open to any email address, but an account can do nothing to a domain it has not verified, apart from adding it to its list.
 
 ### Contract and liability
 
@@ -145,7 +145,7 @@ Numbers are kept from the previous version of this list so that earlier referenc
 - [ ] Hosting, email and RPC providers are chosen, and contracts with them are in place.
 - [ ] The Have I Been Pwned question (open question 8) is answered in writing.
 - [ ] Hudson Rock stays off, or written permission is held.
-- [ ] Whether sign-up stays open, and a rule that `PARAPET_SCAN_REQUIRES_VERIFICATION` is never switched off (open question 18).
+- [ ] Whether sign-up stays open, and a rule that `PW_SCAN_REQUIRES_VERIFICATION` is never switched off (open question 18).
 - [ ] Retention periods for the audit log, backups and account data.
 - [ ] A lawyer has reviewed every document in this directory.
 - [ ] An independent security review of the service has been done.
@@ -158,7 +158,7 @@ Numbers are kept from the previous version of this list so that earlier referenc
 - [x] Hosted service: sign-in by emailed link, organisations, roles, web pages, worker.
 - [x] Automatic retention, run by the worker at most every six hours.
 - [x] Deletion of resolved findings and expired statements of authority by the retention run.
-- [x] Do-not-contact list (`PARAPET_NEVER_CONTACT`), honoured by every check that contacts hosts: web probe, TLS, MTA-STS policy request, port and exposure checks.
+- [x] Do-not-contact list (`PW_NEVER_CONTACT`), honoured by every check that contacts hosts: web probe, TLS, MTA-STS policy request, port and exposure checks.
 - [x] Audit entries for opening a finding about a person or a credential, and for downloading a report.
 - [x] Use of the staff list: findings say whether an address is on it.
 - [x] Reduction of malware log site names.
@@ -198,7 +198,7 @@ The drafts follow the code.
 | CDN addresses at active depth | Excluded. | Ports 80 and 443 are still checked on CDN addresses. Other ports are skipped. |
 | User-Agent | On all outbound requests. | On HTTP requests from the engine, the web probe and the exposure checks. |
 | Audit log | Append-only. | Append-only by convention. Entries survive deletion of a domain. |
-| Retention | 90 days by default. | Automatic in the hosted service. The command-line tool needs `parapet db purge`. The audit log is not pruned. |
+| Retention | 90 days by default. | Automatic in the hosted service. The command-line tool needs `pwatch db purge`. The audit log is not pruned. |
 | Deleting a domain | Deletes everything stored about it. | Deletes everything except audit log entries. The removal entry records the domain name. |
 | Credential findings | Type, file, commit, first four characters, short hash. | Also the line number and the commit date. Credentials of 12 characters or fewer show no characters at all. |
 | Hudson Rock counts | Aggregate counts. | Three counts are read: staff devices, customer devices and third-party devices. |

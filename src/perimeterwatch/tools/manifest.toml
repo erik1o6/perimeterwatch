@@ -1,0 +1,239 @@
+# Pinned external tools. This file is the root of trust: binaries are checked
+# against the sha256 values here, not against anything fetched at install time.
+# Entries are written by `pwatch tools bump NAME VERSION` and reviewed by a person.
+
+[betterleaks]
+version = "1.8.1"
+repo = "betterleaks/betterleaks"
+binary = "betterleaks"
+license = "MIT"
+version_args = [
+    "version",
+]
+kind = "binary"
+
+[betterleaks.assets.linux_amd64]
+url = "https://github.com/betterleaks/betterleaks/releases/download/v1.8.1/betterleaks_1.8.1_linux_x64.tar.gz"
+sha256 = "efa407244e1ea8e35f582b8a42becdeac08bdead04f68eb752adda722d583c2a"
+
+[betterleaks.assets.linux_arm64]
+url = "https://github.com/betterleaks/betterleaks/releases/download/v1.8.1/betterleaks_1.8.1_linux_arm64.tar.gz"
+sha256 = "bbb578b12a2f65d7082ab436abf37724232bc71d8a078e3c41336574420f1b48"
+
+[betterleaks.assets.darwin_arm64]
+url = "https://github.com/betterleaks/betterleaks/releases/download/v1.8.1/betterleaks_1.8.1_darwin_arm64.tar.gz"
+sha256 = "8e80f33b5f2a7426b390347b9fd466033723cb94b6bdffa7572632e2eaec964e"
+
+[betterleaks.assets.darwin_amd64]
+url = "https://github.com/betterleaks/betterleaks/releases/download/v1.8.1/betterleaks_1.8.1_darwin_x64.tar.gz"
+sha256 = "6abc37df76f881cffae406aa2cec72bea6e6ae64b4e771b3ed21b4aac472ed10"
+
+[httpx]
+version = "1.12.0"
+repo = "projectdiscovery/httpx"
+binary = "httpx"
+license = "MIT"
+version_args = [
+    "-version",
+]
+kind = "binary"
+
+[httpx.assets.linux_amd64]
+url = "https://github.com/projectdiscovery/httpx/releases/download/v1.12.0/httpx_1.12.0_linux_amd64.zip"
+sha256 = "9d8439e8b6c9aa7d1e2314817a392e00d5178da3af5652f7475f88868f418f76"
+
+[httpx.assets.linux_arm64]
+url = "https://github.com/projectdiscovery/httpx/releases/download/v1.12.0/httpx_1.12.0_linux_arm64.zip"
+sha256 = "fd7b123c1dfbc3d69f19f524e4eebcd6ec06b9a6cbd56813c76f11645197331e"
+
+[httpx.assets.darwin_arm64]
+url = "https://github.com/projectdiscovery/httpx/releases/download/v1.12.0/httpx_1.12.0_macOS_arm64.zip"
+sha256 = "21d60328b383dba8a9fe249ac76b12edda4ec2e52a9cb21876c0a79123675569"
+
+[httpx.assets.darwin_amd64]
+url = "https://github.com/projectdiscovery/httpx/releases/download/v1.12.0/httpx_1.12.0_macOS_amd64.zip"
+sha256 = "16760b5e2122b66f57b9fbdb59f564b1181507c093d6a36066f40e5de38e8fa9"
+
+[naabu]
+version = "2.6.1"
+repo = "projectdiscovery/naabu"
+binary = "naabu"
+license = "MIT"
+version_args = [
+    "-version",
+]
+kind = "binary"
+
+[naabu.assets.linux_amd64]
+url = "https://github.com/projectdiscovery/naabu/releases/download/v2.6.1/naabu_2.6.1_linux_amd64.zip"
+sha256 = "018c4c9884dea971eda860435ede3021d1150732f34cfd245498c6726d8cab90"
+
+[naabu.assets.linux_arm64]
+url = "https://github.com/projectdiscovery/naabu/releases/download/v2.6.1/naabu_2.6.1_linux_arm64.zip"
+sha256 = "3adc2bb2395c3efff89623499b20eea66ef54924c485d3ae86762393a31736ea"
+
+[naabu.assets.darwin_arm64]
+url = "https://github.com/projectdiscovery/naabu/releases/download/v2.6.1/naabu_2.6.1_macOS_arm64.zip"
+sha256 = "2f3a100210ddd42d8cf49ae30210c9823488b4687e2b7a869ab0ffc64b26cfba"
+
+[naabu.assets.darwin_amd64]
+url = "https://github.com/projectdiscovery/naabu/releases/download/v2.6.1/naabu_2.6.1_macOS_amd64.zip"
+sha256 = "b26e2d7fb91b833ac38cb7abb810cb8af6e7f6489a1c298cb63e584cd1f890a2"
+
+[nuclei]
+version = "3.11.1"
+repo = "projectdiscovery/nuclei"
+binary = "nuclei"
+license = "MIT"
+version_args = [
+    "-version",
+]
+kind = "binary"
+
+[nuclei.assets.linux_amd64]
+url = "https://github.com/projectdiscovery/nuclei/releases/download/v3.11.1/nuclei_3.11.1_linux_amd64.zip"
+sha256 = "ea63d4ae232808cd7c6bc00d0142428e231fab59dae01042246097d195835ab6"
+
+[nuclei.assets.linux_arm64]
+url = "https://github.com/projectdiscovery/nuclei/releases/download/v3.11.1/nuclei_3.11.1_linux_arm64.zip"
+sha256 = "8044e3d9768ba0a744b2872c1a87e813006f013da97ca9f50f7661a4203bec07"
+
+[nuclei.assets.darwin_arm64]
+url = "https://github.com/projectdiscovery/nuclei/releases/download/v3.11.1/nuclei_3.11.1_macOS_arm64.zip"
+sha256 = "7d7e291addd1fc29a9bf8d089afe878a9799b20229cbea2fb1693fc40fd4c5f0"
+
+[nuclei.assets.darwin_amd64]
+url = "https://github.com/projectdiscovery/nuclei/releases/download/v3.11.1/nuclei_3.11.1_macOS_amd64.zip"
+sha256 = "75c47ce11e9dbd4288a1c895ed85e3c4df9f4acb8237d6d178da6dccd1628f2a"
+
+[nuclei-templates]
+version = "10.4.9"
+repo = "projectdiscovery/nuclei-templates"
+binary = "templates"
+license = "MIT"
+version_args = [
+    "-version",
+]
+kind = "data"
+
+[nuclei-templates.assets.any]
+url = "https://github.com/projectdiscovery/nuclei-templates/archive/refs/tags/v10.4.9.tar.gz"
+sha256 = "d7cd989935f9a84943cba8a193f567db37626dbf4e526ff57ba5b1f24badd5d6"
+
+[s3scanner]
+version = "3.1.1"
+repo = "sa7mon/S3Scanner"
+binary = "S3Scanner"
+license = "MIT"
+version_args = [
+    "-version",
+]
+kind = "binary"
+
+[s3scanner.assets.linux_amd64]
+url = "https://github.com/sa7mon/S3Scanner/releases/download/v3.1.1/S3Scanner_Linux_x86_64.tar.gz"
+sha256 = "eb502a87576ee1f407afc910e76cc258f96df8599b2acee7d8aff0c79a6e5e95"
+
+[s3scanner.assets.linux_arm64]
+url = "https://github.com/sa7mon/S3Scanner/releases/download/v3.1.1/S3Scanner_Linux_arm64.tar.gz"
+sha256 = "c063e7e67f5d29582991682a3764daef7484373e8c00a36e8ca92f82cee8cfe5"
+
+[s3scanner.assets.darwin_arm64]
+url = "https://github.com/sa7mon/S3Scanner/releases/download/v3.1.1/S3Scanner_Darwin_arm64.tar.gz"
+sha256 = "a7457a516ee624b668bc1199941a3099de597fdf7e96baeb4defad0c1ed39695"
+
+[s3scanner.assets.darwin_amd64]
+url = "https://github.com/sa7mon/S3Scanner/releases/download/v3.1.1/S3Scanner_Darwin_x86_64.tar.gz"
+sha256 = "34c4ad8e4843da1c1b0aaf67402c016ed0fa54526baae803e34008eb610f3bf4"
+
+[ssh-audit]
+version = "3.9.0"
+repo = "jtesta/ssh-audit"
+binary = "ssh-audit"
+license = "MIT"
+version_args = [
+    "--help",
+]
+kind = "python"
+
+[ssh-audit.assets.any]
+url = "https://pypi.org/project/ssh-audit/3.9.0/"
+sha256 = "3dad48d4678e0de31f6332cc7674f9d7dd1805f86babf3796f41c2fd879cb812"
+
+[subfinder]
+version = "2.16.0"
+repo = "projectdiscovery/subfinder"
+binary = "subfinder"
+license = "MIT"
+version_args = [
+    "-version",
+]
+kind = "binary"
+
+[subfinder.assets.linux_amd64]
+url = "https://github.com/projectdiscovery/subfinder/releases/download/v2.16.0/subfinder_2.16.0_linux_amd64.zip"
+sha256 = "1b7f9c608e9a5bd59e609a5e09710d63c5485e92d3d49dc2c16eb4fdbe10cb60"
+
+[subfinder.assets.linux_arm64]
+url = "https://github.com/projectdiscovery/subfinder/releases/download/v2.16.0/subfinder_2.16.0_linux_arm64.zip"
+sha256 = "c81d49559c0f630177be9e347e502e7a3d474aacc6ff78291ffcb4964367d63d"
+
+[subfinder.assets.darwin_arm64]
+url = "https://github.com/projectdiscovery/subfinder/releases/download/v2.16.0/subfinder_2.16.0_macOS_arm64.zip"
+sha256 = "af55827c9e6cdc530cca377ad459214ead16daf1b79d90e3dcefa387f644e057"
+
+[subfinder.assets.darwin_amd64]
+url = "https://github.com/projectdiscovery/subfinder/releases/download/v2.16.0/subfinder_2.16.0_macOS_amd64.zip"
+sha256 = "8300c4d98f75596b7e8460ba6f3322dfeda4674bc2bcbde14d61d098db260b50"
+
+[tlsx]
+version = "1.4.0"
+repo = "projectdiscovery/tlsx"
+binary = "tlsx"
+license = "MIT"
+version_args = [
+    "-version",
+]
+kind = "binary"
+
+[tlsx.assets.linux_amd64]
+url = "https://github.com/projectdiscovery/tlsx/releases/download/v1.4.0/tlsx_1.4.0_linux_amd64.zip"
+sha256 = "05628cec246e292e2f9afc6e7bc5de95aaa0fbe78fd556d5ad220b9f4702d364"
+
+[tlsx.assets.linux_arm64]
+url = "https://github.com/projectdiscovery/tlsx/releases/download/v1.4.0/tlsx_1.4.0_linux_arm64.zip"
+sha256 = "b757125d94c7d0e1f1f109534f0ed88d2a4b1c3856e1fa35efc1ef9e36781b0e"
+
+[tlsx.assets.darwin_arm64]
+url = "https://github.com/projectdiscovery/tlsx/releases/download/v1.4.0/tlsx_1.4.0_macOS_arm64.zip"
+sha256 = "82e38ecdcb6cee871058bd891d91451f1a1f5eec71e64ec547483b9056d6fdb3"
+
+[tlsx.assets.darwin_amd64]
+url = "https://github.com/projectdiscovery/tlsx/releases/download/v1.4.0/tlsx_1.4.0_macOS_amd64.zip"
+sha256 = "aac588b871b82c95c04bcf5a4bbc9e75e5fa9a962afbd3b366203e562744a3a1"
+
+[trufflehog]
+version = "3.97.9"
+repo = "trufflesecurity/trufflehog"
+binary = "trufflehog"
+license = "AGPL-3.0-only"
+version_args = [
+    "--version",
+]
+kind = "binary"
+
+[trufflehog.assets.linux_amd64]
+url = "https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.9/trufflehog_3.97.9_linux_amd64.tar.gz"
+sha256 = "40377e6572495412fb9ba0bc21c9401f73b72f1d2afd11b9931bc4a5ed622866"
+
+[trufflehog.assets.linux_arm64]
+url = "https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.9/trufflehog_3.97.9_linux_arm64.tar.gz"
+sha256 = "372c568695d49e53517075b5f74d1ee9a19053f13661d689c7928ee1fc27d705"
+
+[trufflehog.assets.darwin_arm64]
+url = "https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.9/trufflehog_3.97.9_darwin_arm64.tar.gz"
+sha256 = "3d25c178fe1a2563687b22547adcaebcf08cc8a607315c6741fe396c597951f7"
+
+[trufflehog.assets.darwin_amd64]
+url = "https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.9/trufflehog_3.97.9_darwin_amd64.tar.gz"
+sha256 = "4451ba8d17106da0d0a2f1952d3b1c2d20a6e5c97c21ccd1f8fc04ecf2ff77d9"

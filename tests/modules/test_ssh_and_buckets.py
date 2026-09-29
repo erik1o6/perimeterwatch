@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 
-from parapet.core.models import (
+from perimeterwatch.core.models import (
     Asset,
     AssetType,
     AuthLevel,
@@ -20,10 +20,10 @@ from parapet.core.models import (
     Severity,
     Target,
 )
-from parapet.modules import bucket_exposure, ssh_audit
-from parapet.modules.bucket_exposure import BucketExposure, bucket_from, valid_bucket
-from parapet.modules.ssh_audit import ARGS, FORBIDDEN, SshAudit, parse_output
-from parapet.tools.locate import ToolLocator, ToolPin, manifest, python_tool
+from perimeterwatch.modules import bucket_exposure, ssh_audit
+from perimeterwatch.modules.bucket_exposure import BucketExposure, bucket_from, valid_bucket
+from perimeterwatch.modules.ssh_audit import ARGS, FORBIDDEN, SshAudit, parse_output
+from perimeterwatch.tools.locate import ToolLocator, ToolPin, manifest, python_tool
 from tests.conftest import ROOT, fixture_text
 from tests.helpers import FakeRunner, install_fake_tools
 
@@ -304,10 +304,10 @@ class TestPythonTools:
         assert python_tool(self.pin(version="0.0.1")) is None
 
     def test_a_package_that_is_not_installed(self) -> None:
-        assert python_tool(self.pin(name="no-such-package-parapet")) is None
+        assert python_tool(self.pin(name="no-such-package-perimeterwatch")) is None
 
     def test_installer_reports_it(self, tmp_path: Path) -> None:
-        from parapet.tools.installer import Installer
+        from perimeterwatch.tools.installer import Installer
 
         state = Installer(tmp_path / "tools").install("ssh-audit")
         assert state.verified and "lock file" in state.detail

@@ -5,8 +5,8 @@ from typing import Any
 import checkdmarc
 import pytest
 
-from parapet.core.models import ModuleStatus, Severity, Target
-from parapet.modules.email_posture import EmailPosture, dkim_key_bits, spf_all_policy
+from perimeterwatch.core.models import ModuleStatus, Severity, Target
+from perimeterwatch.modules.email_posture import EmailPosture, dkim_key_bits, spf_all_policy
 from tests.conftest import ROOT
 
 # 1024-bit and 2048-bit RSA public keys, DER, base64. Test keys only.
@@ -294,7 +294,7 @@ class TestMtaStsPolicy:
         mode: str,
         expected: set[str],
     ) -> None:
-        from parapet.core.models import ScanMode
+        from perimeterwatch.core.models import ScanMode
 
         patch_checks(monkeypatch, dns)
         dns.add(f"mta-sts.{ROOT}", "A", ["104.18.0.1"])
@@ -307,7 +307,7 @@ class TestMtaStsPolicy:
     async def test_policy_host_at_a_private_address_is_not_fetched(
         self, monkeypatch: pytest.MonkeyPatch, make_ctx: Any, mail_domain: Any, dns: Any
     ) -> None:
-        from parapet.core.models import ScanMode
+        from perimeterwatch.core.models import ScanMode
 
         patch_checks(monkeypatch, dns)
         dns.add(f"mta-sts.{ROOT}", "A", ["169.254.169.254"])
@@ -318,7 +318,7 @@ class TestMtaStsPolicy:
     async def test_policy_host_on_the_do_not_contact_list_is_not_fetched(
         self, monkeypatch: pytest.MonkeyPatch, make_ctx: Any, mail_domain: Any, dns: Any
     ) -> None:
-        from parapet.core.models import ScanMode
+        from perimeterwatch.core.models import ScanMode
 
         patch_checks(monkeypatch, dns)
         dns.add(f"mta-sts.{ROOT}", "A", ["104.18.0.1"])
@@ -331,7 +331,7 @@ class TestMtaStsPolicy:
     async def test_broken_policy_file(
         self, monkeypatch: pytest.MonkeyPatch, make_ctx: Any, mail_domain: Any, dns: Any
     ) -> None:
-        from parapet.core.models import ScanMode
+        from perimeterwatch.core.models import ScanMode
 
         patch_checks(monkeypatch, dns)
         dns.add(f"mta-sts.{ROOT}", "A", ["104.18.0.1"])

@@ -86,7 +86,7 @@ In the hosted service the worker does this by itself, at most once every six hou
 
 Each automatic run writes an audit log entry for each organisation, recorded as done by the system, with the number of scans deleted.
 
-In the command-line tool, nothing runs by itself. The user runs `parapet db purge`. That command writes an audit log entry with the number of scans deleted.
+In the command-line tool, nothing runs by itself. The user runs `pwatch db purge`. That command writes an audit log entry with the number of scans deleted.
 
 ## 6. Deletion on request
 

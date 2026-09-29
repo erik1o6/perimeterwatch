@@ -7,9 +7,9 @@ from typing import Any
 import pytest
 from sqlalchemy import select
 
-from parapet.core.models import utcnow
-from parapet.storage.tables import LoginToken, User, WebSession
-from parapet.web import auth
+from perimeterwatch.core.models import utcnow
+from perimeterwatch.storage.tables import LoginToken, User, WebSession
+from perimeterwatch.web import auth
 from tests.conftest import ROOT
 from tests.web.conftest import Browser
 
@@ -80,7 +80,7 @@ class TestSignIn:
         assert browser(alice.email).request_link(), "existing accounts can still sign in"
 
     def test_only_hashes_are_stored(self, alice: Browser, database: Any) -> None:
-        cookie = alice.client.cookies.get("parapet_session")
+        cookie = alice.client.cookies.get("pw_session")
         assert cookie
         with database.session() as db:
             session = db.scalars(select(WebSession)).one()
@@ -96,11 +96,11 @@ class TestSignIn:
             assert [u.email for u in db.scalars(select(User))] == [f"ana@{ROOT}"]
 
     def test_sign_out(self, alice: Browser) -> None:
-        cookie = alice.client.cookies.get("parapet_session")
+        cookie = alice.client.cookies.get("pw_session")
         assert alice.post("/logout").status_code == 303
         assert alice.get("/targets").status_code == 303
         # The old cookie is dead on the server, not just removed from the browser.
-        alice.client.cookies.set("parapet_session", cookie)
+        alice.client.cookies.set("pw_session", cookie)
         assert alice.get("/targets").status_code == 303
 
     def test_idle_session_expires(self, alice: Browser, database: Any) -> None:
@@ -116,7 +116,7 @@ class TestSignIn:
         assert alice.get("/targets").status_code == 303
 
     def test_removing_membership_ends_access_at_once(self, alice: Browser, database: Any) -> None:
-        from parapet.storage.tables import Membership
+        from perimeterwatch.storage.tables import Membership
 
         with database.session() as db:
             db.delete(db.scalars(select(Membership)).one())
@@ -125,7 +125,7 @@ class TestSignIn:
     @pytest.mark.parametrize("cookie", ["", "x", "a" * 43, "a" * 5000, "' OR 1=1 --"])
     def test_forged_cookies(self, browser: Any, cookie: str) -> None:
         b: Browser = browser()
-        b.client.cookies.set("parapet_session", cookie)
+        b.client.cookies.set("pw_session", cookie)
         assert b.client.get("/targets").status_code == 303
 
 
@@ -187,7 +187,7 @@ class TestHeaders:
     def test_production_cookies_are_secure_and_host_bound(
         self, settings: Any, database: Any, outbox: Any
     ) -> None:
-        from parapet.web.app import create_app
+        from perimeterwatch.web.app import create_app
 
         settings.env = "production"
         b = Browser(create_app(settings, database), outbox, f"ana@{ROOT}")
@@ -198,7 +198,7 @@ class TestHeaders:
         token = b.request_link()
         b.get(f"/auth/{token}")
         cookie = b.post(f"/auth/{token}").headers["set-cookie"]
-        assert cookie.startswith("__Host-parapet_session=")
+        assert cookie.startswith("__Host-pw_session=")
         assert "secure" in cookie.lower() and "domain=" not in cookie.lower()
 
     def test_oversized_requests_are_refused(self, alice: Browser) -> None:

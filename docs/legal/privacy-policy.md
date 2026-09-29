@@ -106,8 +106,8 @@ If you send an abuse report, an opt-out request or a security report, we keep wh
 
 | Cookie | Purpose | Lasts |
 |---|---|---|
-| Session cookie (`__Host-parapet_session`) | Keeps you signed in | 7 days at most |
-| Anti-forgery cookie (`parapet_csrf`) | Protects forms shown before sign-in against forged requests | 1 day |
+| Session cookie (`__Host-pw_session`) | Keeps you signed in | 7 days at most |
+| Anti-forgery cookie (`pw_csrf`) | Protects forms shown before sign-in against forged requests | 1 day |
 
 Both are needed for the service to work. Neither is used to track you. The pages load no scripts, no analytics and no resources from other companies. **[LAWYER: see README open question 36.]**
 

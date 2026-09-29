@@ -170,7 +170,7 @@ This annex describes what the software does today.
 | Encryption of verification tokens | Encrypted the same way. |
 | Encryption of alert channel settings | Webhook addresses and bot tokens are encrypted the same way. They are never shown back in the service. |
 | One set of keys | The same keys protect all customers' data. **[NOT YET BUILT: keys per organisation.]** |
-| Key supply | Keys are read from the environment variable `PARAPET_DATA_KEYS`. They are never read from a settings file. Outside development mode the service refuses to start without them. |
+| Key supply | Keys are read from the environment variable `PW_DATA_KEYS`. They are never read from a settings file. Outside development mode the service refuses to start without them. |
 | Key rotation | Several keys can be supplied, newest first. New data is encrypted with the newest key. Older data can still be read and can be re-encrypted. |
 | Matching without exposing | Findings about a person are matched between scans by a keyed hash (HMAC-SHA256) of the address. |
 | What is not field-encrypted | Hostnames, IP addresses, DNS records, blockchain addresses, scan metadata, the kind and severity of each finding, account users' email addresses, the text of alerts, and the audit log. |

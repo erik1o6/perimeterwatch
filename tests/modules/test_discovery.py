@@ -8,12 +8,12 @@ from typing import Any
 import httpx
 import pytest
 
-from parapet.core.models import AssetType, AuthLevel, ModuleStatus, Severity, Target
-from parapet.modules import lookalikes as lookalikes_module
-from parapet.modules.dns_resolve import DnsResolve, sensitive_label
-from parapet.modules.lookalikes import Lookalikes, permutations
-from parapet.modules.subdomains import Subdomains
-from parapet.modules.takeover import Takeover, claimable_service
+from perimeterwatch.core.models import AssetType, AuthLevel, ModuleStatus, Severity, Target
+from perimeterwatch.modules import lookalikes as lookalikes_module
+from perimeterwatch.modules.dns_resolve import DnsResolve, sensitive_label
+from perimeterwatch.modules.lookalikes import Lookalikes, permutations
+from perimeterwatch.modules.subdomains import Subdomains
+from perimeterwatch.modules.takeover import Takeover, claimable_service
 from tests.conftest import ROOT
 
 TARGET = Target(root_domain=ROOT)

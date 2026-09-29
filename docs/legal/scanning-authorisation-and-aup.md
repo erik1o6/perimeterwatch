@@ -81,8 +81,8 @@ You create a DNS TXT record:
 
 | | |
 |---|---|
-| Name | `_parapet-verify.<your domain>` |
-| Value | `parapet-verify=<token>` |
+| Name | `_perimeterwatch-verify.<your domain>` |
+| Value | `pw-verify=<token>` |
 
 ### How it is checked
 
@@ -179,7 +179,7 @@ You must not:
 Web requests sent by the service carry a User-Agent in this form:
 
 ```
-parapet/<version> (+<contact URL>; abuse: <abuse address>)
+perimeterwatch/<version> (+<contact URL>; abuse: <abuse address>)
 ```
 
 | | |

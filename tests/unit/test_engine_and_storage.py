@@ -7,9 +7,9 @@ from typing import Any, ClassVar
 
 import pytest
 
-from parapet.core import engine
-from parapet.core.errors import AuthorisationError, ConfigError, ValidationError
-from parapet.core.models import (
+from perimeterwatch.core import engine
+from perimeterwatch.core.errors import AuthorisationError, ConfigError, ValidationError
+from perimeterwatch.core.models import (
     AssetType,
     AuthLevel,
     Authorisation,
@@ -21,10 +21,10 @@ from parapet.core.models import (
     Target,
     utcnow,
 )
-from parapet.core.module import ModuleSpec, ScanModule
-from parapet.storage.crypto import DataKeys, new_key
-from parapet.storage.repo import Cache, TenantRepo
-from parapet.storage.tables import Tenant
+from perimeterwatch.core.module import ModuleSpec, ScanModule
+from perimeterwatch.storage.crypto import DataKeys, new_key
+from perimeterwatch.storage.repo import Cache, TenantRepo
+from perimeterwatch.storage.tables import Tenant
 from tests.conftest import CANARY, ROOT, sqlite_only
 
 TARGET = Target(root_domain=ROOT, staff_emails=[f"ana@{ROOT}"])
@@ -54,9 +54,9 @@ def make_module(
 @pytest.fixture
 def modules(monkeypatch: pytest.MonkeyPatch) -> dict[str, type[ScanModule]]:
     registry: dict[str, type[ScanModule]] = {}
-    monkeypatch.setattr("parapet.core.module.all_modules", lambda: dict(registry))
+    monkeypatch.setattr("perimeterwatch.core.module.all_modules", lambda: dict(registry))
     monkeypatch.setattr(engine, "all_modules", lambda: dict(registry))
-    monkeypatch.setattr("parapet.report.build.all_modules", lambda: dict(registry))
+    monkeypatch.setattr("perimeterwatch.report.build.all_modules", lambda: dict(registry))
     return registry
 
 
@@ -119,7 +119,7 @@ class TestGating:
         by_name = {m.module: m for m in snapshot.modules}
         assert all(m.status is ModuleStatus.SKIPPED for m in by_name.values())
         assert by_name["needs_key"].skip_reason == "missing key: GITHUB_TOKEN"
-        assert by_name["needs_bin"].hint == "parapet tools install subfinder"
+        assert by_name["needs_bin"].hint == "pwatch tools install subfinder"
         assert "trufflehog or gitleaks" in (by_name["needs_any"].skip_reason or "")
         assert "github org" in (by_name["needs_org"].skip_reason or "")
 
@@ -236,7 +236,7 @@ class TestPersistence:
             repo = TenantRepo.local(session)
             from sqlalchemy import select
 
-            from parapet.storage.tables import FindingEvent, FindingRow
+            from perimeterwatch.storage.tables import FindingEvent, FindingRow
 
             events = [
                 e.event
@@ -293,13 +293,13 @@ class TestPersistence:
         modules["m"] = make_module("m", behaviour=behaviour)
         await scan(database, settings)
         database.engine.dispose()
-        raw = sqlite3.connect(settings.data_dir / "parapet.db")
+        raw = sqlite3.connect(settings.data_dir / "perimeterwatch.db")
         raw.execute("PRAGMA wal_checkpoint(FULL)")
         dump = "\n".join(raw.iterdump())
         raw.close()
         assert f"ana@{ROOT}" not in dump
         assert "ExampleCo" not in dump
-        for name in ("parapet.db", "parapet.db-wal"):
+        for name in ("perimeterwatch.db", "perimeterwatch.db-wal"):
             path = settings.data_dir / name
             if path.exists():
                 assert b"ana@" not in path.read_bytes()
@@ -362,7 +362,7 @@ class TestCrypto:
             DataKeys([])
 
     def test_key_is_required_outside_development(self, settings: Any) -> None:
-        from parapet.storage.crypto import load_keys
+        from perimeterwatch.storage.crypto import load_keys
 
         with pytest.raises(ConfigError):
             load_keys(settings.model_copy(update={"env": "production"}))
@@ -371,7 +371,7 @@ class TestCrypto:
     def test_local_key_file_is_private(self, database: Any, settings: Any) -> None:
         key_file = settings.data_dir / "data.key"
         assert key_file.stat().st_mode & 0o777 == 0o600
-        assert (settings.data_dir / "parapet.db").stat().st_mode & 0o777 == 0o600
+        assert (settings.data_dir / "perimeterwatch.db").stat().st_mode & 0o777 == 0o600
 
 
 class TestCacheAndRetention:
@@ -406,8 +406,8 @@ class TestRetentionOfFindings:
     ) -> None:
         from sqlalchemy import select
 
-        from parapet.safety.authorisation import make_ack
-        from parapet.storage.tables import AuthorisationAck, FindingRow
+        from perimeterwatch.safety.authorisation import make_ack
+        from perimeterwatch.storage.tables import AuthorisationAck, FindingRow
 
         present = {"value": True}
 

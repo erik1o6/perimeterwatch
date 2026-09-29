@@ -4,13 +4,13 @@
 
 ## What it is
 
-Parapet is software that an organisation points at its own domain. It collects what an outsider can see about that organisation, lists the weak points with instructions for fixing each one, and on later scans reports what has changed.
+Perimeterwatch is software that an organisation points at its own domain. It collects what an outsider can see about that organisation, lists the weak points with instructions for fixing each one, and on later scans reports what has changed.
 
 It is opt-in. The web service scans a domain only once the organisation has proved that it controls it. Nobody is rated, and nothing is published about anyone.
 
 It can be used in two ways, and both are built:
 
-- a command-line program, `parapet`, that an organisation runs on its own machine;
+- a command-line program, `perimeterwatch`, that an organisation runs on its own machine;
 - a web service with a worker that runs scans on a schedule and sends alerts.
 
 The web service has never been deployed. It runs in automated tests on the development machine and nowhere else. No organisation uses it. The grant pays to publish the code, deploy the service, have it reviewed by an independent firm, and get organisations onto it.
@@ -36,7 +36,7 @@ Every check in this table is built and works today. The command-line tool and th
 | Open ports | The 100 most common ports, by ordinary connection attempts | The organisation's hosts | Active |
 | Exposure checks | Read-only checks for exposed files and misconfiguration | nuclei, limited by the project's own rules to plain GET and HEAD requests | Active |
 
-There are 27 check modules and 74 kinds of finding. Each kind has a default severity and a written fix, held in one table in the code (`src/parapet/core/severity.py`) so that the rating rules can be reviewed.
+There are 27 check modules and 74 kinds of finding. Each kind has a default severity and a written fix, held in one table in the code (`src/perimeterwatch/core/severity.py`) so that the rating rules can be reviewed.
 
 **The exposure checks.** These use a public collection of check templates, nuclei-templates version 10.4.9. The project reads every template and admits one only if each request in it is a plain GET or HEAD with nothing attached. Of the templates in that version, 2,093 are admitted and 654 are refused. No flag or setting widens these rules.
 
@@ -61,7 +61,7 @@ There are three depths of scan.
 | Probe | Adds one ordinary web request and one TLS handshake per host, and reads the MTA-STS policy file | As for passive, and the organisation chooses this depth |
 | Active | Adds connection attempts to common ports, and the read-only exposure checks | Authorisation, in both |
 
-**Proof of domain control.** The organisation places a DNS TXT record at `_parapet-verify.<domain>`. The record must be seen at the domain's own nameservers, or at two independent public resolvers. It is looked up again at the start of every scan. Removing the record withdraws authorisation. This unlocks active checks and per-person breach detail.
+**Proof of domain control.** The organisation places a DNS TXT record at `_perimeterwatch-verify.<domain>`. The record must be seen at the domain's own nameservers, or at two independent public resolvers. It is looked up again at the start of every scan. Removing the record withdraws authorisation. This unlocks active checks and per-person breach detail.
 
 **The web service accepts proof of domain control only, and scans nothing without it.** This is decided and implemented. In the web service:
 
@@ -122,7 +122,7 @@ Built and covered by automated tests. Never deployed.
 | Item | Status today | What the grant adds |
 |---|---|---|
 | Scanning engine with all checks listed above | Built. | Released as version 1.0 in M1 |
-| Command-line tool `parapet` | Built | Maintained |
+| Command-line tool `perimeterwatch` | Built | Maintained |
 | Web service and worker | Built and tested. Never deployed. | First deployment in M1. Production use in M2 and M3. |
 | Automated tests | 1,422 pass on the development machine | Run in public on every change, in M1 |
 | Consent model and safety rules | Built, with a dedicated set of security tests | Reviewed independently in M2 |
@@ -130,7 +130,7 @@ Built and covered by automated tests. Never deployed.
 | Scheduled scans, alerts, automatic retention | Built and tested | Shown working in a real deployment in M1 and M2 |
 | HTML and JSON reports, with JSON schema | Built | A sample report on the team's own domain, published in M1 |
 | Licence, README, security policy, third-party notices | Written. Apache-2.0. | Published with the repository in M1 |
-| Public repository | Published at https://github.com/erik1o6/parapet. CI runs in public on every change and passes. | Tagged 1.0 release, in M1 |
+| Public repository | Published at https://github.com/erik1o6/perimeterwatch. CI runs in public on every change and passes. | Tagged 1.0 release, in M1 |
 | CI workflow and Docker deployment files | CI passes, including the image build. The Compose deployment has never been started | First real deployment, in M1 |
 | Inviting colleagues to an organisation | Not built. Each account is its own organisation. | M1 |
 | Sign-in with a wallet | Not built | M1 |
@@ -145,7 +145,7 @@ A second breach source is present in the code and switched off by default: Hudso
 
 These steps work once the repository is published, which is the first item of Milestone 1. Until then the maintainer can show the same steps on a call.
 
-1. Clone the repository: https://github.com/erik1o6/parapet
+1. Clone the repository: https://github.com/erik1o6/perimeterwatch
 2. Run `make dev`, then `make test`. The expected result is 1,422 tests passed.
 3. Run a passive scan against a domain the reviewer owns and open the HTML report.
 4. Or open the published sample report: **[TODO: URL, once published]**.

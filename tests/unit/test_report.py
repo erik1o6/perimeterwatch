@@ -7,9 +7,9 @@ import re
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from parapet.core.diff import compute_diff
-from parapet.core.fingerprint import finding_fingerprint, finding_state_hash
-from parapet.core.models import (
+from perimeterwatch.core.diff import compute_diff
+from perimeterwatch.core.fingerprint import finding_fingerprint, finding_state_hash
+from perimeterwatch.core.models import (
     Asset,
     AssetType,
     Authorisation,
@@ -23,9 +23,9 @@ from parapet.core.models import (
     Severity,
     Target,
 )
-from parapet.report.build import ReportData, build_report
-from parapet.report.render_html import render_html
-from parapet.report.render_json import render_json, render_jsonl, schema
+from perimeterwatch.report.build import ReportData, build_report
+from perimeterwatch.report.render_html import render_html
+from perimeterwatch.report.render_json import render_json, render_jsonl, schema
 from tests.conftest import ROOT
 
 NOW = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
@@ -93,7 +93,7 @@ def report(snap: ScanSnapshot, prev: ScanSnapshot | None = None, **kw) -> Report
     return build_report(
         snap,
         compute_diff(prev, snap),
-        user_agent="parapet/test",
+        user_agent="perimeterwatch/test",
         contact_url="https://scanner.example.org",
         abuse_email="abuse@example.org",
         retention_days=90,

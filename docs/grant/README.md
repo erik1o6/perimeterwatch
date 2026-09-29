@@ -1,6 +1,6 @@
 > Draft for review and editing. Not yet submitted.
 
-# Grant resubmission: Parapet
+# Grant resubmission: Perimeterwatch
 
 Drafts for the resubmission to TheDAO Fund, Round Two "ETHSecurity Initiatives". Contact at the fund: Griff Green.
 
@@ -65,7 +65,7 @@ These are actions, not text edits.
 - The repository is published and its CI passes in public. Criteria 1.1 to 1.3 in `05-milestones-budget.md` are therefore already met in part: reword them so Milestone 1 pays for what remains (a tagged 1.0 release, a first deployment, a published sample report), not for publication itself.
 - The same applies to one sample report (HTML and JSON) from a scan of a domain you own. A reviewer who can open a real report understands the project faster than from any description.
 - Update `docs/legal/README.md`, which still says the hosted service does not exist.
-- Record a short screen capture of `parapet` scanning that domain.
+- Record a short screen capture of `perimeterwatch` scanning that domain.
 - Send the email to Have I Been Pwned (see `08-risks.md`).
 - Ask at least two organisations whether they would pilot the web service, so that `09-adoption-plan.md` names real conversations.
 

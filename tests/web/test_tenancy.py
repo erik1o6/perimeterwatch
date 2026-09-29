@@ -14,7 +14,7 @@ from typing import Any
 import pytest
 from sqlalchemy import select
 
-from parapet.storage.tables import AlertChannel, AuditLog, FindingRow, Scan, TargetRow
+from perimeterwatch.storage.tables import AlertChannel, AuditLog, FindingRow, Scan, TargetRow
 from tests.conftest import ROOT
 from tests.web.conftest import Browser
 
@@ -60,7 +60,7 @@ def world(
 
 
 def routes_with_identifiers(app: Any) -> list[tuple[str, str]]:
-    from parapet.web.routes import router
+    from perimeterwatch.web.routes import router
 
     found = []
     for route in router.routes:
@@ -110,7 +110,7 @@ class TestIsolation:
                     path, {"confirm": ROOT, "status": "accepted", "depth": "passive"}
                 )
             assert theirs.status_code == 404, f"{method} {template} answered {theirs.status_code}"
-            for leak in (ROOT, "ana.lopez", "ExampleCo", "DMARC", "parapet-verify"):
+            for leak in (ROOT, "ana.lopez", "ExampleCo", "DMARC", "pw-verify"):
                 assert leak not in theirs.text, f"{method} {template} leaked {leak!r}"
             checked += 1
         assert checked >= 12
@@ -170,7 +170,7 @@ class TestIsolation:
         assert theirs != world["ids"]["target"]
         page = mallory.get(f"/targets/{theirs}").text
         assert "Not verified" in page
-        assert "ana.lopez" not in page and "parapet-verify" not in page
+        assert "ana.lopez" not in page and "pw-verify" not in page
 
     @pytest.mark.parametrize(
         "bad",
@@ -191,7 +191,7 @@ class TestIsolation:
 
 class TestRoles:
     def test_viewers_can_read_but_not_change(self, alice: Browser, database: Any) -> None:
-        from parapet.storage.tables import Membership
+        from perimeterwatch.storage.tables import Membership
 
         target_id = alice.add_target()
         with database.session() as db:

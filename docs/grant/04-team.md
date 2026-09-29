@@ -19,7 +19,7 @@ The limits of the head start are as plain as the head start. The code was publis
 
 A team chosen through an RFP would start by making these decisions and writing this software. This team would start by publishing, deploying and submitting for review software that exists.
 
-Repository: https://github.com/erik1o6/parapet
+Repository: https://github.com/erik1o6/perimeterwatch
 Sample report: **[TODO: URL, once published]**
 Date work began: **[TODO]**
 
@@ -33,7 +33,7 @@ code2142 submits under a pseudonym. The fund's curators can be given the maintai
 
 Described without names, to keep the pseudonym. Each item can be evidenced privately.
 
-- Ran the security programme of a DeFi lending protocol: incident response, on-chain monitoring, an emergency pause system, staff device security and access management. This is the same ground Parapet covers from the outside.
+- Ran the security programme of a DeFi lending protocol: incident response, on-chain monitoring, an emergency pause system, staff device security and access management. This is the same ground Perimeterwatch covers from the outside.
 - Organised smart-contract review for that protocol: dozens of reviews by independent firms, a public audit competition, and a bug bounty programme.
 - Led incident response for attacks aimed at executives, including analysis of the malware used.
 - Led ISO 27001 and SOC 2 certification work at three companies, and served as data protection officer under GDPR at two.

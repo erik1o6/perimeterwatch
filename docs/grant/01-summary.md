@@ -4,13 +4,13 @@
 
 ## The summary (under 250 words)
 
-Parapet is open-source software for small crypto teams that have no security staff. It shows a team what any stranger on the internet can already find out about it, and warns the team when that changes.
+Perimeterwatch is open-source software for small crypto teams that have no security staff. It shows a team what any stranger on the internet can already find out about it, and warns the team when that changes.
 
 A team enters its own web address and gets back a plain list of weak points, each with a fix. Examples: settings that let anyone send email in the team's name, forgotten web addresses that someone else could claim, passwords published by mistake in public code, changes to who can sign for the treasury, and staff email addresses found in known data breaches.
 
 It only looks at teams that ask. The web service scans nothing until the team proves the web address is its own. There is no score or grade.
 
-**What exists today.** Two working forms of the software: a command-line tool, and a web service with scheduled scans and alerts by email or chat. 1,422 automated tests pass. The code is public: https://github.com/erik1o6/parapet
+**What exists today.** Two working forms of the software: a command-line tool, and a web service with scheduled scans and alerts by email or chat. 1,422 automated tests pass. The code is public: https://github.com/erik1o6/perimeterwatch
 
 **What does not exist yet.** The web service has never been deployed, has had no independent review, and has no users.
 
@@ -22,11 +22,11 @@ It only looks at teams that ask. The web service scans nothing until the team pr
 
 ## One-sentence version
 
-Parapet is open-source software that shows a small crypto team what outsiders can already see about it (whether its email can be forged, forgotten web addresses, leaked passwords, lookalike domains, treasury signer changes, staff emails in data breaches) and warns the team when that changes.
+Perimeterwatch is open-source software that shows a small crypto team what outsiders can already see about it (whether its email can be forged, forgotten web addresses, leaked passwords, lookalike domains, treasury signer changes, staff emails in data breaches) and warns the team when that changes.
 
 ## Tweet-length version
 
-Parapet: open-source software that shows a small crypto team what any outsider can already see about it, and warns when that changes. Leaked passwords, forgeable email, forgotten web addresses, treasury signer changes. Only for teams that ask. Built, not yet deployed.
+Perimeterwatch: open-source software that shows a small crypto team what any outsider can already see about it, and warns when that changes. Leaked passwords, forgeable email, forgotten web addresses, treasury signer changes. Only for teams that ask. Built, not yet deployed.
 
 ## Notes for the maintainer (delete before submitting)
 

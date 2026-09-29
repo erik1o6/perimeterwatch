@@ -15,12 +15,12 @@ import httpx
 import pytest
 from eth_utils.crypto import keccak
 
-from parapet.clients import ethrpc
-from parapet.core.models import ContractRef, ModuleStatus, ScanMode, Severity, Target
-from parapet.core.severity import kind_info
-from parapet.modules import contract_control
-from parapet.modules.contract_control import ContractControl
-from parapet.modules.ens_names import (
+from perimeterwatch.clients import ethrpc
+from perimeterwatch.core.models import ContractRef, ModuleStatus, ScanMode, Severity, Target
+from perimeterwatch.core.severity import kind_info
+from perimeterwatch.modules import contract_control
+from perimeterwatch.modules.contract_control import ContractControl
+from perimeterwatch.modules.ens_names import (
     BASE_REGISTRAR,
     ENS_REGISTRY,
     NAME_WRAPPER,
@@ -138,7 +138,7 @@ def chain() -> FakeChain:
 
 @pytest.fixture(autouse=True)
 def rpc(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("PARAPET_RPC_ETH_MAINNET", RPC)
+    monkeypatch.setenv("PW_RPC_ETH_MAINNET", RPC)
 
 
 def by_kind(result: Any) -> dict[str, Any]:
@@ -285,7 +285,7 @@ class TestContractControl:
     def test_spec(self) -> None:
         spec = ContractControl.spec
         assert spec.mode is ScanMode.PASSIVE
-        assert spec.requires_keys == ("PARAPET_RPC_ETH_MAINNET",)
+        assert spec.requires_keys == ("PW_RPC_ETH_MAINNET",)
         assert spec.requires_target == ("contracts",)
         assert kind_info("web3.contract.control").severity is Severity.INFO
         assert kind_info("web3.contract.single_key_control").severity is Severity.MEDIUM
@@ -606,7 +606,7 @@ class TestContractControl:
     async def test_no_endpoint_configured(
         self, make_ctx: Any, chain: FakeChain, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.delenv("PARAPET_RPC_ETH_MAINNET")
+        monkeypatch.delenv("PW_RPC_ETH_MAINNET")
         result = await self.scan(make_ctx, chain)
         assert result.status is ModuleStatus.FAILED
         assert chain.requests == []
@@ -693,13 +693,13 @@ class TestEnsNames:
     def test_spec(self) -> None:
         spec = EnsNames.spec
         assert spec.mode is ScanMode.PASSIVE
-        assert spec.requires_keys == ("PARAPET_RPC_ETH_MAINNET",)
+        assert spec.requires_keys == ("PW_RPC_ETH_MAINNET",)
         assert spec.requires_target == ("ens_names",)
         assert kind_info("web3.ens.details").severity is Severity.INFO
         assert kind_info("web3.ens.expiring").severity is Severity.MEDIUM
 
     def test_contract_addresses_are_well_formed(self) -> None:
-        from parapet.safety.domains import validate_eth_address
+        from perimeterwatch.safety.domains import validate_eth_address
 
         for address in (ENS_REGISTRY, BASE_REGISTRAR, NAME_WRAPPER):
             assert validate_eth_address(address) == address, "the checksum must hold"

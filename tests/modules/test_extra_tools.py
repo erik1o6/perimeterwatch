@@ -11,12 +11,12 @@ from typing import Any
 
 import pytest
 
-from parapet.core.errors import ToolError
-from parapet.core.models import ModuleStatus, ScanMode, Sensitivity, Target
-from parapet.modules import _second_scanner, github_secrets
-from parapet.modules._second_scanner import parse_finding, parse_report
-from parapet.modules.github_secrets import GitHubSecrets
-from parapet.safety.subprocess import ToolOutput
+from perimeterwatch.core.errors import ToolError
+from perimeterwatch.core.models import ModuleStatus, ScanMode, Sensitivity, Target
+from perimeterwatch.modules import _second_scanner, github_secrets
+from perimeterwatch.modules._second_scanner import parse_finding, parse_report
+from perimeterwatch.modules.github_secrets import GitHubSecrets
+from perimeterwatch.safety.subprocess import ToolOutput
 from tests.conftest import CANARY, ROOT, fixture_text
 from tests.helpers import FakeRunner, install_fake_tools
 

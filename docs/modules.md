@@ -19,7 +19,7 @@ The owner, upgrade admin and current implementation of each of your contracts, a
 
 - Depth: Passive. No connection is made to the organisation's hosts.
 - Contacts: your Ethereum RPC endpoint
-- Needs: `PARAPET_RPC_ETH_MAINNET`, contracts set on the target
+- Needs: `PW_RPC_ETH_MAINNET`, contracts set on the target
 
 ### DNS resolution and hygiene (`dns_resolve`)
 
@@ -52,7 +52,7 @@ Who holds each of your ENS names, which address it points to and when it expires
 
 - Depth: Passive. No connection is made to the organisation's hosts.
 - Contacts: your Ethereum RPC endpoint
-- Needs: `PARAPET_RPC_ETH_MAINNET`, ens names set on the target
+- Needs: `PW_RPC_ETH_MAINNET`, ens names set on the target
 
 ### GitHub organisation (`github_org`)
 
@@ -121,7 +121,7 @@ Owners and signing threshold of your Safe, read from the chain.
 
 - Depth: Passive. No connection is made to the organisation's hosts.
 - Contacts: your Ethereum RPC endpoint
-- Needs: `PARAPET_RPC_ETH_MAINNET`, safes set on the target
+- Needs: `PW_RPC_ETH_MAINNET`, safes set on the target
 
 ### Domains trusted by your SPF record (`spf_chain`)
 

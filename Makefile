@@ -2,7 +2,7 @@
 
 dev:
 	uv sync
-	uv run parapet init
+	uv run pwatch init
 
 test:
 	uv run pytest
@@ -22,12 +22,12 @@ audit:
 	uv run pip-audit
 
 tools:
-	uv run parapet tools install --all
+	uv run pwatch tools install --all
 
 check: lint types test
 
 serve:
-	uv run parapet serve
+	uv run pwatch serve
 
 worker:
-	uv run parapet worker
+	uv run pwatch worker

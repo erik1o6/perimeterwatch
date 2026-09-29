@@ -1,10 +1,10 @@
 # Architecture
 
-Parapet is one Python package with three ways in: the command line, a web service,
+Perimeterwatch is one Python package with three ways in: the command line, a web service,
 and a worker. All three run the same scan engine against the same database schema.
 
 ```
-   parapet scan          web service           worker
+   pwatch scan          web service           worker
         \                   |                   /
          \            queues a scan      claims a scan
           \                 |                 /
@@ -134,7 +134,7 @@ see `docs/operations.md`.
 ## Storage
 
 One schema serves both SQLite (command line, local development) and Postgres (hosted).
-Migrations are in `src/parapet/migrations/` and ship inside the package.
+Migrations are in `src/perimeterwatch/migrations/` and ship inside the package.
 
 Every table that holds customer data carries a `tenant_id`. The command line uses a single
 fixed tenant. All queries go through `TenantRepo`, which is constructed with a tenant and
@@ -142,7 +142,7 @@ adds it to every query. The one exception is `storage/claims.py`, which withdraw
 tenants' verification of a domain when a new tenant proves control of it.
 
 Finding bodies, staff address lists, verification tokens and alert channel settings are
-encrypted with keys from `PARAPET_DATA_KEYS`. Several keys can be listed: the first encrypts,
+encrypted with keys from `PW_DATA_KEYS`. Several keys can be listed: the first encrypts,
 all decrypt, so keys can be rotated without downtime.
 
 The `scans` table is also the job queue. The web service inserts a row with status

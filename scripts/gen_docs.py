@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from parapet.core.module import all_modules
-from parapet.core.severity import KINDS
-from parapet.report.render_json import schema
+from perimeterwatch.core.module import all_modules
+from perimeterwatch.core.severity import KINDS
+from perimeterwatch.report.render_json import schema
 
 DOCS = Path(__file__).parents[1] / "docs"
 

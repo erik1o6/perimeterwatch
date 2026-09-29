@@ -8,10 +8,10 @@ from typing import Any
 
 import pytest
 
-from parapet.core.models import AuthLevel, ScanMode, Severity, Target
-from parapet.modules import tls_config, zone_transfer
-from parapet.modules.tls_config import TlsConfig, clean_suites
-from parapet.modules.zone_transfer import ZoneTransfer
+from perimeterwatch.core.models import AuthLevel, ScanMode, Severity, Target
+from perimeterwatch.modules import tls_config, zone_transfer
+from perimeterwatch.modules.tls_config import TlsConfig, clean_suites
+from perimeterwatch.modules.zone_transfer import ZoneTransfer
 from tests.conftest import ROOT, fixture_text
 from tests.helpers import FakeRunner, install_fake_tools, resolved
 

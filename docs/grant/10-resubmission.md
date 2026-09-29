@@ -4,9 +4,9 @@
 > marked **[DECIDE]** are choices for the maintainer. The notes at the end explain each one
 > and list what changed from the original.
 
-# Grant: Parapet: Private External Exposure Monitoring for Ethereum Projects
+# Grant: Perimeterwatch: Private External Exposure Monitoring for Ethereum Projects
 
-**[DECIDE: name. The original submission was called xWatch. The published code is called Parapet. Use one name throughout.]**
+The first version of this submission was called xWatch. The project is now called Perimeterwatch, and lives at perimeterwatch.org.
 
 | | |
 |---|---|
@@ -14,17 +14,18 @@
 | **Budget** | $150,000 USD |
 | **Proposal window** | 15 days, opening once the grant is fully funded |
 | **Indicative duration** | 6 months (the recipient sets the final timeline) |
-| **Working prototype** | https://github.com/erik1o6/parapet |
+| **Working prototype** | https://github.com/erik1o6/perimeterwatch |
+| **Sample report** | https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report |
 
 ## Why this matters
 
-Parapet is a free service that shows an Ethereum project what any outsider can already find out about its systems, and warns the project when that changes. It is for teams that have no security staff of their own.
+Perimeterwatch is a free service that shows an Ethereum project what any outsider can already find out about its systems, and warns the project when that changes. It is for teams that have no security staff of their own.
 
 A project proves that it controls its domain, and from then on receives a private report of its weak points, each with a fix. Examples: settings that let anyone send email in the project's name, forgotten web addresses that someone else could claim, credentials published by mistake in public code, a change to who can sign for the treasury, a change to the scripts its website serves, and staff email addresses found in known breaches.
 
 Most losses in this ecosystem now start outside the smart contracts: a hijacked domain, a compromised website, an infected laptop. The information an attacker uses to plan these is public, but it is scattered, and small teams never see it in one place. Commercial tools that gather it cost tens of thousands of dollars a year.
 
-Parapet only looks at projects that ask. It publishes nothing, and it gives no score or rating. The platform is open source, and access is paid for by ecosystem funding. No funding commitments have been reported: $0 is committed against the $150,000 goal.
+Perimeterwatch only looks at projects that ask. It publishes nothing, and it gives no score or rating. The platform is open source, and access is paid for by ecosystem funding. No funding commitments have been reported: $0 is committed against the $150,000 goal.
 
 ## What this actually pays for
 
@@ -45,7 +46,7 @@ Budget allocations are planning estimates, not signed supplier quotes.
 
 ## The recipient
 
-The proposed recipient is Parapet, a non-profit to be established, led publicly by code2142. code2142 developed the concept, built the prototype, and will lead implementation, onboarding, review of findings, and maintenance, supported by the funded developer and operations role. Initial participants will be recruited through code2142's existing contacts and security-partner referrals.
+The proposed recipient is Perimeterwatch, a non-profit to be established, led publicly by code2142. code2142 developed the concept, built the prototype, and will lead implementation, onboarding, review of findings, and maintenance, supported by the funded developer and operations role. Initial participants will be recruited through code2142's existing contacts and security-partner referrals.
 
 code2142 is a security lead with more than ten years of experience, the last several spent running security for crypto organisations, including as head of security at a DeFi lending protocol. code2142 holds an ETHSecurity Badge from TheDAO Security Fund.
 
@@ -64,7 +65,7 @@ Every applicant, including any expected recipient, must disclose their relations
 
 ## Existing work
 
-Parapet builds on existing open-source tools and does not rewrite them. Each is a separate program that Parapet downloads at a pinned version, verifies against a recorded checksum, and runs.
+Perimeterwatch builds on existing open-source tools and does not rewrite them. Each is a separate program that Perimeterwatch downloads at a pinned version, verifies against a recorded checksum, and runs.
 
 | Purpose | Tool | Licence |
 |---|---|---|
@@ -78,7 +79,7 @@ Parapet builds on existing open-source tools and does not rewrite them. Each is 
 | Email protection | checkdmarc | Apache-2.0 |
 | Lookalike domains | dnstwist | Apache-2.0 |
 
-These are existing work by their maintainers. What Parapet adds is the part none of them has: consent and proof of domain control, separation between organisations, comparison of each scan with the last, alerts, and the rules that keep scanning within safe limits.
+These are existing work by their maintainers. What Perimeterwatch adds is the part none of them has: consent and proof of domain control, separation between organisations, comparison of each scan with the last, alerts, and the rules that keep scanning within safe limits.
 
 Public platform code excludes provider credentials and restricted source data.
 
@@ -95,7 +96,7 @@ Public platform code excludes provider credentials and restricted source data.
 
 **Out of scope**
 
-- Publishing findings or assessments about a project without its explicit approval. A public OPSEC rating system is not part of this grant. Parapet's reports can be read by other tools, so a rating effort could use them as one input with the project's consent.
+- Publishing findings or assessments about a project without its explicit approval. A public OPSEC rating system is not part of this grant. Perimeterwatch's reports can be read by other tools, so a rating effort could use them as one input with the project's consent.
 - Monitoring personal accounts without the person's explicit consent.
 - Collecting information about individuals from social media or professional networks.
 - Testing credentials that are found, or attempting to exploit anything.
@@ -112,7 +113,7 @@ Public platform code excludes provider credentials and restricted source data.
 5. **Safe scanning.** Hosts outside the project's domain are never contacted, nor hosts at private addresses, nor lookalike domains. Anyone whose host receives traffic can ask for it to stop, and is added to a list that no scan will contact. Every request identifies the scanner and gives a contact address.
 6. **Independent security assessment.** The service and its separation between organisations undergo an independent assessment and retest before any outside project is onboarded. Public evidence records the scope, status of findings and fixes, without exposing participant information.
 7. **Verified adoption.** At least 25 external Ethereum organisations must verify a domain, receive an initial report, and each receive at least four scheduled updates. An independent reviewer verifies production evidence privately and publishes the aggregate count and counting method. Names are published only with explicit approval. This evidence method will be agreed with Giveth in the grant agreement.
-8. **Maintenance and funding.** code2142 and Parapet maintain the service. Sponsorships, donations and further grants are the preferred funding sources. Continued operation after month 6 depends on further funding. If external funding cannot cover costs, organisations with more than 20 founders, employees and regular contractors receive a free month, keep their report, and pay for monitoring after that. The fee and the condition that triggers it must be published before charges begin.
+8. **Maintenance and funding.** code2142 and Perimeterwatch maintain the service. Sponsorships, donations and further grants are the preferred funding sources. Continued operation after month 6 depends on further funding. If external funding cannot cover costs, organisations with more than 20 founders, employees and regular contractors receive a free month, keep their report, and pay for monitoring after that. The fee and the condition that triggers it must be published before charges begin.
 
 ## Milestones (draft)
 
@@ -144,7 +145,7 @@ The indicative targets are the end of month 2 for milestone 1, month 3 for miles
 ### 4 - Continued operation and maintenance - $15,000
 
 - [ ] A public end-of-phase report documents monitoring delivered through month 6, source coverage, limitations and release history, excluding participant identities and findings.
-- [ ] A published maintenance plan names code2142 and Parapet, assigns ongoing responsibilities, and states recurring operating costs and the funding needed after month 6.
+- [ ] A published maintenance plan names code2142 and Perimeterwatch, assigns ongoing responsibilities, and states recurring operating costs and the funding needed after month 6.
 - [ ] A public access policy specifies free service when externally funded, the more-than-20-person threshold, the free month and retained report for larger organisations, the price of monitoring after that, and the funding-shortfall condition that activates charges.
 
 ## Milestone review and acceptance
@@ -155,7 +156,7 @@ The indicative targets are the end of month 2 for milestone 1, month 3 for miles
 
 ## Process
 
-- The proposal window opens once the grant is fully funded and stays open for 15 days. In that window, Parapet submits their formal proposal: the final milestone plan, per-milestone budget (the draft above, or a stronger version), and full disclosures. The window is also an open challenge period: anyone who can credibly deliver the same scope for the same money or less may submit a challenge.
+- The proposal window opens once the grant is fully funded and stays open for 15 days. In that window, Perimeterwatch submits their formal proposal: the final milestone plan, per-milestone budget (the draft above, or a stronger version), and full disclosures. The window is also an open challenge period: anyone who can credibly deliver the same scope for the same money or less may submit a challenge.
 - Giveth reviews within 7 days of the window closing and fixes the final plan in the grant agreement.
 - Milestone deliveries are reviewed within 14 days; payment follows acceptance.
 - The first milestone can be paid up to 50% in advance so the team has funding to start. If more funds are needed mid-milestone, the team is expected to reach out to the ecosystem for a stop-gap loan.
@@ -179,7 +180,7 @@ Questions, pushback, better ideas? Post them below.
 
 ### Decisions
 
-1. **Name.** The original was xWatch. The repository and code are Parapet. Keeping xWatch avoids confusing a reviewer who remembers the first submission. Renaming the code back is about ten minutes of work. Either way, use one name.
+1. **Name.** Decided: Perimeterwatch. The submission says once that it was first called xWatch, so a reviewer who remembers the first version can connect the two.
 
 2. **Breach data source.** The original required IntelX Identity Portal. The prototype is built on Have I Been Pwned.
 
@@ -209,6 +210,6 @@ Questions, pushback, better ideas? Post them below.
 
 - Fill every **[DECIDE]**.
 - Check that the test count and the number of checks still match the repository.
-- Publish a sample report and add its link under "Working prototype".
+- The sample report shows a fresh domain. After fixing its findings, publish the second report, which shows them resolved.
 - The other files in this directory hold longer versions of each section, and the reasoning behind the figures. `README.md` lists the remaining blanks.
 - The fund changed its form after the first submission. Paste this into the current form at https://initiatives.thedao.fund/ and check that the sections still match.

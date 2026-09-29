@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Build from the repository root:  docker build -f deploy/Dockerfile -t parapet .
+# Build from the repository root:  docker build -f deploy/Dockerfile -t perimeterwatch .
 #
 # Images are pinned by digest. To update one, look up the new digest and review
 # the change like any other dependency bump.
@@ -22,10 +22,10 @@ RUN uv sync --frozen --no-dev --extra postgres --no-editable
 
 # --- tools: the same installer and the same checksums as on a developer machine ---
 FROM build AS tools
-RUN PARAPET_DATA_DIR=/tmp/pw /app/.venv/bin/parapet tools install --all \
- && mkdir -p /opt/parapet-tools \
- && cp -a /tmp/pw/tools/. /opt/parapet-tools/ \
- && PARAPET_DATA_DIR=/tmp/pw PARAPET_TOOLS_DIR=/opt/parapet-tools /app/.venv/bin/parapet tools verify
+RUN PW_DATA_DIR=/tmp/pw /app/.venv/bin/pwatch tools install --all \
+ && mkdir -p /opt/pw-tools \
+ && cp -a /tmp/pw/tools/. /opt/pw-tools/ \
+ && PW_DATA_DIR=/tmp/pw PW_TOOLS_DIR=/opt/pw-tools /app/.venv/bin/pwatch tools verify
 
 # --- runtime --------------------------------------------------------------------
 FROM ${PYTHON_IMAGE} AS runtime
@@ -38,19 +38,19 @@ RUN apt-get update \
  && mkdir -p /data && chown pw:pw /data
 
 COPY --from=build /app/.venv /app/.venv
-COPY --from=tools /opt/parapet-tools /opt/parapet-tools
+COPY --from=tools /opt/pw-tools /opt/pw-tools
 # trufflehog is AGPL-3.0 and is shipped unmodified. The notices name its source.
 COPY LICENSE THIRD_PARTY_NOTICES.md /app/
 
 ENV PATH=/app/.venv/bin:$PATH \
-    PARAPET_ENV=production \
-    PARAPET_DATA_DIR=/data \
-    PARAPET_TOOLS_DIR=/opt/parapet-tools \
+    PW_ENV=production \
+    PW_DATA_DIR=/data \
+    PW_TOOLS_DIR=/opt/pw-tools \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 USER pw
 WORKDIR /home/pw
 EXPOSE 8000
-ENTRYPOINT ["parapet"]
+ENTRYPOINT ["pwatch"]
 CMD ["serve", "--host", "0.0.0.0", "--port", "8000"]

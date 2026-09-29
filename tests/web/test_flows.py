@@ -11,9 +11,9 @@ import httpx
 import pytest
 from sqlalchemy import select
 
-from parapet.core.errors import ValidationError
-from parapet.core.models import utcnow
-from parapet.storage.tables import (
+from perimeterwatch.core.errors import ValidationError
+from perimeterwatch.core.models import utcnow
+from perimeterwatch.storage.tables import (
     AlertChannel,
     AlertDelivery,
     AuditLog,
@@ -21,7 +21,7 @@ from parapet.storage.tables import (
     Scan,
     TargetRow,
 )
-from parapet.worker import alerts
+from perimeterwatch.worker import alerts
 from tests.conftest import CANARY, ROOT, sqlite_only
 from tests.web.conftest import Browser
 
@@ -107,11 +107,11 @@ class TestVerification:
     def test_flow(self, alice: Browser, verify_dns: Any, database: Any) -> None:
         target_id = alice.add_target()
         page = alice.get(f"/targets/{target_id}").text
-        assert "Not verified" in page and "parapet-verify=" not in page
+        assert "Not verified" in page and "pw-verify=" not in page
 
         alice.post(f"/targets/{target_id}/verify/start")
         page = alice.get(f"/targets/{target_id}").text
-        assert f"_parapet-verify.{ROOT}" in page and "parapet-verify=" in page
+        assert f"_perimeterwatch-verify.{ROOT}" in page and "pw-verify=" in page
 
         verify_dns(False)
         failed = alice.follow(alice.post(f"/targets/{target_id}/verify/check"))
@@ -151,8 +151,8 @@ class TestVerification:
     def test_a_typed_statement_is_not_accepted_by_the_hosted_service(
         self, alice: Browser, worker: Any, database: Any, modules: Any
     ) -> None:
-        from parapet.safety.authorisation import make_ack
-        from parapet.storage.repo import TenantRepo
+        from perimeterwatch.safety.authorisation import make_ack
+        from perimeterwatch.storage.repo import TenantRepo
 
         target_id = alice.add_target()
         with database.session() as db:
@@ -162,8 +162,8 @@ class TestVerification:
                 make_ack(row, full_name="A", organisation="B", role="C", keys=database.keys)
             )
             repo.create_scan(
-                row.id, mode=__import__("parapet").core.models.ScanMode.ACTIVE,
-                authorisation=__import__("parapet").core.models.Authorisation(),
+                row.id, mode=__import__("perimeterwatch").core.models.ScanMode.ACTIVE,
+                authorisation=__import__("perimeterwatch").core.models.Authorisation(),
                 status="queued",
             )  # fmt: skip
         run(worker)
@@ -343,7 +343,7 @@ class TestScans:
         async def boom(*args: Any, **kw: Any) -> Any:
             raise RuntimeError(f"database password is {CANARY}")
 
-        monkeypatch.setattr("parapet.worker.runner.run_scan", boom)
+        monkeypatch.setattr("perimeterwatch.worker.runner.run_scan", boom)
         target_id = alice.add_target()
         location = alice.post(f"/targets/{target_id}/scans", {"depth": "passive"}).headers[
             "location"
@@ -460,8 +460,8 @@ class TestAlerts:
         assert "#security" in page and "Slack webhook" in page
         assert "SECRETWEBHOOKPART" not in page and "A" * 35 not in page
         database.engine.dispose()
-        raw = (settings.data_dir / "parapet.db").read_bytes()
-        wal = settings.data_dir / "parapet.db-wal"
+        raw = (settings.data_dir / "perimeterwatch.db").read_bytes()
+        wal = settings.data_dir / "perimeterwatch.db-wal"
         raw += wal.read_bytes() if wal.exists() else b""
         assert b"SECRETWEBHOOKPART" not in raw and b"A" * 35 not in raw
 
@@ -586,7 +586,7 @@ class TestAlerts:
             assert delivery.channel_id == first.id
 
     def test_email_headers_cannot_be_injected(self, settings: Any) -> None:
-        from parapet.web.mail import build
+        from perimeterwatch.web.mail import build
 
         message = build(settings, "a@b.xyz", "Subject\r\nBcc: victim@example.net", "body")
         assert "Bcc" not in message
@@ -611,7 +611,7 @@ class TestAuditLog:
         assert "auth.signed_in" in page and "target.added" in page and alice.email in page
 
     def test_no_route_changes_or_removes_entries(self, app: Any) -> None:
-        from parapet.web.routes import router
+        from perimeterwatch.web.routes import router
 
         paths = [getattr(r, "path", "") for r in router.routes]
         assert [p for p in paths if p.startswith("/audit")] == ["/audit"]

@@ -14,12 +14,12 @@ from typing import Any
 import pytest
 import yaml
 
-from parapet.core.errors import ToolError
-from parapet.safety import subprocess as runner
-from parapet.safety.templates import problem, select_templates
-from parapet.tools import installer
-from parapet.tools.bump import _parse_checksums
-from parapet.tools.locate import ToolLocator, ToolPin, manifest
+from perimeterwatch.core.errors import ToolError
+from perimeterwatch.safety import subprocess as runner
+from perimeterwatch.safety.templates import problem, select_templates
+from perimeterwatch.tools import installer
+from perimeterwatch.tools.bump import _parse_checksums
+from perimeterwatch.tools.locate import ToolLocator, ToolPin, manifest
 from tests.conftest import CANARY, FIXTURES
 
 SRC = Path(__file__).parents[2] / "src"
@@ -42,7 +42,7 @@ class TestNoShell:
         assert offenders == []
 
     def test_only_the_runner_and_installer_start_processes(self) -> None:
-        allowed = {"parapet/safety/subprocess.py", "parapet/tools/installer.py"}
+        allowed = {"perimeterwatch/safety/subprocess.py", "perimeterwatch/tools/installer.py"}
         starters = set()
         for path in SRC.rglob("*.py"):
             text = path.read_text()
@@ -209,7 +209,7 @@ class TestInstaller:
                 }},
             )  # fmt: skip
             monkeypatch.setattr(installer, "manifest", lambda: {"faketool": pin})
-            monkeypatch.setattr("parapet.tools.locate.manifest", lambda: {"faketool": pin})
+            monkeypatch.setattr("perimeterwatch.tools.locate.manifest", lambda: {"faketool": pin})
 
             def fake_download(url: str, destination: Path, **kw: Any) -> str:
                 installer.check_url(url)

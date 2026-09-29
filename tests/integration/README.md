@@ -24,4 +24,4 @@ stops before doing anything.
 3. To run the probe test as well, set `probe = true` for that domain.
 
 Active checks are not run from here. To try them, verify your domain and run
-`parapet scan YOUR-DOMAIN --active` yourself.
+`pwatch scan YOUR-DOMAIN --active` yourself.

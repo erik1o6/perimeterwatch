@@ -7,12 +7,12 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from parapet.config import Settings
-from parapet.core import engine
-from parapet.core.models import AssetType, ModuleResult, ScanMode, Sensitivity
-from parapet.web import mail
-from parapet.web.app import create_app
-from parapet.worker.runner import Worker
+from perimeterwatch.config import Settings
+from perimeterwatch.core import engine
+from perimeterwatch.core.models import AssetType, ModuleResult, ScanMode, Sensitivity
+from perimeterwatch.web import mail
+from perimeterwatch.web.app import create_app
+from perimeterwatch.worker.runner import Worker
 from tests.conftest import CANARY, POSTGRES_URL, ROOT, fresh_database
 from tests.unit.test_engine_and_storage import make_module
 
@@ -170,8 +170,8 @@ def modules(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
         "ports": make_module("ports", mode=ScanMode.ACTIVE),
     }
     for target in (
-        "parapet.core.module.all_modules",
-        "parapet.report.build.all_modules",
+        "perimeterwatch.core.module.all_modules",
+        "perimeterwatch.report.build.all_modules",
     ):
         monkeypatch.setattr(target, lambda: dict(registry))
     monkeypatch.setattr(engine, "all_modules", lambda: dict(registry))
@@ -186,7 +186,7 @@ def worker(settings: Settings, database: Any) -> Worker:
 @pytest.fixture
 def verify_dns(monkeypatch: pytest.MonkeyPatch) -> Any:
     """Decide what the DNS verification check will find."""
-    from parapet.safety import authorisation as auth
+    from perimeterwatch.safety import authorisation as auth
 
     def set_result(verified: bool) -> None:
         async def check(domain: str, token: str, **kw: Any) -> auth.VerificationResult:
@@ -194,7 +194,7 @@ def verify_dns(monkeypatch: pytest.MonkeyPatch) -> Any:
             return auth.VerificationResult(verified, "authoritative", detail)
 
         monkeypatch.setattr(auth, "check_dns", check)
-        monkeypatch.setattr("parapet.web.routes.check_dns", check)
+        monkeypatch.setattr("perimeterwatch.web.routes.check_dns", check)
 
     return set_result
 

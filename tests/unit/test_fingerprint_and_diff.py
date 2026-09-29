@@ -4,14 +4,14 @@ import random
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from parapet.core.diff import compute_diff
-from parapet.core.fingerprint import (
+from perimeterwatch.core.diff import compute_diff
+from perimeterwatch.core.fingerprint import (
     asset_fingerprint,
     asset_state_hash,
     finding_fingerprint,
     finding_state_hash,
 )
-from parapet.core.models import (
+from perimeterwatch.core.models import (
     Asset,
     AssetType,
     Authorisation,

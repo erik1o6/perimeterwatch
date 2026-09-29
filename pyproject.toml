@@ -1,5 +1,5 @@
 [project]
-name = "parapet"
+name = "perimeterwatch"
 version = "0.1.0"
 description = "Opt-in monitoring of an organisation's own public attack surface, built for web3 teams."
 authors = [
@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 [project.scripts]
-parapet = "parapet.cli.app:main"
+pwatch = "perimeterwatch.cli.app:main"
 
 [project.optional-dependencies]
 postgres = [
@@ -83,7 +83,7 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Form", "fastapi.Query"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S104", "S105", "S106", "S108", "ASYNC230", "ASYNC240"]
-"src/parapet/migrations/**" = ["E", "I", "UP"]
+"src/perimeterwatch/migrations/**" = ["E", "I", "UP"]
 
 [tool.mypy]
 python_version = "3.12"

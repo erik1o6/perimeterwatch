@@ -8,7 +8,7 @@ from typing import Any
 import httpx
 import pytest
 
-from parapet.core.models import (
+from perimeterwatch.core.models import (
     AuthLevel,
     JobBoardRef,
     ModuleStatus,
@@ -17,10 +17,10 @@ from parapet.core.models import (
     Severity,
     Target,
 )
-from parapet.modules.breaches import Breaches, is_high_value
-from parapet.modules.github_org import GitHubOrg
-from parapet.modules.jobs_stack import JobsStack, find_technologies
-from parapet.modules.safe_multisig import (
+from perimeterwatch.modules.breaches import Breaches, is_high_value
+from perimeterwatch.modules.github_org import GitHubOrg
+from perimeterwatch.modules.jobs_stack import JobsStack, find_technologies
+from perimeterwatch.modules.safe_multisig import (
     RpcError,
     SafeMultisig,
     decode_addresses,
@@ -132,7 +132,7 @@ class TestSafeMultisig:
 
     @pytest.fixture(autouse=True)
     def rpc(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("PARAPET_RPC_ETH_MAINNET", RPC)
+        monkeypatch.setenv("PW_RPC_ETH_MAINNET", RPC)
 
     def chain(self, owners: list[str], threshold: int) -> Any:
         def answer(request: httpx.Request) -> dict[str, Any]:

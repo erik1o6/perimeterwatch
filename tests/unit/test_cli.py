@@ -11,10 +11,10 @@ from typing import Any
 import pytest
 from typer.testing import CliRunner
 
-from parapet.cli.app import app
-from parapet.core import engine
-from parapet.core.models import AssetType, ModuleResult, ScanMode, Sensitivity
-from parapet.safety import authorisation as auth
+from perimeterwatch.cli.app import app
+from perimeterwatch.core import engine
+from perimeterwatch.core.models import AssetType, ModuleResult, ScanMode, Sensitivity
+from perimeterwatch.safety import authorisation as auth
 from tests.conftest import CANARY, ROOT
 from tests.unit.test_engine_and_storage import make_module
 
@@ -60,9 +60,9 @@ def modules(monkeypatch: pytest.MonkeyPatch, state: dict[str, Any]) -> dict[str,
         "github_secrets": make_module("github_secrets", requires_keys=("GITHUB_TOKEN",)),
     }
     for target in (
-        "parapet.core.module.all_modules",
-        "parapet.report.build.all_modules",
-        "parapet.cli.doctor.all_modules",
+        "perimeterwatch.core.module.all_modules",
+        "perimeterwatch.report.build.all_modules",
+        "perimeterwatch.cli.doctor.all_modules",
     ):
         monkeypatch.setattr(target, lambda: dict(registry))
     monkeypatch.setattr(engine, "all_modules", lambda: dict(registry))
@@ -76,7 +76,7 @@ def verify_with(monkeypatch: pytest.MonkeyPatch, verified: bool) -> None:
         )
 
     monkeypatch.setattr(auth, "check_dns", check)
-    monkeypatch.setattr("parapet.cli.verify.check_dns", check)
+    monkeypatch.setattr("perimeterwatch.cli.verify.check_dns", check)
 
 
 class TestScan:
@@ -143,7 +143,7 @@ class TestActiveGate:
     def test_refused_without_authorisation(self, modules: dict[str, Any]) -> None:
         result = run("scan", ROOT, "--active", "--no-report")
         assert result.exit_code == 4
-        assert "parapet verify init" in plain(result.output)
+        assert "pwatch verify init" in plain(result.output)
         assert modules["ports"].ran == []
 
     @pytest.mark.parametrize("flag", ["--force", "--yes", "--skip-verification", "-f"])
@@ -156,8 +156,8 @@ class TestActiveGate:
         self, monkeypatch: pytest.MonkeyPatch, modules: dict[str, Any], tmp_path: Path
     ) -> None:
         shown = plain(run("verify", "init", ROOT).output)
-        token = re.search(r"parapet-verify=(\S+)", shown)
-        assert token and f"_parapet-verify.{ROOT}" in shown
+        token = re.search(r"pw-verify=(\S+)", shown)
+        assert token and f"_perimeterwatch-verify.{ROOT}" in shown
 
         verify_with(monkeypatch, False)
         assert run("verify", "check", ROOT).exit_code == 4
@@ -180,9 +180,9 @@ class TestActiveGate:
         assert modules["ports"].ran == ["ports"]
 
     def test_the_same_token_is_shown_again(self) -> None:
-        first = re.search(r"parapet-verify=(\S+)", run("verify", "init", ROOT).output)
-        second = re.search(r"parapet-verify=(\S+)", run("verify", "init", ROOT).output)
-        rotated = re.search(r"parapet-verify=(\S+)", run("verify", "init", ROOT, "--rotate").output)
+        first = re.search(r"pw-verify=(\S+)", run("verify", "init", ROOT).output)
+        second = re.search(r"pw-verify=(\S+)", run("verify", "init", ROOT).output)
+        rotated = re.search(r"pw-verify=(\S+)", run("verify", "init", ROOT, "--rotate").output)
         assert first and second and rotated
         assert first.group(1) == second.group(1) != rotated.group(1)
 
@@ -294,11 +294,11 @@ class TestSecretsHandling:
         monkeypatch.setenv("HIBP_API_KEY", "hibp-secret-value-123456")
 
         async def fine(self: Any, name: str, rdtype: str, **kw: Any) -> Any:
-            from parapet.clients.dns import DnsAnswer, DnsStatus
+            from perimeterwatch.clients.dns import DnsAnswer, DnsStatus
 
             return DnsAnswer(name, rdtype, DnsStatus.OK, ("a.iana-servers.net",))
 
-        monkeypatch.setattr("parapet.clients.dns.DnsClient.query", fine)
+        monkeypatch.setattr("perimeterwatch.clients.dns.DnsClient.query", fine)
         result = run("doctor")
         assert result.exit_code == 0, result.output
         assert CANARY not in result.output and "hibp-secret-value" not in result.output
@@ -306,18 +306,18 @@ class TestSecretsHandling:
         assert "Key: VIRUSTOTAL_API_KEY missing" in plain(result.output)
 
     def test_secrets_in_the_settings_file_are_refused(self, tmp_path: Path) -> None:
-        Path("parapet.toml").write_text('retention_days = 30\ngithub_token = "ghp_x"\n')
+        Path("perimeterwatch.toml").write_text('retention_days = 30\ngithub_token = "ghp_x"\n')
         result = run("scan", ROOT, "--no-report")
         assert result.exit_code == 2
         assert "looks like a secret" in plain(result.output)
         assert "ghp_x" not in result.output
 
     def test_nested_secrets_are_refused_too(self) -> None:
-        Path("parapet.toml").write_text('[providers.hibp]\napi_key = "abc"\n')
+        Path("perimeterwatch.toml").write_text('[providers.hibp]\napi_key = "abc"\n')
         assert run("scan", ROOT, "--no-report").exit_code == 2
 
     def test_settings_file_values_are_used(self, tmp_path: Path) -> None:
-        Path("parapet.toml").write_text(
+        Path("perimeterwatch.toml").write_text(
             'retention_days = 7\ncontact_url = "https://scanner.acme.example/about"\n'
         )
         run("scan", ROOT, "--out", str(tmp_path / "out"))
@@ -326,8 +326,8 @@ class TestSecretsHandling:
         assert "scanner.acme.example" in method["user_agent"]
 
     def test_dotenv_is_read_without_exporting(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        Path(".env").write_text(f"GITHUB_TOKEN={CANARY}\nPARAPET_RETENTION_DAYS=11\n")
-        from parapet import config
+        Path(".env").write_text(f"GITHUB_TOKEN={CANARY}\nPW_RETENTION_DAYS=11\n")
+        from perimeterwatch import config
 
         config._dotenv.cache_clear()
         assert config.secret("GITHUB_TOKEN") == CANARY
@@ -344,7 +344,7 @@ class TestMaintenance:
         assert run("db", "purge", "--older-than", "soon").exit_code == 2
 
     def test_new_key_is_usable(self) -> None:
-        from parapet.storage.crypto import DataKeys
+        from perimeterwatch.storage.crypto import DataKeys
 
         key = run("db", "new-key").output.strip()
         assert DataKeys([key]).decrypt(DataKeys([key]).encrypt(b"x")) == b"x"

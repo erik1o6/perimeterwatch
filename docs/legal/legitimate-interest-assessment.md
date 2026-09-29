@@ -27,7 +27,7 @@ Your organisation is the controller for data about your staff. If you rely on "l
 | | |
 |---|---|
 | Organisation (controller) | **[YOU: legal name]** |
-| Processing assessed | Checking work email addresses at **[YOU: domain]** against known data breaches and malware logs, using Parapet |
+| Processing assessed | Checking work email addresses at **[YOU: domain]** against known data breaches and malware logs, using Perimeterwatch |
 | Processor | **[TO DECIDE: legal name of the operating entity]** |
 | Assessment written by | **[YOU: name and role]** |
 | Date | **[YOU: date]** |

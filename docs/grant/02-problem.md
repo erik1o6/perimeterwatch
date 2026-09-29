@@ -56,9 +56,9 @@ Chainalysis reported that more than $3.4 billion was stolen from crypto services
 
 This section is here so that the proposal does not claim too much.
 
-Parapet looks from the outside. It does not run on staff devices and it does not watch a registrar account from the inside.
+Perimeterwatch looks from the outside. It does not run on staff devices and it does not watch a registrar account from the inside.
 
-| Kind of incident | What Parapet does about it | What it does not do |
+| Kind of incident | What Perimeterwatch does about it | What it does not do |
 |---|---|---|
 | DNS hijack | Reports weak settings beforehand (no DNSSEC, no CAA record, all nameservers with one provider). At the next scan it reports new findings, such as DNSSEC having been switched off, and hosts that have appeared or disappeared. | It does not prevent a registrar account from being taken over. It does not today record every change to the value of a DNS record. Detection is only as fast as the scan interval, which is one day at the shortest. |
 | Compromised website code | None of the current checks inspect website scripts. | It would not have detected the BadgerDAO, Ledger or Safe{Wallet} script changes. |
@@ -73,7 +73,7 @@ The honest summary: this is a visibility tool. It is the least intrusive kind of
 
 1. **Cost.** Commercial outside-in monitoring is priced for companies with security budgets. Published prices and sources are in `06-positioning.md`.
 2. **No one owns it.** In a team of five to twenty people, the domain was registered by a founder, the email was set up by whoever was there at the time, and the GitHub organisation grew on its own. Nobody has the job of looking at the whole picture.
-3. **The free tools exist but are separate.** Every check in Parapet can be done by hand with free tools. Doing so requires knowing that the tools exist, installing each one, understanding the output, and repeating it regularly. In practice small teams do this once or never.
+3. **The free tools exist but are separate.** Every check in Perimeterwatch can be done by hand with free tools. Doing so requires knowing that the tools exist, installing each one, understanding the output, and repeating it regularly. In practice small teams do this once or never.
 4. **Crypto-specific items are not covered by general products.** General monitoring products are not built around a treasury's signer list.
 5. **Audits look elsewhere.** A smart contract audit does not examine email settings or DNS records. A team can hold several audit reports and still have a domain whose email anyone can forge.
 6. **Fear of what scanning involves.** Teams are wary of anything that scans them. A tool that looks only at public records by default, and asks for proof of ownership before doing more, removes that objection.

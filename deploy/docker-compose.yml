@@ -7,16 +7,16 @@
 #   edge      the web app and proxy.
 #   scanning  the worker's way out. Scan traffic leaves from here and only here.
 
-name: parapet
+name: perimeterwatch
 
 x-app: &app
-  image: parapet:local
+  image: perimeterwatch:local
   build:
     context: ..
     dockerfile: deploy/Dockerfile
   env_file: .env
   environment:
-    PARAPET_DATABASE_URL: postgresql+psycopg://pw:${POSTGRES_PASSWORD}@postgres:5432/pw
+    PW_DATABASE_URL: postgresql+psycopg://pw:${POSTGRES_PASSWORD}@postgres:5432/pw
   restart: unless-stopped
   read_only: true
   tmpfs:
@@ -59,8 +59,8 @@ services:
     <<: *app
     command: ["serve", "--host", "0.0.0.0", "--port", "8000"]
     environment:
-      PARAPET_DATABASE_URL: postgresql+psycopg://pw:${POSTGRES_PASSWORD}@postgres:5432/pw
-      PARAPET_TRUST_PROXY_HEADERS: "true"
+      PW_DATABASE_URL: postgresql+psycopg://pw:${POSTGRES_PASSWORD}@postgres:5432/pw
+      PW_TRUST_PROXY_HEADERS: "true"
     networks: [internal, edge]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).status == 200 else 1)"]

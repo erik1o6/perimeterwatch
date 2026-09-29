@@ -13,7 +13,7 @@ The service is operated by **[TO DECIDE: legal name of the operating entity]**, 
 In these terms:
 
 - **"We"** and **"the operator"** mean that entity.
-- **"The service"** means the hosted Parapet service at **[TO DECIDE: service URL]**.
+- **"The service"** means the hosted Perimeterwatch service at **[TO DECIDE: service URL]**.
 - **"You"** and **"the customer"** mean the organisation that opens an account.
 - **"Your domain"** means a domain name you add to the service.
 - **"Verified"** means you have proved control of the domain in the way described in section 4.
@@ -60,7 +60,7 @@ The service does not:
 
 ## 4. Verifying your domain
 
-4.1 To verify a domain, you create a DNS TXT record at `_parapet-verify.<your domain>` with the value `parapet-verify=<token>`. We give you the token.
+4.1 To verify a domain, you create a DNS TXT record at `_perimeterwatch-verify.<your domain>` with the value `pw-verify=<token>`. We give you the token.
 
 4.2 We accept the record only if the answer comes from the domain's own authoritative nameservers, or if at least two independent public DNS resolvers return it.
 

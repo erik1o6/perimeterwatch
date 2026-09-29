@@ -16,8 +16,8 @@ build/
 *.db-wal
 *.db-shm
 .tools/
-parapet-reports/
-parapet.toml
+pw-reports/
+perimeterwatch.toml
 deploy/.env
 tests/integration/targets.toml
 private/

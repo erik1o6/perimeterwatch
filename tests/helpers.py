@@ -5,9 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from parapet.core.models import Asset, AssetType, ModuleResult, ModuleStatus
-from parapet.safety.subprocess import ToolOutput
-from parapet.tools.locate import manifest
+from perimeterwatch.core.models import Asset, AssetType, ModuleResult, ModuleStatus
+from perimeterwatch.safety.subprocess import ToolOutput
+from perimeterwatch.tools.locate import manifest
 
 
 def install_fake_tools(tools_dir: Path, *names: str) -> Path:
@@ -53,7 +53,7 @@ def resolved(
     """A dns_resolve result: host -> addresses."""
     assets = []
     for host, ips in hosts.items():
-        from parapet.safety.netguard import is_public_ip
+        from perimeterwatch.safety.netguard import is_public_ip
 
         assets.append(
             Asset(

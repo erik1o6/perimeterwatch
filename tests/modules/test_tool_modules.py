@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from parapet.core.models import (
+from perimeterwatch.core.models import (
     AuthLevel,
     ModuleStatus,
     ScanMode,
@@ -17,13 +17,13 @@ from parapet.core.models import (
     Severity,
     Target,
 )
-from parapet.modules import github_secrets, http_probe, nuclei_safe, ports, tls_certs
-from parapet.modules.github_secrets import GitHubSecrets, parse_result
-from parapet.modules.http_probe import HttpProbe
-from parapet.modules.nuclei_safe import NucleiSafe
-from parapet.modules.ports import Ports
-from parapet.modules.tls_certs import TlsCerts, expiry_bucket, name_matches
-from parapet.safety.targets import contactable_hosts
+from perimeterwatch.modules import github_secrets, http_probe, nuclei_safe, ports, tls_certs
+from perimeterwatch.modules.github_secrets import GitHubSecrets, parse_result
+from perimeterwatch.modules.http_probe import HttpProbe
+from perimeterwatch.modules.nuclei_safe import NucleiSafe
+from perimeterwatch.modules.ports import Ports
+from perimeterwatch.modules.tls_certs import TlsCerts, expiry_bucket, name_matches
+from perimeterwatch.safety.targets import contactable_hosts
 from tests.conftest import CANARY, FIXTURES, ROOT, fixture_text
 from tests.helpers import FakeRunner, install_fake_tools, resolved
 
@@ -130,7 +130,7 @@ class TestHttpProbe:
         assert not any(ROOT in a for a in args if not a.startswith(("/", "User-Agent")))
         assert args[args.index("-maxr") + 1] == "0"
         assert "-random-agent=false" in args
-        assert any(a.startswith("User-Agent: parapet/") for a in args)
+        assert any(a.startswith("User-Agent: perimeterwatch/") for a in args)
 
     async def test_answers_from_private_addresses_are_discarded(
         self, ctx: Any, monkeypatch: pytest.MonkeyPatch
@@ -269,8 +269,8 @@ class TestPorts:
 class TestNucleiSafe:
     @pytest.fixture
     def with_web(self, ctx: Any, tools: Path, monkeypatch: pytest.MonkeyPatch) -> Any:
-        from parapet.core.models import Asset, AssetType, ModuleResult
-        from parapet.tools.locate import manifest
+        from perimeterwatch.core.models import Asset, AssetType, ModuleResult
+        from perimeterwatch.tools.locate import manifest
 
         ctx.assets.add(
             ModuleResult(

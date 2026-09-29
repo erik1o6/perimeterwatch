@@ -13,7 +13,7 @@ from typing import Any
 import httpx
 import pytest
 
-from parapet.core.models import (
+from perimeterwatch.core.models import (
     Asset,
     AssetType,
     Category,
@@ -24,20 +24,20 @@ from parapet.core.models import (
     Severity,
     Target,
 )
-from parapet.core.module import ScanModule
-from parapet.modules import domain_registration as registration_module
-from parapet.modules import phishing_lists as phishing_module
-from parapet.modules import web_archive as archive_module
-from parapet.modules.domain_registration import (
+from perimeterwatch.core.module import ScanModule
+from perimeterwatch.modules import domain_registration as registration_module
+from perimeterwatch.modules import phishing_lists as phishing_module
+from perimeterwatch.modules import web_archive as archive_module
+from perimeterwatch.modules.domain_registration import (
     DomainRegistration,
     clean_registrar,
     expiry_bucket,
     parse_bootstrap,
     parse_record,
 )
-from parapet.modules.phishing_lists import PhishingLists
-from parapet.modules.spf_chain import SpfChain, parse_terms, spf_records
-from parapet.modules.web_archive import WebArchive, group_for, shown_path, split_address
+from perimeterwatch.modules.phishing_lists import PhishingLists
+from perimeterwatch.modules.spf_chain import SpfChain, parse_terms, spf_records
+from perimeterwatch.modules.web_archive import WebArchive, group_for, shown_path, split_address
 from tests.conftest import ROOT, FakeDns, fixture_text
 
 TARGET = Target(root_domain=ROOT)

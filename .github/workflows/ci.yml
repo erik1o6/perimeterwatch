@@ -59,12 +59,12 @@ jobs:
       - run: uv sync --frozen --extra postgres
       - name: Migrations apply to an empty database
         env:
-          PARAPET_DATABASE_URL: postgresql+psycopg://pw:pw@localhost:5432/pw
-          PARAPET_DATA_DIR: ${{ runner.temp }}/parapet
-        run: uv run parapet db migrate
+          PW_DATABASE_URL: postgresql+psycopg://pw:pw@localhost:5432/pw
+          PW_DATA_DIR: ${{ runner.temp }}/perimeterwatch
+        run: uv run pwatch db migrate
       - name: Storage, engine and web tests
         env:
-          PARAPET_TEST_DATABASE_URL: postgresql+psycopg://pw:pw@localhost:5432/pw
+          PW_TEST_DATABASE_URL: postgresql+psycopg://pw:pw@localhost:5432/pw
         run: uv run pytest tests/unit/test_engine_and_storage.py tests/web
 
   audit:
@@ -107,11 +107,11 @@ jobs:
         with:
           persist-credentials: false
       - name: Build, downloading and verifying every pinned tool
-        run: docker build -f deploy/Dockerfile -t parapet:ci .
+        run: docker build -f deploy/Dockerfile -t perimeterwatch:ci .
       - name: Tools in the image are intact
-        run: docker run --rm parapet:ci tools verify
+        run: docker run --rm perimeterwatch:ci tools verify
       - name: The image does not run as root
-        run: test "$(docker run --rm --entrypoint id parapet:ci -u)" != "0"
+        run: test "$(docker run --rm --entrypoint id perimeterwatch:ci -u)" != "0"
       - name: Compose file is valid
         env:
           POSTGRES_PASSWORD: ci

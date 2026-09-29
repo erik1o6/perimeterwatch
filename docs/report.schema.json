@@ -581,7 +581,7 @@
       "type": "string"
     },
     "product": {
-      "default": "Parapet",
+      "default": "Perimeterwatch",
       "title": "Product",
       "type": "string"
     },

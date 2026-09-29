@@ -49,7 +49,7 @@ Sources: [HIBP subscription page](https://haveibeenpwned.com/Subscription), [HIB
 
 **Mitigation.**
 
-- A passive scan reads only records that are already public. The same information is available through existing free tools. Parapet adds convenience and no new capability.
+- A passive scan reads only records that are already public. The same information is available through existing free tools. Perimeterwatch adds convenience and no new capability.
 - A probe scan sends one ordinary web request and one TLS handshake per host, which is less than a single visit by a browser.
 - Open ports, exposure checks and per-person breach detail require authorisation. Proof of domain control is checked again before every active scan.
 - There is no flag that skips authorisation. The tests for this are in `tests/security/`.
@@ -98,7 +98,7 @@ The code is open source, so anyone can also alter it to remove the authorisation
 
 **Mitigation.**
 
-- The code is licensed under Apache-2.0 and has 1,422 automated tests. It is published at https://github.com/erik1o6/parapet.
+- The code is licensed under Apache-2.0 and has 1,422 automated tests. It is published at https://github.com/erik1o6/perimeterwatch.
 - Deployment and operation are documented in `docs/operations.md`, so that another person could run the service.
 - External tools are pinned by version and checksum, so the software does not change without a person acting.
 - Organisations can export their reports as JSON and run the command-line tool themselves.
@@ -167,7 +167,7 @@ The web service does not accept typed statements. It accepts proof of domain con
 
 ## 11. The verification record is public
 
-**The risk.** The DNS record that proves domain control is visible to anyone. It shows that the organisation uses Parapet. An attacker learns that this organisation is being monitored, and that the hosted service holds data about it.
+**The risk.** The DNS record that proves domain control is visible to anyone. It shows that the organisation uses Perimeterwatch. An attacker learns that this organisation is being monitored, and that the hosted service holds data about it.
 
 **Mitigation.** None today.
 
