@@ -27,6 +27,7 @@ Griff's feedback had two parts. These drafts answer each one.
 | `07-cofunding.md` | Who benefits, who might pledge, and an outreach message. |
 | `08-risks.md` | Each risk, its mitigation, and what remains unsolved. |
 | `09-adoption-plan.md` | How to reach the adoption target and how it is evidenced. |
+| `10-resubmission.md` | **The submission itself**, in the structure of the fund's form. Start here. The other files are longer background for each section. |
 
 ## How to use these
 

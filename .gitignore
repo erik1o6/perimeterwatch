@@ -20,3 +20,4 @@ parapet-reports/
 parapet.toml
 deploy/.env
 tests/integration/targets.toml
+private/
