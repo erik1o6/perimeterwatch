@@ -25,11 +25,22 @@ last, so you see what is new.
 | Public code | Credentials committed to your public GitHub repositories | passive |
 | Multisig | Owners and threshold of your Safe, and any change to them | passive |
 | Job postings | Which systems your own postings name | passive |
+| Domain registration | Expiry, transfer lock, and changes of registrar or nameservers | passive |
+| SPF chain | Domains your SPF record trusts that no longer exist | passive |
+| Phishing lists | Lookalike domains already reported as phishing | passive |
+| Web archives | Sensitive-looking addresses that archives have recorded | passive |
+| Packages | Lookalikes of your npm and PyPI packages, and changes to who can publish | passive |
+| Repository health | Weak branch protection and risky workflow settings | passive |
+| Contracts | Owner, admin and implementation of your contracts, and any change | passive |
+| ENS names | Expiry, and changes of owner or target address | passive |
 | Breach data | Staff addresses in breaches and malware logs | passive, verified domain |
+| Frontend | Changes to the scripts your site serves; missing security headers | probe |
 | Web servers | What answers, and what software it reveals | probe |
 | Certificates | Expired, expiring or mismatched certificates | probe |
 | Ports | Services reachable from the internet | active |
 | Exposures | Readable config files, open admin pages | active |
+| TLS configuration | Old TLS versions and weak cipher suites still accepted | active |
+| Zone transfer | Nameservers that hand out your whole DNS zone | active |
 
 The three depths:
 
@@ -73,7 +84,8 @@ says how to enable it.
 ```sh
 # Tell it where else to look
 uv run parapet target add yourproject.xyz --github-org yourorg \
-    --safe eth:0xYourSafeAddress --greenhouse yourboard
+    --safe eth:0xYourSafeAddress --greenhouse yourboard \
+    --npm @yourorg/sdk --contract eth:0xYourContract=Vault --ens yourproject.eth
 
 # Prove you control the domain, then run active checks
 uv run parapet verify init yourproject.xyz     # prints a DNS record to create

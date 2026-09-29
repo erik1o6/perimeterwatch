@@ -1,0 +1,22 @@
+[
+  ["original"],
+  ["https://acme-protocol.xyz/"],
+  ["https://acme-protocol.xyz/blog/launch"],
+  ["https://acme-protocol.xyz/backup/site-2024.sql"],
+  ["http://acme-protocol.xyz:80/backup/site-2024.sql.gz?download=1&token=SECRETTOKEN123"],
+  ["https://acme-protocol.xyz/old/db.bak"],
+  ["https://acme-protocol.xyz/.env"],
+  ["https://acme-protocol.xyz/.git/config"],
+  ["https://app.acme-protocol.xyz/keys/deploy.pem"],
+  ["https://app.acme-protocol.xyz/admin/login?next=/admin/users&session=abc123"],
+  ["https://app.acme-protocol.xyz/admin/users;jsessionid=0123456789ABCDEF"],
+  ["https://api.acme-protocol.xyz/swagger/index.html"],
+  ["https://api.acme-protocol.xyz/v2/api-docs"],
+  ["https://api.acme-protocol.xyz/graphql/playground"],
+  ["https://api.acme-protocol.xyz/config.json"],
+  ["https://api.acme-protocol.xyz/actuator/env"],
+  ["https://docs.acme-protocol.xyz/guide/administration-basics"],
+  ["https://evil.example.net/backup.sql"],
+  ["https://acme-protocol.xyz.evil.net/.env"],
+  ["https://notacme-protocol.xyz/.env"]
+]

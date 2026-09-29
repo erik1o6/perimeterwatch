@@ -108,6 +108,8 @@ class GitHubOrg(ScanModule):
                         AssetType.REPOSITORY,
                         str(repo.get("full_name", ""))[:200],
                         attributes={
+                            # Asset keys are lower-cased. Some services need the real spelling.
+                            "full_name": str(repo.get("full_name", ""))[:200],
                             "last_push": str(repo.get("pushed_at", ""))[:10],
                             "language": str(repo.get("language") or ""),
                         },

@@ -305,6 +305,155 @@ KINDS: dict[str, KindInfo] = {
         "which systems you run. Keep security tooling and internal system names out of "
         "postings where you can.",
     ),
+    # --- domain registration -------------------------------------------------
+    "domain.registration.expiring": KindInfo(
+        C.SURFACE,
+        S.MEDIUM,
+        "Renew the domain now and turn on automatic renewal. A lapsed domain can be "
+        "registered by anyone, who then controls your website and email.",
+    ),
+    "domain.registration.expired": KindInfo(
+        C.SURFACE,
+        S.CRITICAL,
+        "The registration has lapsed. Renew it at once, before someone else registers it.",
+    ),
+    "domain.registration.unlocked": KindInfo(
+        C.SURFACE,
+        S.MEDIUM,
+        "Turn on the transfer lock at your registrar, and the registry lock if it is "
+        "offered. Without it, someone who gets into the registrar account can move the "
+        "domain away.",
+        (_SEAL_DNS,),
+    ),
+    "domain.registration.details": KindInfo(
+        C.SURFACE,
+        S.INFO,
+        "Informational. A change of registrar or nameservers will be reported as a "
+        "change. If you did not make it, treat it as a hijack in progress.",
+        (_SEAL_911,),
+    ),
+    # --- frontend ------------------------------------------------------------
+    "frontend.scripts": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.INFO,
+        "Informational. A change to the scripts your site serves will be reported as a "
+        "change. If no release explains it, take the site offline and investigate: "
+        "this is how wallet-draining code reaches users.",
+        (_SEAL_911,),
+    ),
+    "frontend.script.no_integrity": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.LOW,
+        "Add a Subresource Integrity hash to scripts loaded from other sites, or host "
+        "them yourself. Without it, whoever controls that site controls your page.",
+        ("https://developer.mozilla.org/docs/Web/Security/Subresource_Integrity",),
+    ),
+    "http.headers.missing": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Add the missing response headers. Strict-Transport-Security stops downgrade to "
+        "plain HTTP. Content-Security-Policy limits what an injected script can do.",
+    ),
+    # --- packages --------------------------------------------------------------
+    "package.lookalike": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.MEDIUM,
+        "A package with a name close to yours exists. Check what it does. If it "
+        "imitates yours, report it to the registry and warn your users.",
+    ),
+    "package.maintainers": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.INFO,
+        "Informational. A change to who can publish this package will be reported as a "
+        "change. Confirm any change was intended.",
+    ),
+    "package.missing": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.LOW,
+        "This package name is not registered. If your documentation or code refers to "
+        "it, someone else could register it. Register it or remove the references.",
+    ),
+    "github.repo.scorecard": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.LOW,
+        "Review the failing checks. Branch protection, workflow permissions and "
+        "dangerous workflow patterns matter most, because they decide who can change "
+        "what you ship.",
+        ("https://github.com/ossf/scorecard/blob/main/docs/checks.md",),
+    ),
+    # --- more email, lookalike, surface --------------------------------------------
+    "email.spf.dangling_include": KindInfo(
+        C.EMAIL,
+        S.HIGH,
+        "Your SPF record trusts a domain that does not exist. Whoever registers it can "
+        "send mail as you and pass SPF. Remove it from the record.",
+        (_RFC7208,),
+    ),
+    "lookalike.reported_phishing": KindInfo(
+        C.LOOKALIKE,
+        S.HIGH,
+        "This lookalike domain is on a public phishing blocklist. Warn your users, and "
+        "ask the registrar and host to take it down. SEAL 911 can help.",
+        (_SEAL_911,),
+    ),
+    "surface.archive.sensitive_url": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Web archives list this address. Check that it no longer answers, or that it "
+        "is meant to be public. Archives keep addresses long after the pages are gone.",
+    ),
+    # --- more web3 -------------------------------------------------------------------
+    "web3.contract.control": KindInfo(
+        C.WEB3,
+        S.INFO,
+        "Informational. A change of owner, admin or implementation will be reported as "
+        "a change. If it was not a planned upgrade, treat it as a compromise.",
+        (_SEAL_911,),
+    ),
+    "web3.contract.single_key_control": KindInfo(
+        C.WEB3,
+        S.MEDIUM,
+        "This contract is controlled by an ordinary account, not a multisig or "
+        "timelock. One stolen key is enough to change it. Move control to a multisig.",
+    ),
+    "web3.ens.expiring": KindInfo(
+        C.WEB3,
+        S.MEDIUM,
+        "Renew the ENS name. A lapsed name can be registered by anyone, who can then "
+        "point it at their own address.",
+    ),
+    "web3.ens.details": KindInfo(
+        C.WEB3,
+        S.INFO,
+        "Informational. A change of owner or of the address the name points to will be "
+        "reported as a change.",
+    ),
+    "tls.protocol.legacy": KindInfo(
+        C.VULN,
+        S.MEDIUM,
+        "Switch off SSL 3.0, TLS 1.0 and TLS 1.1 on this server. They have known "
+        "weaknesses, and no current browser needs them.",
+    ),
+    "tls.cipher.insecure": KindInfo(
+        C.VULN,
+        S.MEDIUM,
+        "Remove these cipher suites from the server's configuration. They give little "
+        "or no protection.",
+    ),
+    "tls.cipher.weak": KindInfo(
+        C.VULN,
+        S.LOW,
+        "Prefer modern cipher suites and remove these when your users' software allows. "
+        "Mozilla's 'intermediate' TLS configuration is a sound target.",
+        ("https://wiki.mozilla.org/Security/Server_Side_TLS",),
+    ),
+    "dns.zone_transfer.allowed": KindInfo(
+        C.VULN,
+        S.HIGH,
+        "This nameserver hands a full copy of your DNS zone to anyone who asks, which "
+        "lists every host you have. Restrict zone transfers to your own secondary "
+        "nameservers.",
+    ),
     # --- active --------------------------------------------------------------
     "ports.unexpected_open": KindInfo(
         C.VULN,

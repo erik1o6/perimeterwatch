@@ -243,6 +243,9 @@ class TestTargets:
             "target", "add", ROOT, "--github-org", "acme-protocol",
             "--safe", "eth:0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
             "--greenhouse", "acmeprotocol", "--staff-csv", str(staff),
+            "--npm", "@Acme/SDK", "--npm", "acme-cli", "--pypi", "acme-sdk",
+            "--contract", "eth:0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359=Vault",
+            "--ens", "acme.eth",
         )  # fmt: skip
         assert result.exit_code == 0, result.output
         assert "1 address(es) were ignored" in plain(result.output)
@@ -250,6 +253,8 @@ class TestTargets:
         shown = plain(run("target", "show", ROOT).output)
         assert "acme-protocol" in shown and "greenhouse: acmeprotocol" in shown
         assert "2 on file" in shown
+        assert "@acme/sdk, acme-cli" in shown and "acme-sdk" in shown
+        assert "Vault" in shown and "acme.eth" in shown
         assert "ana@" not in shown, "addresses are counted, never echoed"
         assert ROOT in run("target", "list").output
 
@@ -265,6 +270,16 @@ class TestTargets:
             ["--safe", "doge:0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed"],
             ["--safe", "eth:0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAeD"],
             ["--greenhouse", "../../etc"],
+            ["--npm", "../../etc/passwd"],
+            ["--npm", "@acme/../x"],
+            ["--npm", "acme sdk"],
+            ["--pypi", "-rf"],
+            ["--pypi", "acme/sdk"],
+            ["--contract", "eth:0x123"],
+            ["--contract", "eth:0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359=<script>"],
+            ["--ens", "acme.com"],
+            ["--ens", "Acme.eth/../x"],
+            ["--ens", "-acme.eth"],
             ["--greenhouse", "a", "--lever", "b"],
             ["--staff-csv", "/nonexistent/staff.csv"],
         ],

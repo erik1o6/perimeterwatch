@@ -105,7 +105,10 @@
         "github_org",
         "safe",
         "lookalike_domain",
-        "service"
+        "service",
+        "package",
+        "contract",
+        "ens_name"
       ],
       "title": "AssetType",
       "type": "string"
@@ -119,7 +122,8 @@
         "secrets",
         "breach",
         "web3",
-        "vuln"
+        "vuln",
+        "supply_chain"
       ],
       "title": "Category",
       "type": "string"

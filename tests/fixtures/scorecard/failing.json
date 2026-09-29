@@ -1,0 +1,170 @@
+{
+  "date": "2026-09-28",
+  "repo": {
+    "name": "github.com/acme-protocol/Core",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "scorecard": {
+    "version": "v5.5.1-0.20260908181711-f92023a3f778",
+    "commit": "f92023a3f77879f96e0c9c1305f289d755be4bb6"
+  },
+  "score": 4.1,
+  "checks": [
+    {
+      "name": "Code-Review",
+      "score": 2,
+      "reason": "Found 2/11 approved changesets -- score normalized to 2",
+      "details": [],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#code-review",
+        "short": "Determines if the project requires human code review before pull requests (aka merge requests) are merged."
+      }
+    },
+    {
+      "name": "Maintained",
+      "score": 10,
+      "reason": "14 commit(s) and 4 issue activity found in the last 90 days -- score normalized to 10",
+      "details": [],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#maintained",
+        "short": "Determines if the project is \"actively maintained\"."
+      }
+    },
+    {
+      "name": "Binary-Artifacts",
+      "score": 10,
+      "reason": "no binaries found in the repo",
+      "details": [],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#binary-artifacts",
+        "short": "Determines if the project has generated executable (binary) artifacts in the source repository."
+      }
+    },
+    {
+      "name": "Security-Policy",
+      "score": 10,
+      "reason": "security policy file detected",
+      "details": [
+        "Warn: example detail: .github/workflows/ci.yml:23"
+      ],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#security-policy",
+        "short": "Determines if the project has published a security policy."
+      }
+    },
+    {
+      "name": "Dangerous-Workflow",
+      "score": 0,
+      "reason": "dangerous workflow patterns detected",
+      "details": [],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#dangerous-workflow",
+        "short": "Determines if the project's GitHub Action workflows avoid dangerous patterns."
+      }
+    },
+    {
+      "name": "Token-Permissions",
+      "score": 4,
+      "reason": "detected GitHub workflow tokens with excessive permissions",
+      "details": [
+        "Warn: example detail: .github/workflows/ci.yml:23"
+      ],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#token-permissions",
+        "short": "Determines if the project's workflows follow the principle of least privilege."
+      }
+    },
+    {
+      "name": "Pinned-Dependencies",
+      "score": 5,
+      "reason": "dependency not pinned by hash detected -- score normalized to 5",
+      "details": [
+        "Warn: example detail: .github/workflows/ci.yml:23"
+      ],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#pinned-dependencies",
+        "short": "Determines if the project has declared and pinned the dependencies of its build process."
+      }
+    },
+    {
+      "name": "CII-Best-Practices",
+      "score": 0,
+      "reason": "no effort to earn an OpenSSF best practices badge detected",
+      "details": [],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#cii-best-practices",
+        "short": "Determines if the project has an OpenSSF (formerly CII) Best Practices Badge."
+      }
+    },
+    {
+      "name": "License",
+      "score": 10,
+      "reason": "license file detected",
+      "details": [
+        "Warn: example detail: .github/workflows/ci.yml:23"
+      ],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#license",
+        "short": "Determines if the project has defined a license."
+      }
+    },
+    {
+      "name": "Fuzzing",
+      "score": 10,
+      "reason": "project is fuzzed",
+      "details": [
+        "Warn: example detail: .github/workflows/ci.yml:23"
+      ],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#fuzzing",
+        "short": "Determines if the project uses fuzzing."
+      }
+    },
+    {
+      "name": "Branch-Protection",
+      "score": -1,
+      "reason": "internal error: error during branchesHandler.setup: internal error: some github tokens can't read classic branch protection rules: https://github.com/ossf/scorecard-action/blob/main/docs/authentication/fine-grained-auth-token.md",
+      "details": [],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#branch-protection",
+        "short": "Determines if the default and release branches are protected with GitHub's branch protection settings."
+      }
+    },
+    {
+      "name": "Packaging",
+      "score": 10,
+      "reason": "packaging workflow detected",
+      "details": [
+        "Warn: example detail: .github/workflows/ci.yml:23"
+      ],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#packaging",
+        "short": "Determines if the project is published as a package that others can easily download, install, easily update, and uninstall."
+      }
+    },
+    {
+      "name": "Signed-Releases",
+      "score": 0,
+      "reason": "Project has not signed or included provenance with any releases.",
+      "details": [
+        "Warn: example detail: .github/workflows/ci.yml:23"
+      ],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#signed-releases",
+        "short": "Determines if the project cryptographically signs release artifacts."
+      }
+    },
+    {
+      "name": "SAST",
+      "score": 10,
+      "reason": "SAST tool is run on all commits",
+      "details": [
+        "Warn: example detail: .github/workflows/ci.yml:23"
+      ],
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/f92023a3f77879f96e0c9c1305f289d755be4bb6/docs/checks.md#sast",
+        "short": "Determines if the project uses static code analysis."
+      }
+    }
+  ]
+}

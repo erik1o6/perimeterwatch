@@ -72,6 +72,9 @@ class AssetType(StrEnum):
     SAFE = "safe"
     LOOKALIKE_DOMAIN = "lookalike_domain"
     SERVICE = "service"
+    PACKAGE = "package"
+    CONTRACT = "contract"
+    ENS_NAME = "ens_name"
 
 
 class Category(StrEnum):
@@ -83,6 +86,7 @@ class Category(StrEnum):
     BREACH = "breach"
     WEB3 = "web3"
     VULN = "vuln"
+    SUPPLY_CHAIN = "supply_chain"
 
 
 class ModuleStatus(StrEnum):
@@ -102,12 +106,24 @@ class JobBoardRef(BaseModel):
     value: str
 
 
+class ContractRef(BaseModel):
+    chain: str = "eth"
+    address: str
+    label: str = ""
+
+
 class Target(BaseModel):
     root_domain: str
     github_org: str | None = None
     safes: list[SafeRef] = Field(default_factory=list)
     job_board: JobBoardRef | None = None
     staff_emails: list[str] = Field(default_factory=list)
+    # Packages the organisation publishes, e.g. "@acme/sdk" or "acme-sdk".
+    npm_packages: list[str] = Field(default_factory=list)
+    pypi_packages: list[str] = Field(default_factory=list)
+    # Contracts whose owner, admin or implementation should be watched.
+    contracts: list[ContractRef] = Field(default_factory=list)
+    ens_names: list[str] = Field(default_factory=list)
 
 
 class Authorisation(BaseModel):

@@ -35,6 +35,8 @@ Every setting is an environment variable. Update this file when a setting is add
 | `PARAPET_SMTP_USER` | empty | SMTP user name. The password is `PARAPET_SMTP_PASSWORD`. |
 | `PARAPET_MAIL_FROM` | Parapet <no-reply@localhost> | Sender shown on outgoing mail. |
 | `PARAPET_TRUST_PROXY_HEADERS` | false | Take the visitor's address from the proxy. Turn on only behind the bundled proxy. |
+| `PARAPET_CERTSTREAM_URL` | empty | Websocket address of a self-hosted certstream server. When set, the worker watches newly issued certificates for names imitating verified domains. |
+| `PARAPET_NEVER_CONTACT` | empty | Hosts, addresses or networks that must never be contacted, as a JSON list. |
 
 ## Secrets
 

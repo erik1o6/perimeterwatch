@@ -1,0 +1,168 @@
+[
+ {
+  "RuleID": "no-secret",
+  "Attributes": {
+   "github.repo_url": "https://github.com/acme-protocol/x"
+  }
+ },
+ {
+  "RuleID": 7,
+  "Secret": [
+   "not",
+   "text"
+  ],
+  "Attributes": "nonsense"
+ },
+ {
+  "RuleID": "github-pat",
+  "Description": "Recorded shape of a Betterleaks 1.8.1 finding.",
+  "StartLine": 14,
+  "EndLine": 14,
+  "StartColumn": 21,
+  "EndColumn": 60,
+  "Match": "TOKEN=ghp_CANARYcanaryCANARYcanaryCANARY0123456",
+  "Secret": "ghp_CANARYcanaryCANARYcanaryCANARY0123456",
+  "MatchContext": "# deploy\nexport TOKEN=ghp_CANARYcanaryCANARYcanaryCANARY0123456\n",
+  "CaptureGroups": {
+   "token": "ghp_CANARYcanaryCANARYcanaryCANARY0123456"
+  },
+  "Attributes": {
+   "confidence": "high",
+   "path": "scripts/release.sh",
+   "resource": "git.patch_content",
+   "git.sha": "9f2c1e7a5b3d4c6e8f0a1b2c3d4e5f6a7b8c9d0e",
+   "git.author_name": "Ana Lopez",
+   "git.author_email": "ana.lopez@acme-protocol.xyz",
+   "git.date": "2025-03-02T10:11:12Z",
+   "git.message": "add release script ghp_CANARYcanaryCANARYcanaryCANARY0123456",
+   "git.remote_url": "https://github.com/acme-protocol/deploy-scripts",
+   "git.platform": "github",
+   "github.owner": "acme-protocol",
+   "github.repo": "deploy-scripts",
+   "github.repo_url": "https://github.com/acme-protocol/deploy-scripts",
+   "github.visibility": "public"
+  },
+  "Tags": [],
+  "Fingerprint": "9f2c1e7a5b3d4c6e8f0a1b2c3d4e5f6a7b8c9d0e:scripts/release.sh:github-pat:14",
+  "File": "scripts/release.sh",
+  "SymlinkFile": "",
+  "Commit": "9f2c1e7a5b3d4c6e8f0a1b2c3d4e5f6a7b8c9d0e",
+  "Link": "https://github.com/acme-protocol/deploy-scripts/blob/9f2c1e7a5b3d4c6e8f0a1b2c3d4e5f6a7b8c9d0e/scripts/release.sh#L14",
+  "Entropy": 4.9,
+  "Author": "Ana Lopez",
+  "Email": "ana.lopez@acme-protocol.xyz",
+  "Date": "2025-03-02T10:11:12Z",
+  "Message": "add release script ghp_CANARYcanaryCANARYcanaryCANARY0123456"
+ },
+ {
+  "RuleID": "github-pat",
+  "Description": "Recorded shape of a Betterleaks 1.8.1 finding.",
+  "StartLine": 15,
+  "EndLine": 15,
+  "StartColumn": 21,
+  "EndColumn": 60,
+  "Match": "ghp_CANARYcanaryCANARYcanaryCANARY0123456",
+  "Secret": "ghp_CANARYcanaryCANARYcanaryCANARY0123456",
+  "MatchContext": "# deploy\nexport TOKEN=ghp_CANARYcanaryCANARYcanaryCANARY0123456\n",
+  "CaptureGroups": {
+   "token": "ghp_CANARYcanaryCANARYcanaryCANARY0123456"
+  },
+  "Attributes": {
+   "confidence": "high",
+   "path": "scripts/release.sh",
+   "resource": "git.patch_content",
+   "git.sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "git.author_name": "Ana Lopez",
+   "git.author_email": "ana.lopez@acme-protocol.xyz",
+   "git.date": "2025-03-02T10:11:12Z",
+   "git.message": "add release script ghp_CANARYcanaryCANARYcanaryCANARY0123456",
+   "git.remote_url": "https://github.com/acme-protocol/deploy-scripts",
+   "git.platform": "github",
+   "github.owner": "acme-protocol",
+   "github.repo": "deploy-scripts",
+   "github.repo_url": "https://github.com/acme-protocol/deploy-scripts",
+   "github.visibility": "public"
+  },
+  "Tags": [],
+  "Fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:scripts/release.sh:github-pat:15",
+  "File": "scripts/release.sh",
+  "SymlinkFile": "",
+  "Commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "Link": "https://github.com/acme-protocol/deploy-scripts/blob/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/scripts/release.sh#L15",
+  "Entropy": 4.9,
+  "Author": "Ana Lopez",
+  "Email": "ana.lopez@acme-protocol.xyz",
+  "Date": "2025-03-02T10:11:12Z",
+  "Message": "add release script ghp_CANARYcanaryCANARYcanaryCANARY0123456"
+ },
+ {
+  "RuleID": "stripe-access-token",
+  "Description": "Recorded shape of a Betterleaks 1.8.1 finding.",
+  "StartLine": 7,
+  "EndLine": 7,
+  "StartColumn": 21,
+  "EndColumn": 60,
+  "Match": "STRIPE_KEY = \"canary_key_BLCANARYblcanaryBLCANARYblcanary0042\"",
+  "Secret": "canary_key_BLCANARYblcanaryBLCANARYblcanary0042",
+  "MatchContext": "# deploy\nexport TOKEN=canary_key_BLCANARYblcanaryBLCANARYblcanary0042\n",
+  "CaptureGroups": {
+   "token": "canary_key_BLCANARYblcanaryBLCANARYblcanary0042"
+  },
+  "Attributes": {
+   "confidence": "high",
+   "path": "config/settings.py",
+   "resource": "git.patch_content",
+   "git.sha": "2222222222222222222222222222222222222222",
+   "git.author_name": "Ana Lopez",
+   "git.author_email": "ana.lopez@acme-protocol.xyz",
+   "git.date": "2025-03-02T10:11:12Z",
+   "git.message": "add release script canary_key_BLCANARYblcanaryBLCANARYblcanary0042",
+   "git.remote_url": "https://github.com/acme-protocol/payments",
+   "git.platform": "github",
+   "github.owner": "acme-protocol",
+   "github.repo": "payments",
+   "github.repo_url": "https://github.com/acme-protocol/payments",
+   "github.visibility": "public"
+  },
+  "Tags": [],
+  "Fingerprint": "2222222222222222222222222222222222222222:config/settings.py:stripe-access-token:7",
+  "File": "config/settings.py",
+  "SymlinkFile": "",
+  "Commit": "2222222222222222222222222222222222222222",
+  "Link": "https://github.com/acme-protocol/payments/blob/2222222222222222222222222222222222222222/config/settings.py#L7",
+  "Entropy": 4.9,
+  "Author": "Ana Lopez",
+  "Email": "ana.lopez@acme-protocol.xyz",
+  "Date": "2025-03-02T10:11:12Z",
+  "Message": "add release script canary_key_BLCANARYblcanaryBLCANARYblcanary0042"
+ },
+ {
+  "RuleID": "generic-api-key",
+  "Description": "Recorded shape of a Betterleaks 1.8.1 finding.",
+  "StartLine": 1,
+  "EndLine": 1,
+  "StartColumn": 21,
+  "EndColumn": 60,
+  "Match": "zzNOTgithubZZnotGITHUBzz0099887766",
+  "Secret": "zzNOTgithubZZnotGITHUBzz0099887766",
+  "MatchContext": "# deploy\nexport TOKEN=zzNOTgithubZZnotGITHUBzz0099887766\n",
+  "CaptureGroups": {
+   "token": "zzNOTgithubZZnotGITHUBzz0099887766"
+  },
+  "Attributes": {
+   "path": "a.txt",
+   "git.remote_url": "https://evil.example/acme-protocol/elsewhere"
+  },
+  "Tags": [],
+  "Fingerprint": "3333333333333333333333333333333333333333:a.txt:generic-api-key:1",
+  "File": "a.txt",
+  "SymlinkFile": "",
+  "Commit": "3333333333333333333333333333333333333333",
+  "Link": "https://evil.example/acme-protocol/elsewhere",
+  "Entropy": 4.9,
+  "Author": "Ana Lopez",
+  "Email": "ana.lopez@acme-protocol.xyz",
+  "Date": "2025-03-02T10:11:12Z",
+  "Message": "add release script zzNOTgithubZZnotGITHUBzz0099887766"
+ }
+]

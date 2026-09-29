@@ -1,0 +1,69 @@
+{
+  "_id": "@acme/sdk",
+  "_rev": "12-0000",
+  "name": "@acme/sdk",
+  "time": {
+    "modified": "2026-08-16T05:01:57.431Z",
+    "created": "2021-03-14T09:09:20.762Z",
+    "1.2.0": "2025-01-02T10:00:00.000Z",
+    "1.3.0": "2026-08-16T05:01:57.431Z"
+  },
+  "maintainers": [
+    {
+      "email": "mallory.private@mail.example",
+      "name": "acme-release-bot"
+    },
+    {
+      "email": "alice.private@mail.example",
+      "name": "alice-acme"
+    }
+  ],
+  "dist-tags": {
+    "latest": "1.3.0"
+  },
+  "description": "Client library for the Acme protocol",
+  "readme": "# acme-sdk",
+  "versions": {
+    "1.2.0": {
+      "name": "@acme/sdk",
+      "version": "1.2.0",
+      "maintainers": [
+        {
+          "email": "alice.private@mail.example",
+          "name": "alice-acme"
+        }
+      ],
+      "_npmUser": {
+        "name": "alice-acme",
+        "email": "alice.private@mail.example"
+      },
+      "dist": {
+        "shasum": "0000000000000000000000000000000000000000",
+        "tarball": "https://registry.npmjs.org/acme-sdk/-/acme-sdk-1.2.0.tgz"
+      }
+    },
+    "1.3.0": {
+      "name": "@acme/sdk",
+      "version": "1.3.0",
+      "maintainers": [
+        {
+          "email": "alice.private@mail.example",
+          "name": "alice-acme"
+        }
+      ],
+      "_npmUser": {
+        "name": "alice-acme",
+        "email": "alice.private@mail.example"
+      },
+      "dist": {
+        "shasum": "0000000000000000000000000000000000000000",
+        "tarball": "https://registry.npmjs.org/acme-sdk/-/acme-sdk-1.3.0.tgz"
+      }
+    }
+  },
+  "author": {
+    "name": "Alice Example",
+    "email": "alice.private@mail.example"
+  },
+  "license": "MIT"
+}

@@ -55,7 +55,7 @@ Adapt the parts in brackets. Keep it short. The first two sentences say what the
 >
 > I have built an open-source tool that shows a crypto organisation what an outsider can already see about it: whether its email can be forged, forgotten web addresses someone else could claim, passwords published by mistake in public code, changes to its treasury signers, and staff emails in known data breaches. It tells the organisation when any of that changes. It only looks at organisations that ask.
 >
-> The software is built: a command-line tool and a web service, with 543 passing tests. The web service is not deployed yet. Here is the code and a sample report: [links].
+> The software is built: a command-line tool and a web service, with 1,374 passing tests. The web service is not deployed yet. Here is the code and a sample report: [links].
 >
 > I am applying to TheDAO Fund's ETHSecurity Initiatives round for [amount] to deploy the web service, have it independently reviewed, and offer it to small teams. Half of that amount is paid only if [N] named organisations are using it and have fixed problems it found.
 >

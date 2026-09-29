@@ -1,0 +1,137 @@
+{
+  "objectClassName": "domain",
+  "handle": "1000000001_DOMAIN_COM-VRSN",
+  "ldhName": "ACME-REGISTRY.COM",
+  "links": [
+    {
+      "value": "https://rdap.verisign.com/com/v1/domain/acme-registry.com",
+      "rel": "self",
+      "href": "https://rdap.verisign.com/com/v1/domain/acme-registry.com",
+      "type": "application/rdap+json"
+    },
+    {
+      "value": "https://rdap.verisign.com/com/v1/domain/acme-registry.com",
+      "rel": "related",
+      "href": "https://rdap.example-registrar.net/domain/ACME-REGISTRY.COM",
+      "type": "application/rdap+json"
+    }
+  ],
+  "status": [
+    "client transfer prohibited"
+  ],
+  "entities": [
+    {
+      "objectClassName": "entity",
+      "handle": "81",
+      "roles": [
+        "registrar"
+      ],
+      "links": [
+        {
+          "href": "http://www.example-registrar.net",
+          "type": "text/html",
+          "value": "https://rdap.example-registrar.net/",
+          "rel": "about"
+        }
+      ],
+      "publicIds": [
+        {
+          "type": "IANA Registrar ID",
+          "identifier": "81"
+        }
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "Example Registrar Ltd"
+          ]
+        ]
+      ],
+      "entities": [
+        {
+          "objectClassName": "entity",
+          "roles": [
+            "abuse"
+          ],
+          "vcardArray": [
+            "vcard",
+            [
+              [
+                "version",
+                {},
+                "text",
+                "4.0"
+              ],
+              [
+                "fn",
+                {},
+                "text",
+                ""
+              ],
+              [
+                "tel",
+                {
+                  "type": "voice"
+                },
+                "uri",
+                "tel:+33.170377661"
+              ],
+              [
+                "email",
+                {},
+                "text",
+                "abuse@support.example-registrar.net"
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "eventAction": "registration",
+      "eventDate": "2026-05-01T10:00:00Z"
+    },
+    {
+      "eventAction": "expiration",
+      "eventDate": "2027-05-01T10:00:00Z"
+    },
+    {
+      "eventAction": "last changed",
+      "eventDate": "2026-05-01T10:05:00Z"
+    },
+    {
+      "eventAction": "last update of RDAP database",
+      "eventDate": "2026-09-29T15:01:58Z"
+    }
+  ],
+  "secureDNS": {
+    "delegationSigned": false
+  },
+  "nameservers": [
+    {
+      "objectClassName": "nameserver",
+      "ldhName": "NS1.DNSHOST-EXAMPLE.NET"
+    },
+    {
+      "objectClassName": "nameserver",
+      "ldhName": "NS2.DNSHOST-EXAMPLE.NET"
+    }
+  ],
+  "rdapConformance": [
+    "rdap_level_0",
+    "icann_rdap_technical_implementation_guide_1",
+    "icann_rdap_response_profile_1"
+  ]
+}

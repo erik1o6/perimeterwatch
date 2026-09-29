@@ -22,6 +22,7 @@ from parapet.storage.repo import Cache, TenantRepo, _aware
 from parapet.storage.tables import DomainVerification, Scan, TargetRow
 from parapet.web import auth as web_auth
 from parapet.worker import alerts
+from parapet.worker.certwatch import CertWatcher
 from parapet.worker.queue import QueueError, TableQueue
 
 HEARTBEAT_EVERY = 30
@@ -239,6 +240,9 @@ class Worker:
             with contextlib.suppress(NotImplementedError):
                 loop.add_signal_handler(sig, self.stopping.set)
         log.warning("worker started")
+        watch = asyncio.create_task(
+            CertWatcher(self.settings, self.database).run_forever(self.stopping)
+        )
         while not self.stopping.is_set():
             try:
                 ran = await self.tick()
@@ -248,6 +252,9 @@ class Worker:
             if not ran:
                 with contextlib.suppress(TimeoutError):
                     await asyncio.wait_for(self.stopping.wait(), self.settings.worker_poll_seconds)
+        watch.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await watch
         log.warning("worker stopped")
 
 

@@ -1,0 +1,78 @@
+{
+  "comment": "Groups of address paths that suggest something not meant to be public. Patterns are regular expressions matched against the lower-cased path, with the query string already removed. A path counts towards the first group it matches. 'raise' moves the severity one step up.",
+  "groups": [
+    {
+      "id": "secrets",
+      "label": "files that usually hold passwords or keys",
+      "raise": true,
+      "patterns": [
+        "(^|/)\\.env(\\.[a-z0-9_-]{1,20})?$",
+        "(^|/)\\.git(/|$)",
+        "(^|/)\\.svn(/|$)",
+        "(^|/)\\.hg(/|$)",
+        "(^|/)\\.aws/credentials$",
+        "(^|/)\\.ssh(/|$)",
+        "(^|/)\\.htpasswd$",
+        "(^|/)\\.npmrc$",
+        "(^|/)id_(rsa|dsa|ecdsa|ed25519)$",
+        "\\.(pem|key|p12|pfx|jks|keystore|ppk)$"
+      ]
+    },
+    {
+      "id": "backups",
+      "label": "backup and database dump files",
+      "raise": true,
+      "patterns": [
+        "\\.(sql|bak|backup|dump|dmp|old|orig|swp|sqlite|sqlite3|mdb)$",
+        "\\.sql\\.(gz|bz2|xz|zip|7z)$",
+        "\\.(zip|tar|tgz|tbz2|gz|bz2|xz|7z|rar)$"
+      ]
+    },
+    {
+      "id": "config",
+      "label": "configuration files",
+      "raise": false,
+      "patterns": [
+        "(^|/)(config|configuration|settings|secrets|credentials|parameters|database)\\.(json|ya?ml|xml|ini|php|py|js|toml|properties|inc)$",
+        "(^|/)(wp-config|local_settings|localsettings)\\.php[a-z0-9~.]{0,10}$",
+        "(^|/)(web|app)\\.config$",
+        "(^|/)appsettings(\\.[a-z0-9_-]{1,20})?\\.json$",
+        "(^|/)application(-[a-z0-9_-]{1,20})?\\.(properties|ya?ml)$",
+        "(^|/)docker-compose(\\.[a-z0-9_-]{1,20})?\\.ya?ml$",
+        "(^|/)dockerfile$",
+        "(^|/)\\.(htaccess|dockerenv|travis\\.yml|gitlab-ci\\.yml)$",
+        "\\.(ini|conf|cfg)$"
+      ]
+    },
+    {
+      "id": "admin_debug",
+      "label": "administration and debugging pages",
+      "raise": false,
+      "patterns": [
+        "(^|/)(admin|administrator|wp-admin|phpmyadmin|pma|adminer|cpanel|webadmin)(/|$)",
+        "(^|/)adminer\\.php$",
+        "(^|/)(debug|_debug|__debug__|_profiler|_wdt|telescope|horizon)(/|$)",
+        "(^|/)actuator(/|$)",
+        "(^|/)(server-status|server-info)$",
+        "(^|/)(phpinfo|info|test)\\.php$",
+        "(^|/)(console|jmx-console|web-console|manager/html)(/|$)",
+        "(^|/)(trace|elmah)\\.axd$"
+      ]
+    },
+    {
+      "id": "api_docs",
+      "label": "API documentation and query consoles",
+      "raise": false,
+      "patterns": [
+        "(^|/)swagger(-ui)?(/|\\.json$|\\.ya?ml$|\\.html$|$)",
+        "(^|/)swagger-ui[a-z0-9._-]{0,40}$",
+        "(^|/)swagger-resources(/|$)",
+        "(^|/)(v[0-9]/)?api-docs(/|$)",
+        "(^|/)openapi(\\.json|\\.ya?ml)?$",
+        "(^|/)redoc(/|$)",
+        "(^|/)(graphiql|playground|altair|voyager)(/|$)",
+        "(^|/)graphql(/(playground|console|explorer))?/?$"
+      ]
+    }
+  ]
+}

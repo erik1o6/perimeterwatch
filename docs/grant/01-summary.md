@@ -10,9 +10,9 @@ A team enters its own web address and gets back a plain list of weak points, eac
 
 It only looks at teams that ask. The web service scans nothing until the team proves the web address is its own. There is no score or grade.
 
-**What exists today.** Two working forms of the software: a command-line tool, and a web service with scheduled scans and alerts by email or chat. 543 automated tests pass.
+**What exists today.** Two working forms of the software: a command-line tool, and a web service with scheduled scans and alerts by email or chat. 1,374 automated tests pass. The code is public: https://github.com/erik1o6/parapet
 
-**What does not exist yet.** The code is not published. The web service has never been deployed, has had no independent review, and has no users.
+**What does not exist yet.** The web service has never been deployed, has had no independent review, and has no users.
 
 **What the grant pays for.** Publishing the code, deploying the service, an independent security review, legal review, and getting teams onto it.
 
@@ -32,6 +32,6 @@ Parapet: open-source software that shows a small crypto team what any outsider c
 
 - Count the words of the summary again after filling the blanks and after any edit. It must stay under 250.
 - The first sentence says what it is and who it is for. The second says what it does. Neither uses a technical term. Do not add "OSINT", "attack surface" or "perimeter" to them. Griff's feedback was that he did not understand what the project was until he reached the requirements section.
-- Once the repository and a sample report are published, add the two links to "What exists today" and remove "The code is not yet published". A reviewer who can open a real report will understand the project faster than from any description.
+- The repository link is in "What exists today". Once a sample report is published, add its link there too. A reviewer who can open a real report will understand the project faster than from any description.
 - Do not call the web service "live", "hosted" or "running" until it is deployed. It is built and tested. It is not deployed.
 - Check the character count of the tweet-length version after any edit. The limit is 280.

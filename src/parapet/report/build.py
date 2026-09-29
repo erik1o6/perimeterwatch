@@ -33,6 +33,7 @@ SECTION_TITLES: dict[Category, str] = {
     Category.SECRETS: "Leaked secrets",
     Category.BREACH: "Breach exposure",
     Category.WEB3: "Web3 and organisation",
+    Category.SUPPLY_CHAIN: "Code, packages and frontend",
     Category.VULN: "Exposed services and misconfigurations",
 }
 
@@ -55,7 +56,11 @@ SECTION_INTRO: dict[Category, str] = {
         "Work email addresses that appear in known data breaches. Only the breach name, "
         "date and kinds of data are shown. No passwords are collected or stored."
     ),
-    Category.WEB3: "Multisig configuration, source code organisation, and hiring disclosures.",
+    Category.WEB3: "Multisig and contract control, source code organisation, and hiring disclosures.",
+    Category.SUPPLY_CHAIN: (
+        "What you ship and how it reaches users: the scripts your site serves, the packages "
+        "you publish, and how your repositories are protected."
+    ),
     Category.VULN: "Results of active checks, run only with authorisation.",
 }
 

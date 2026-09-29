@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "tolerance": 1,
+  "fuzzylist": ["etherscan.io", "launchpad.ethereum.org"],
+  "whitelist": ["acme-protocol-docs.org", "sophon.xyz"],
+  "blacklist": [
+    "poly-mark.xyz",
+    "openseoa.app",
+    "acme-protoco1.xyz",
+    "claim.acme-protocol.app",
+    "acme-protocol-airdrop.com",
+    "login.acme-protocol-rewards.net",
+    "acme-protocol.pages.dev",
+    "acme-protocol-docs.org",
+    "app.acme-protocol.xyz",
+    "unrelated-wallet.io"
+  ]
+}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acme Protocol</title>
+    <script type="application/ld+json">
+      { "@context": "https://schema.org", "@type": "Organization", "name": "Acme" }
+    </script>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("acme-theme");
+          var dark = saved ? saved === "dark" : true;
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-BetUtrcO.js"></script>
+    <script src="/vendor/wallet.js?v=20260901"></script>
+    <script src="https://cdn.example.net/lib/analytics.min.js"></script>
+    <script src="https://cdn.example.net/lib/charts.min.js" async></script>
+    <script
+      src="https://pinned.example.org/widget.js"
+      integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://static.acme-protocol.xyz/shared.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BUtL7YaV.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

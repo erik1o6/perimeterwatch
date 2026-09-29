@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 from typing import Annotated
 
@@ -9,7 +10,7 @@ from rich.table import Table
 
 from parapet.cli.common import actor, domain_arg, open_app, out, require_target
 from parapet.core.errors import ValidationError
-from parapet.core.models import JobBoardRef, SafeRef, Target
+from parapet.core.models import ContractRef, JobBoardRef, SafeRef, Target
 from parapet.safety.domains import (
     validate_email,
     validate_eth_address,
@@ -30,6 +31,33 @@ def parse_safe(raw: str) -> SafeRef:
     if chain not in CHAINS:
         raise ValidationError(f"Unknown chain {chain!r}. Supported: {', '.join(sorted(CHAINS))}.")
     return SafeRef(chain=chain, address=validate_eth_address(address))
+
+
+_NPM_NAME = re.compile(r"^(@[a-z0-9][a-z0-9._-]{0,100}/)?[a-z0-9][a-z0-9._-]{0,100}$")
+_PYPI_NAME = re.compile(r"^[A-Za-z0-9]([A-Za-z0-9._-]{0,100}[A-Za-z0-9])?$")
+_ENS_NAME = re.compile(r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+eth$")
+
+
+def parse_contract(raw: str) -> ContractRef:
+    """A contract as chain:address, optionally followed by =label."""
+    location, _, label = raw.partition("=")
+    safe = parse_safe(location)
+    clean = " ".join(label.split())[:60]
+    if clean and not re.fullmatch(r"[A-Za-z0-9 ._-]+", clean):
+        raise ValidationError(f"{label!r} is not a usable label. Use letters, digits and spaces.")
+    return ContractRef(chain=safe.chain, address=safe.address, label=clean)
+
+
+def parse_names(values: list[str], pattern: re.Pattern[str], what: str) -> list[str]:
+    names = []
+    for raw in values:
+        name = raw.strip()
+        if what != "PyPI package":
+            name = name.lower()
+        if not pattern.fullmatch(name) or ".." in name:
+            raise ValidationError(f"{raw!r} is not a valid {what} name.")
+        names.append(name)
+    return sorted(set(names))
 
 
 def read_staff_csv(path: Path, root_domain: str) -> list[str]:
@@ -75,6 +103,27 @@ def add(
         Path | None,
         typer.Option("--staff-csv", help="CSV of work email addresses, supplied by you."),
     ] = None,
+    npm: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--npm", help="npm package you publish, such as @acme/sdk. Repeat for several."
+        ),
+    ] = None,
+    pypi: Annotated[
+        list[str] | None,
+        typer.Option("--pypi", help="PyPI package you publish. Repeat for several."),
+    ] = None,
+    contract: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--contract",
+            help="Contract to watch for changes of control, as eth:0x...=label. Repeat for several.",
+        ),
+    ] = None,
+    ens: Annotated[
+        list[str] | None,
+        typer.Option("--ens", help="ENS name you hold, such as acme.eth. Repeat for several."),
+    ] = None,
 ) -> None:
     """Add a domain, or update the details of one already added."""
     root = domain_arg(domain)
@@ -101,6 +150,14 @@ def add(
             )
         if staff_csv is not None:
             target.staff_emails = read_staff_csv(staff_csv, root)
+        if npm:
+            target.npm_packages = parse_names(npm, _NPM_NAME, "npm package")
+        if pypi:
+            target.pypi_packages = parse_names(pypi, _PYPI_NAME, "PyPI package")
+        if contract:
+            target.contracts = [parse_contract(c) for c in contract]
+        if ens:
+            target.ens_names = parse_names(ens, _ENS_NAME, "ENS")
 
         row = repo.upsert_target(target)
         repo.audit(
@@ -155,6 +212,11 @@ def show(domain: Annotated[str, typer.Argument()]) -> None:
             f"{target.job_board.kind}: {target.job_board.value}" if target.job_board else "not set"
         )
         out.print(f"  Job board            {board}")
+        out.print(f"  npm packages         {', '.join(target.npm_packages) or 'not set'}")
+        out.print(f"  PyPI packages        {', '.join(target.pypi_packages) or 'not set'}")
+        contracts = ", ".join(c.label or c.address for c in target.contracts) or "not set"
+        out.print(f"  Contracts            {contracts}")
+        out.print(f"  ENS names            {', '.join(target.ens_names) or 'not set'}")
         # Count only. Addresses are personal data and are not echoed back.
         out.print(f"  Staff addresses      {len(target.staff_emails)} on file")
         scans = repo.list_scans(row.id, limit=10)

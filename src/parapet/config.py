@@ -108,6 +108,9 @@ class Settings(BaseSettings):
     smtp_user: str | None = None
     mail_from: str = "Parapet <no-reply@localhost>"
     trust_proxy_headers: bool = False
+    # Websocket address of a self-hosted certstream server, e.g. ws://certstream:8080/
+    # When set, the worker watches new certificates for names imitating verified domains.
+    certstream_url: str | None = None
 
     @classmethod
     def settings_customise_sources(

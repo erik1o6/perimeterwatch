@@ -1,0 +1,19 @@
+{
+  "_id": "acme_sdk",
+  "name": "acme_sdk",
+  "time": {
+    "modified": "2026-09-20T00:00:00.000Z",
+    "created": "2026-09-10T08:00:00.000Z",
+    "9.9.9": "2026-09-10T08:00:00.000Z"
+  },
+  "maintainers": [
+    {
+      "email": "stranger@mail.example",
+      "name": "totally-not-acme"
+    }
+  ],
+  "dist-tags": {
+    "latest": "9.9.9"
+  },
+  "versions": {}
+}

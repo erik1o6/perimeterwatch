@@ -8,18 +8,18 @@ TheDAO Fund gives a grant, as opposed to an RFP, to a named team "because that t
 
 This part is factual and can be checked in the repository.
 
-- The scanning engine is written and works. It has 14 check modules and 43 kinds of finding.
+- The scanning engine is written and works. It has 25 check modules and 69 kinds of finding.
 - The web service and its worker are written and work in tests: sign-in by emailed link, separation of organisations, domain verification, scheduled scans, alerts by email and chat, an audit log, and automatic deletion of old data.
-- 543 automated tests pass on the development machine. Four test files cover the safety rules of the engine: authorisation, domain validation, the guard against contacting private addresses, and the handling of external tools. One test file tries every route of the web service as a different organisation.
+- 1,374 automated tests pass on the development machine. Four test files cover the safety rules of the engine: authorisation, domain validation, the guard against contacting private addresses, and the handling of external tools. One test file tries every route of the web service as a different organisation.
 - Deployment files, a CI workflow, a licence file, a security policy and draft legal documents are written.
 - The design decisions that take longest to get right are already made and implemented: the consent model, the rule that a secret is never stored, the rule that lookalike domains are never contacted, the filter that admits only read-only exposure checks, and the rule that a finding is not marked as fixed when its check did not run.
 - The report format has a JSON schema, so other tools can read it.
 
-The limits of the head start are as plain as the head start. The code is not published and nothing has been committed to version control yet. The web service has never been deployed. The deployment files and the CI workflow have never been run. Nobody outside the team has reviewed the code or used the software.
+The limits of the head start are as plain as the head start. The code was published on 29 September 2026. The web service has never been deployed. The deployment files and the CI workflow have never been run. Nobody outside the team has reviewed the code or used the software.
 
 A team chosen through an RFP would start by making these decisions and writing this software. This team would start by publishing, deploying and submitting for review software that exists.
 
-Repository: **[TODO: URL, once published]**
+Repository: https://github.com/erik1o6/parapet
 Sample report: **[TODO: URL, once published]**
 Date work began: **[TODO]**
 
@@ -49,7 +49,7 @@ Described without names, to keep the pseudonym. Each item can be evidenced priva
 
 ### Public profiles
 
-- GitHub: **[TODO: the account that owns the repository, once published]**
+- GitHub: https://github.com/erik1o6
 
 ### Time available
 

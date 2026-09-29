@@ -16,6 +16,7 @@ The exact versions and checksums are in `src/parapet/tools/manifest.toml`.
 | naabu | MIT | https://github.com/projectdiscovery/naabu |
 | nuclei | MIT | https://github.com/projectdiscovery/nuclei |
 | nuclei-templates (data) | MIT | https://github.com/projectdiscovery/nuclei-templates |
+| betterleaks | MIT | https://github.com/betterleaks/betterleaks |
 | trufflehog | AGPL-3.0-only | https://github.com/trufflesecurity/trufflehog |
 
 ### trufflehog and the AGPL
@@ -37,6 +38,9 @@ to publish your changes.
 | Have I Been Pwned | Breach data is licensed CC BY 4.0 and is attributed wherever it is shown. Results are shown only to the verified owner of a domain |
 | crt.sh | Public certificate transparency search. Requests are spaced out and cached |
 | GitHub API | Public data only, read with a token supplied by the operator |
+| MetaMask eth-phishing-detect | Public blocklist of phishing domains, under the DBAD Public License 1.2, which asks for attribution. Findings that use it say so |
+| RDAP (IANA bootstrap and registry servers) | The public registration lookup that replaced WHOIS. Contact details of registrants are never read |
+| Internet Archive Wayback Machine | Public index of archived addresses. The addresses themselves are never fetched |
 | Hudson Rock | Off by default. No terms are published for this endpoint: get written permission before switching it on in a hosted service |
 
 ## Python libraries

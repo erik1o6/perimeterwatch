@@ -262,10 +262,18 @@ async def run_scan(
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
 
+    # Only tools belonging to checks that ran. Listing every installed tool would
+    # suggest that checks ran which did not.
+    ran = {r.module for r in results if r.status in (ModuleStatus.OK, ModuleStatus.PARTIAL)}
     used = {
-        b
+        binary
         for m in modules
-        for b in (*m.spec.requires_binaries, *m.spec.any_of_binaries, *m.spec.optional_binaries)
+        if m.spec.name in ran
+        for binary in (
+            *m.spec.requires_binaries,
+            *m.spec.any_of_binaries,
+            *m.spec.optional_binaries,
+        )
     }
     snapshot = ScanSnapshot(
         scan_id=scan_id,

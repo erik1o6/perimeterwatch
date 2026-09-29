@@ -123,6 +123,17 @@ class TestGating:
         assert "trufflehog or gitleaks" in (by_name["needs_any"].skip_reason or "")
         assert "github org" in (by_name["needs_org"].skip_reason or "")
 
+    async def test_report_lists_only_tools_of_checks_that_ran(
+        self, database: Any, settings: Any, modules: Any, tmp_path: Any
+    ) -> None:
+        from tests.helpers import install_fake_tools
+
+        settings.tools_dir = install_fake_tools(tmp_path / "tools", "subfinder", "naabu")
+        modules["finder"] = make_module("finder", optional_binaries=("subfinder",))
+        modules["ports"] = make_module("ports", mode=ScanMode.ACTIVE, requires_binaries=("naabu",))
+        snapshot, _ = await scan(database, settings)
+        assert set(snapshot.tool_versions) == {"subfinder"}, "naabu is installed but did not run"
+
     def test_unknown_module_names_are_rejected(self, modules: Any) -> None:
         modules["real"] = make_module("real")
         with pytest.raises(ValidationError):

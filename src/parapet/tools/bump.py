@@ -72,6 +72,19 @@ KNOWN: dict[str, Known] = {
         },
         version_args=("--version",),
     ),
+    "betterleaks": Known(
+        repo="betterleaks/betterleaks",
+        license="MIT",
+        assets={
+            "linux_amd64": "betterleaks_{v}_linux_x64.tar.gz",
+            "linux_arm64": "betterleaks_{v}_linux_arm64.tar.gz",
+            "darwin_arm64": "betterleaks_{v}_darwin_arm64.tar.gz",
+            "darwin_amd64": "betterleaks_{v}_darwin_x64.tar.gz",
+        },
+        checksums="checksums.txt",
+        # "version" is a subcommand here, not a flag.
+        version_args=("version",),
+    ),
     "nuclei-templates": Known(
         repo="projectdiscovery/nuclei-templates",
         license="MIT",

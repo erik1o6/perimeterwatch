@@ -157,6 +157,7 @@ class TestLocator:
             "nuclei",
             "nuclei-templates",
             "trufflehog",
+            "betterleaks",
         } <= set(pins)
         for pin in pins.values():
             assert pin.assets, pin.name

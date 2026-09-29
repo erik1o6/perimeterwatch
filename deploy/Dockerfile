@@ -30,8 +30,9 @@ RUN PARAPET_DATA_DIR=/tmp/pw /app/.venv/bin/parapet tools install --all \
 # --- runtime --------------------------------------------------------------------
 FROM ${PYTHON_IMAGE} AS runtime
 # naabu links against libpcap even for ordinary connect scans.
+# The secret scanners use git to read public repositories.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends libpcap0.8 ca-certificates \
+ && apt-get install -y --no-install-recommends libpcap0.8 ca-certificates git \
  && rm -rf /var/lib/apt/lists/* \
  && useradd --system --uid 10001 --create-home --home-dir /home/pw pw \
  && mkdir -p /data && chown pw:pw /data

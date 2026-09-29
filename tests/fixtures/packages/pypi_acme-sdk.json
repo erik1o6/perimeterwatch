@@ -1,0 +1,66 @@
+{
+  "info": {
+    "author": null,
+    "author_email": "Alice Example <alice.private@mail.example>",
+    "maintainer": null,
+    "maintainer_email": "Bob Example <bob.private@mail.example>, carol.private@mail.example",
+    "name": "acme-sdk",
+    "version": "2.4.1",
+    "summary": "Client library for the Acme protocol",
+    "package_url": "https://pypi.org/project/acme-sdk/",
+    "project_url": "https://pypi.org/project/acme-sdk/",
+    "yanked": false,
+    "license": "Apache-2.0",
+    "home_page": null,
+    "downloads": {
+      "last_day": -1,
+      "last_month": -1,
+      "last_week": -1
+    }
+  },
+  "last_serial": 123,
+  "ownership": {
+    "organization": null,
+    "roles": [
+      {
+        "role": "Owner",
+        "user": "alice-acme"
+      },
+      {
+        "role": "Maintainer",
+        "user": "bob-acme"
+      }
+    ]
+  },
+  "releases": {
+    "0.0.1": [],
+    "1.0.0": [
+      {
+        "filename": "acme_sdk.tar.gz",
+        "packagetype": "sdist",
+        "size": 1000,
+        "upload_time": "2020-02-14T08:49:42",
+        "upload_time_iso_8601": "2020-02-14T08:49:42.641660Z",
+        "yanked": false,
+        "digests": {
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    ],
+    "2.4.1": [
+      {
+        "filename": "acme_sdk.tar.gz",
+        "packagetype": "sdist",
+        "size": 1000,
+        "upload_time": "2026-07-01T10:00:00",
+        "upload_time_iso_8601": "2026-07-01T10:00:00.000000Z",
+        "yanked": false,
+        "digests": {
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    ]
+  },
+  "urls": [],
+  "vulnerabilities": []
+}

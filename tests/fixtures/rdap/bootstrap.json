@@ -1,0 +1,55 @@
+{
+  "description": "RDAP bootstrap file for Domain Name System registrations",
+  "publication": "2026-09-28T22:00:03Z",
+  "services": [
+    [
+      [
+        "kg"
+      ],
+      [
+        "http://rdap.cctld.kg/"
+      ]
+    ],
+    [
+      [
+        "xyz"
+      ],
+      [
+        "https://rdap.centralnic.com/xyz/"
+      ]
+    ],
+    [
+      [
+        "uk"
+      ],
+      [
+        "https://rdap.nominet.uk/uk/"
+      ]
+    ],
+    [
+      [
+        "org"
+      ],
+      [
+        "https://rdap.publicinterestregistry.org/rdap/"
+      ]
+    ],
+    [
+      [
+        "com"
+      ],
+      [
+        "https://rdap.verisign.com/com/v1/"
+      ]
+    ],
+    [
+      [
+        "net"
+      ],
+      [
+        "https://rdap.verisign.com/net/v1/"
+      ]
+    ]
+  ],
+  "version": "1.0"
+}
