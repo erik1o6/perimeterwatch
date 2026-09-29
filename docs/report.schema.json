@@ -1,0 +1,706 @@
+{
+  "$defs": {
+    "Action": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        },
+        "remediation": {
+          "title": "Remediation",
+          "type": "string"
+        },
+        "count": {
+          "default": 1,
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "title",
+        "severity",
+        "remediation"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "Asset": {
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/AssetType"
+        },
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "attributes": {
+          "additionalProperties": true,
+          "title": "Attributes",
+          "type": "object"
+        },
+        "state": {
+          "additionalProperties": true,
+          "title": "State",
+          "type": "object"
+        },
+        "source_module": {
+          "default": "",
+          "title": "Source Module",
+          "type": "string"
+        },
+        "facets": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Facets",
+          "type": "object"
+        },
+        "fingerprint": {
+          "default": "",
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "state_hash": {
+          "default": "",
+          "title": "State Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "key"
+      ],
+      "title": "Asset",
+      "type": "object"
+    },
+    "AssetChange": {
+      "properties": {
+        "before": {
+          "$ref": "#/$defs/Asset"
+        },
+        "after": {
+          "$ref": "#/$defs/Asset"
+        }
+      },
+      "required": [
+        "before",
+        "after"
+      ],
+      "title": "AssetChange",
+      "type": "object"
+    },
+    "AssetType": {
+      "enum": [
+        "domain",
+        "subdomain",
+        "ip",
+        "url",
+        "certificate",
+        "email_address",
+        "repository",
+        "github_org",
+        "safe",
+        "lookalike_domain",
+        "service"
+      ],
+      "title": "AssetType",
+      "type": "string"
+    },
+    "Category": {
+      "enum": [
+        "surface",
+        "email",
+        "lookalike",
+        "takeover",
+        "secrets",
+        "breach",
+        "web3",
+        "vuln"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "CheckItem": {
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "status"
+      ],
+      "title": "CheckItem",
+      "type": "object"
+    },
+    "Confidence": {
+      "enum": [
+        "confirmed",
+        "likely",
+        "candidate"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "Coverage": {
+      "properties": {
+        "module": {
+          "title": "Module",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "mode": {
+          "title": "Mode",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hint"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "stats": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Stats",
+          "type": "object"
+        },
+        "seconds": {
+          "default": 0.0,
+          "title": "Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "module",
+        "title",
+        "mode",
+        "status"
+      ],
+      "title": "Coverage",
+      "type": "object"
+    },
+    "Finding": {
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "module": {
+          "default": "",
+          "title": "Module",
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/Category"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "confidence": {
+          "$ref": "#/$defs/Confidence",
+          "default": "likely"
+        },
+        "sensitivity": {
+          "$ref": "#/$defs/Sensitivity",
+          "default": "normal"
+        },
+        "asset_type": {
+          "$ref": "#/$defs/AssetType"
+        },
+        "asset_key": {
+          "title": "Asset Key",
+          "type": "string"
+        },
+        "identity": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Identity",
+          "type": "object"
+        },
+        "state": {
+          "additionalProperties": true,
+          "title": "State",
+          "type": "object"
+        },
+        "evidence": {
+          "additionalProperties": true,
+          "title": "Evidence",
+          "type": "object"
+        },
+        "remediation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Remediation"
+        },
+        "references": {
+          "items": {
+            "type": "string"
+          },
+          "title": "References",
+          "type": "array"
+        },
+        "attribution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attribution"
+        },
+        "severity_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Severity Note"
+        },
+        "fingerprint": {
+          "default": "",
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "state_hash": {
+          "default": "",
+          "title": "State Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "category",
+        "title",
+        "severity",
+        "asset_type",
+        "asset_key"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "FindingChange": {
+      "properties": {
+        "before": {
+          "$ref": "#/$defs/Finding"
+        },
+        "after": {
+          "$ref": "#/$defs/Finding"
+        }
+      },
+      "required": [
+        "before",
+        "after"
+      ],
+      "title": "FindingChange",
+      "type": "object"
+    },
+    "HostRow": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "ips": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ips",
+          "type": "array"
+        },
+        "cname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cname"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "HostRow",
+      "type": "object"
+    },
+    "ScanDiff": {
+      "properties": {
+        "baseline": {
+          "default": false,
+          "title": "Baseline",
+          "type": "boolean"
+        },
+        "previous_scan_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Previous Scan Id"
+        },
+        "current_scan_id": {
+          "format": "uuid",
+          "title": "Current Scan Id",
+          "type": "string"
+        },
+        "new": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "New",
+          "type": "array"
+        },
+        "resolved": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Resolved",
+          "type": "array"
+        },
+        "changed": {
+          "items": {
+            "$ref": "#/$defs/FindingChange"
+          },
+          "title": "Changed",
+          "type": "array"
+        },
+        "stale": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Stale",
+          "type": "array"
+        },
+        "unchanged": {
+          "default": 0,
+          "title": "Unchanged",
+          "type": "integer"
+        },
+        "assets_new": {
+          "items": {
+            "$ref": "#/$defs/Asset"
+          },
+          "title": "Assets New",
+          "type": "array"
+        },
+        "assets_removed": {
+          "items": {
+            "$ref": "#/$defs/Asset"
+          },
+          "title": "Assets Removed",
+          "type": "array"
+        },
+        "assets_changed": {
+          "items": {
+            "$ref": "#/$defs/AssetChange"
+          },
+          "title": "Assets Changed",
+          "type": "array"
+        },
+        "assets_stale": {
+          "items": {
+            "$ref": "#/$defs/Asset"
+          },
+          "title": "Assets Stale",
+          "type": "array"
+        }
+      },
+      "required": [
+        "current_scan_id"
+      ],
+      "title": "ScanDiff",
+      "type": "object"
+    },
+    "Section": {
+      "properties": {
+        "category": {
+          "$ref": "#/$defs/Category"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "intro": {
+          "title": "Intro",
+          "type": "string"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Findings",
+          "type": "array"
+        },
+        "ran": {
+          "default": true,
+          "title": "Ran",
+          "type": "boolean"
+        },
+        "skipped_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Skipped Reason"
+        },
+        "extra": {
+          "additionalProperties": true,
+          "title": "Extra",
+          "type": "object"
+        }
+      },
+      "required": [
+        "category",
+        "title",
+        "intro"
+      ],
+      "title": "Section",
+      "type": "object"
+    },
+    "Sensitivity": {
+      "enum": [
+        "normal",
+        "personal",
+        "secret"
+      ],
+      "title": "Sensitivity",
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "title": "Severity",
+      "type": "integer"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "product": {
+      "default": "Parapet",
+      "title": "Product",
+      "type": "string"
+    },
+    "product_version": {
+      "default": "0.1.0",
+      "title": "Product Version",
+      "type": "string"
+    },
+    "scan": {
+      "additionalProperties": true,
+      "title": "Scan",
+      "type": "object"
+    },
+    "target": {
+      "additionalProperties": true,
+      "title": "Target",
+      "type": "object"
+    },
+    "authorisation": {
+      "additionalProperties": true,
+      "title": "Authorisation",
+      "type": "object"
+    },
+    "summary": {
+      "additionalProperties": true,
+      "title": "Summary",
+      "type": "object"
+    },
+    "checklist": {
+      "items": {
+        "$ref": "#/$defs/CheckItem"
+      },
+      "title": "Checklist",
+      "type": "array"
+    },
+    "actions": {
+      "items": {
+        "$ref": "#/$defs/Action"
+      },
+      "title": "Actions",
+      "type": "array"
+    },
+    "diff": {
+      "$ref": "#/$defs/ScanDiff"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/Section"
+      },
+      "title": "Sections",
+      "type": "array"
+    },
+    "hosts": {
+      "items": {
+        "$ref": "#/$defs/HostRow"
+      },
+      "title": "Hosts",
+      "type": "array"
+    },
+    "hosts_not_resolving": {
+      "default": 0,
+      "title": "Hosts Not Resolving",
+      "type": "integer"
+    },
+    "lookalike_assets": {
+      "items": {
+        "$ref": "#/$defs/Asset"
+      },
+      "title": "Lookalike Assets",
+      "type": "array"
+    },
+    "coverage": {
+      "items": {
+        "$ref": "#/$defs/Coverage"
+      },
+      "title": "Coverage",
+      "type": "array"
+    },
+    "methodology": {
+      "additionalProperties": true,
+      "title": "Methodology",
+      "type": "object"
+    },
+    "assets": {
+      "items": {
+        "$ref": "#/$defs/Asset"
+      },
+      "title": "Assets",
+      "type": "array"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/Finding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "attributions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Attributions",
+      "type": "array"
+    },
+    "personal_redacted": {
+      "default": false,
+      "title": "Personal Redacted",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "scan",
+    "target",
+    "authorisation",
+    "summary",
+    "checklist",
+    "actions",
+    "diff",
+    "sections",
+    "hosts",
+    "coverage",
+    "methodology"
+  ],
+  "title": "ReportData",
+  "type": "object"
+}

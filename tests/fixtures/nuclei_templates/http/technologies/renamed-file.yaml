@@ -1,0 +1,8 @@
+id: nginx-version
+info:
+  name: Nginx version
+  severity: info
+  tags: tech,nginx
+http:
+  - path:
+      - "{{BaseURL}}"

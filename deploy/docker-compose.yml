@@ -1,0 +1,108 @@
+# Run from the repository root:
+#   cp deploy/env.example deploy/.env   (then fill it in, and chmod 600 deploy/.env)
+#   docker compose -f deploy/docker-compose.yml up -d --build
+#
+# Two networks keep the parts apart:
+#   internal  the database. Nothing on it can reach the internet.
+#   edge      the web app and proxy.
+#   scanning  the worker's way out. Scan traffic leaves from here and only here.
+
+name: parapet
+
+x-app: &app
+  image: parapet:local
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  env_file: .env
+  environment:
+    PARAPET_DATABASE_URL: postgresql+psycopg://pw:${POSTGRES_PASSWORD}@postgres:5432/pw
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp:size=512m,mode=1777
+    - /home/pw:size=64m,uid=10001,gid=10001
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+
+services:
+  postgres:
+    image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    environment:
+      POSTGRES_USER: pw
+      POSTGRES_DB: pw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pw -d pw"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    # No ports are published. The database is reachable only from the other services.
+
+  migrate:
+    <<: *app
+    command: ["db", "migrate"]
+    restart: "no"
+    networks: [internal]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    <<: *app
+    command: ["serve", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      PARAPET_DATABASE_URL: postgresql+psycopg://pw:${POSTGRES_PASSWORD}@postgres:5432/pw
+      PARAPET_TRUST_PROXY_HEADERS: "true"
+    networks: [internal, edge]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).status == 200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    <<: *app
+    command: ["worker"]
+    networks: [internal, scanning]
+    tmpfs:
+      # Public repositories are cloned here for secret scanning, then deleted.
+      - /tmp:size=4g,mode=1777
+      - /home/pw:size=64m,uid=10001,gid=10001
+
+  caddy:
+    image: caddy:2-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in deploy/.env}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in deploy/.env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../docs/legal/security.txt:/srv/well-known/security.txt:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge]
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  internal:
+    internal: true
+  edge: {}
+  scanning: {}
+
+volumes:
+  pgdata: {}
+  caddy_data: {}
+  caddy_config: {}

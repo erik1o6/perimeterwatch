@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% from "base.html" import csrf_field with context %}
+{% block title %}Alerts · {{ product }}{% endblock %}
+{% block content %}
+<h1>Alerts</h1>
+<p class="lede">Hear when a scan finds something new or something changes. An alert says what kind of
+thing changed and links here. It never includes names, addresses or credentials.</p>
+
+{% if channels %}
+<div class="tablewrap"><table>
+  <thead><tr><th>Channel</th><th>Sends to</th><th>From level</th><th></th><th></th></tr></thead>
+  <tbody>
+  {% for c in channels %}
+  <tr>
+    <td>{{ c.row.label }}</td>
+    <td class="name">{{ c.shown }}</td>
+    <td>{{ c.level | ucfirst }}</td>
+    <td>{% if who.can_edit %}<form method="post" action="/alerts/{{ c.row.id }}/test">{{ csrf_field() }}<button class="quiet" type="submit">Send test</button></form>{% endif %}</td>
+    <td>{% if who.can_edit %}<form method="post" action="/alerts/{{ c.row.id }}/delete">{{ csrf_field() }}<button class="danger" type="submit">Remove</button></form>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+<p class="empty">No alert channels yet.</p>
+{% endif %}
+
+{% if who.can_edit %}
+{% macro level_select(id) %}
+<label for="{{ id }}">Alert me from this level up</label>
+<select id="{{ id }}" name="min_severity">
+  <option value="low">Low</option>
+  <option value="medium" selected>Medium</option>
+  <option value="high">High</option>
+  <option value="critical">Critical</option>
+</select>
+{% endmacro %}
+
+<h2>Add a channel</h2>
+<details class="card" open>
+  <summary><strong>Email</strong></summary>
+  <form method="post" action="/alerts">
+    {{ csrf_field() }}<input type="hidden" name="kind" value="email">
+    <label for="e-label">Name for this channel</label>
+    <input id="e-label" name="label" type="text" maxlength="100" placeholder="Security inbox">
+    <label for="e-to">Send to</label>
+    <input id="e-to" name="to" type="email" maxlength="320" required>
+    {{ level_select("e-level") }}
+    <br><button type="submit">Add email channel</button>
+  </form>
+</details>
+<details class="card">
+  <summary><strong>Slack</strong></summary>
+  <form method="post" action="/alerts">
+    {{ csrf_field() }}<input type="hidden" name="kind" value="slack">
+    <label for="s-label">Name for this channel</label>
+    <input id="s-label" name="label" type="text" maxlength="100" placeholder="#security">
+    <label for="s-url">Incoming webhook address</label>
+    <input id="s-url" name="url" type="url" maxlength="400" required placeholder="https://hooks.slack.com/services/…" autocomplete="off">
+    {{ level_select("s-level") }}
+    <br><button type="submit">Add Slack channel</button>
+  </form>
+</details>
+<details class="card">
+  <summary><strong>Discord</strong></summary>
+  <form method="post" action="/alerts">
+    {{ csrf_field() }}<input type="hidden" name="kind" value="discord">
+    <label for="d-label">Name for this channel</label>
+    <input id="d-label" name="label" type="text" maxlength="100" placeholder="#security">
+    <label for="d-url">Webhook address</label>
+    <input id="d-url" name="url" type="url" maxlength="400" required placeholder="https://discord.com/api/webhooks/…" autocomplete="off">
+    {{ level_select("d-level") }}
+    <br><button type="submit">Add Discord channel</button>
+  </form>
+</details>
+<details class="card">
+  <summary><strong>Telegram</strong></summary>
+  <form method="post" action="/alerts">
+    {{ csrf_field() }}<input type="hidden" name="kind" value="telegram">
+    <label for="t-label">Name for this channel</label>
+    <input id="t-label" name="label" type="text" maxlength="100" placeholder="Security group">
+    <label for="t-token">Bot token</label>
+    <input id="t-token" name="bot_token" type="text" maxlength="100" required autocomplete="off" spellcheck="false">
+    <label for="t-chat">Chat ID</label>
+    <input id="t-chat" name="chat_id" type="text" maxlength="30" required autocomplete="off">
+    {{ level_select("t-level") }}
+    <br><button type="submit">Add Telegram channel</button>
+  </form>
+</details>
+<p class="note">Webhook addresses and bot tokens are stored encrypted and are never shown again.</p>
+{% endif %}
+
+{% if deliveries %}
+<h2>Recent alerts</h2>
+<div class="tablewrap"><table>
+  <thead><tr><th>When</th><th>Subject</th><th>Result</th></tr></thead>
+  <tbody>
+  {% for d in deliveries %}
+  <tr>
+    <td>{{ d.created_at.isoformat() | when }}</td>
+    <td class="name">{{ d.subject }}</td>
+    <td>{{ d.status | ucfirst }}{% if d.last_error %} <span class="muted">({{ d.last_error }})</span>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endif %}
+{% endblock %}

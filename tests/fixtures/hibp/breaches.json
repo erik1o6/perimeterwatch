@@ -1,0 +1,4 @@
+[
+ {"Name":"ExampleCo","Title":"ExampleCo","Domain":"exampleco.test","BreachDate":"2024-05-01","DataClasses":["Email addresses","Passwords","Names"],"IsVerified":true},
+ {"Name":"NewsletterList","Title":"Newsletter List","Domain":"news.test","BreachDate":"2022-11-15","DataClasses":["Email addresses","Geographic locations"],"IsVerified":true}
+]

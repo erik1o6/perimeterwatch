@@ -1,0 +1,5 @@
+# Domains these tests may touch. List only domains you own.
+
+[[domain]]
+name = "yourproject.xyz"
+probe = false

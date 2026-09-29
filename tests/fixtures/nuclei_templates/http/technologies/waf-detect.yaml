@@ -1,0 +1,10 @@
+id: waf-detect
+info:
+  name: WAF Detection
+  severity: info
+  tags: waf,tech,misc
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}"
+    body: "_=<script>alert(1)</script>"

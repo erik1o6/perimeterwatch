@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "base.html" import csrf_field with context %}
+{% block title %}Confirm sign-in · {{ product }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="eyebrow">{{ product }}</div>
+  <h1>Confirm sign-in</h1>
+  <p class="lede">Press the button to finish signing in on this device.</p>
+  <form method="post" action="/auth/{{ token }}">
+    {{ csrf_field() }}
+    <button type="submit">Sign in</button>
+  </form>
+</div>
+{% endblock %}

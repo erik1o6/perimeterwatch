@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "base.html" import csrf_field with context %}
+{% block title %}Domains · {{ product }}{% endblock %}
+{% block content %}
+<h1>Your domains</h1>
+
+{% if rows %}
+<div class="tablewrap"><table>
+  <thead><tr><th>Domain</th><th>Verified</th><th>Open findings</th><th>Last scan</th></tr></thead>
+  <tbody>
+  {% for t in rows %}
+  <tr>
+    <td class="name"><a href="/targets/{{ t.row.id }}">{{ t.row.root_domain }}</a></td>
+    <td>{{ "Yes" if t.verified else "No" }}</td>
+    <td>
+      {{ t.open }}
+      {% if t.high %}<span class="tag sev-high">{{ t.high }} high</span>{% endif %}
+    </td>
+    <td>
+      {% if t.last %}
+      <a href="/scans/{{ t.last.id }}">{{ t.last.created_at.isoformat() | when }}</a>
+      <span class="muted">({{ t.last.status }})</span>
+      {% else %}<span class="muted">Not scanned yet</span>{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+<p class="lede">Add the domain your organisation runs on. You prove that you control it with one DNS record, and scanning starts from there.</p>
+{% endif %}
+
+{% if who.can_edit and rows | length < limit %}
+<div class="card">
+  <h3>Add a domain</h3>
+  <form method="post" action="/targets">
+    {{ csrf_field() }}
+    <label for="domain">Domain name</label>
+    <input id="domain" name="domain" type="text" placeholder="yourproject.xyz" required maxlength="253"
+           autocapitalize="none" autocomplete="off" spellcheck="false">
+    <button type="submit">Add domain</button>
+  </form>
+  <p class="note">Only add domains your organisation is responsible for. Nothing is scanned until
+  you have proved that you control the domain.</p>
+</div>
+{% endif %}
+{% endblock %}
