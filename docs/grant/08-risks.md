@@ -78,7 +78,7 @@ The code is open source, so anyone can also alter it to remove the authorisation
 - Pages contain no JavaScript, so the browser is told to refuse all scripts. This is built.
 - Alerts never carry names, addresses or credentials. A breach of an email or chat account therefore reveals that something changed and not what. This is built.
 - Each view of a finding about a person and each report download is written to an audit log. This is built.
-- The deployment files put the database on a network with no route to the internet, and give the worker its own network. These files are written and have never been run.
+- The deployment files put the database on a network with no route to the internet, and give the worker its own network. These files are written. The image builds in CI, but the deployment has never been started.
 - An independent security review is a pass criterion of Milestone 2. No organisation outside the team is onboarded before it passes. This is a pass criterion of Milestone 1.
 - An organisation that does not want its findings held by anyone can run the command-line tool on its own machine.
 

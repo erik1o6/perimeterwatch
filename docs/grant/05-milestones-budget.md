@@ -16,7 +16,7 @@ Every figure in this file that depends on these is a worked example and not a re
 
 The grant does not pay for work that exists. The following is built and passes 1,422 automated tests on the development machine: the scanning engine with all its checks, the command-line tool, the web service with sign-in, separation of organisations, domain verification, a scan queue, scheduled scans, alerts and an audit log, and the worker that runs scans and deletes old data. Drafts of the legal documents are written.
 
-The code is published at https://github.com/erik1o6/parapet. The web service has never been deployed. The deployment files and the CI workflow have never been run. No independent person has reviewed any of it. No organisation uses it.
+The code is published at https://github.com/erik1o6/parapet. The web service has never been deployed. The CI workflow runs in public on every change and passes: tests on Python 3.13 and 3.14, tests against Postgres, a dependency audit and a build of the container image. The Docker Compose deployment itself has never been started. No independent person has reviewed any of it. No organisation uses it.
 
 The milestones pay for closing that gap.
 
@@ -48,7 +48,7 @@ Proposed reviewer, if the fund asks the team to suggest one: **[TODO: a person o
 |---|---|---|
 | 1.1 | The repository is public under the Apache-2.0 licence, with its history from the first commit onward. | Open the URL. |
 | 1.2 | Version 1.0.0 is tagged and has release notes. | Look at the releases page. |
-| 1.3 | The CI workflow runs on every change, in public. Both of its jobs pass on the tagged release: the checks and tests, and the tests against a Postgres database. The number of tests is no lower than 540. | Open the latest run. |
+| 1.3 | The CI workflow runs on every change, in public. Both of its jobs pass on the tagged release: the checks and tests, and the tests against a Postgres database. The number of tests is no lower than 1,400. | Open the latest run. |
 | 1.4 | The container image builds from the published files, and the service starts from the published deployment instructions. | The reviewer follows `docs/operations.md` on a machine of their own. |
 | 1.5 | A person can install the command-line tool from the written instructions and complete a passive scan of a domain they own in under 30 minutes. | The reviewer does it. |
 | 1.6 | A sample report from a scan of a domain the team owns is published, as HTML and as JSON. The JSON validates against the published schema. | Open the URLs. Validate the file. |

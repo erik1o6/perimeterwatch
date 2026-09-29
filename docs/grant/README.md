@@ -61,7 +61,7 @@ Griff's feedback had two parts. These drafts answer each one.
 
 These are actions, not text edits.
 
-- Consider publishing the repository before submitting, even though publication is also the first item of Milestone 1. The licence file, README, security policy and CI workflow are written. Nothing has been committed or published, and the CI workflow has never run. A reviewer who is asked to believe in a prototype will want to see it. If you publish first, reword criteria 1.1 to 1.3 in `05-milestones-budget.md` so that Milestone 1 does not claim work already done.
+- The repository is published and its CI passes in public. Criteria 1.1 to 1.3 in `05-milestones-budget.md` are therefore already met in part: reword them so Milestone 1 pays for what remains (a tagged 1.0 release, a first deployment, a published sample report), not for publication itself.
 - The same applies to one sample report (HTML and JSON) from a scan of a domain you own. A reviewer who can open a real report understands the project faster than from any description.
 - Update `docs/legal/README.md`, which still says the hosted service does not exist.
 - Record a short screen capture of `parapet` scanning that domain.

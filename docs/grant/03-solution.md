@@ -101,7 +101,7 @@ Built and covered by automated tests. Never deployed.
 | Scans | A queue, and scheduled scans: daily, every 3 days, weekly, or on request only. |
 | Alerts | By email, Slack, Discord and Telegram. An alert says what kind of thing changed and links to the service. It never carries names, addresses or credentials. |
 | Audit log | Records sign-ins, scans, changes, each view of a finding about a person, and each report download. |
-| Deployment | Docker Compose files and a CI workflow are written. **Neither has ever been run.** There is no Docker on the development machine, and the CI workflow has not yet been pushed, so the CI workflow has had nothing to run on. |
+| Deployment | Docker Compose files are written and the container image builds in CI. **The deployment itself has never been started.** |
 
 ## What it will not do
 
@@ -130,8 +130,8 @@ Built and covered by automated tests. Never deployed.
 | Scheduled scans, alerts, automatic retention | Built and tested | Shown working in a real deployment in M1 and M2 |
 | HTML and JSON reports, with JSON schema | Built | A sample report on the team's own domain, published in M1 |
 | Licence, README, security policy, third-party notices | Written. Apache-2.0. | Published with the repository in M1 |
-| Public repository | Published at https://github.com/erik1o6/parapet. The CI workflow is written but not yet pushed or run. | CI running in public, in M1 |
-| CI workflow and Docker deployment files | Written, never run | Run, and fixed where they fail, in M1 |
+| Public repository | Published at https://github.com/erik1o6/parapet. CI runs in public on every change and passes. | Tagged 1.0 release, in M1 |
+| CI workflow and Docker deployment files | CI passes, including the image build. The Compose deployment has never been started | First real deployment, in M1 |
 | Inviting colleagues to an organisation | Not built. Each account is its own organisation. | M1 |
 | Sign-in with a wallet | Not built | M1 |
 | Terms of service, privacy notice and other policies | Drafts exist in `docs/legal/`. No lawyer has reviewed them. | Reviewed by a lawyer in M2 |

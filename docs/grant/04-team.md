@@ -15,7 +15,7 @@ This part is factual and can be checked in the repository.
 - The design decisions that take longest to get right are already made and implemented: the consent model, the rule that a secret is never stored, the rule that lookalike domains are never contacted, the filter that admits only read-only exposure checks, and the rule that a finding is not marked as fixed when its check did not run.
 - The report format has a JSON schema, so other tools can read it.
 
-The limits of the head start are as plain as the head start. The code was published on 29 September 2026. The web service has never been deployed. The deployment files and the CI workflow have never been run. Nobody outside the team has reviewed the code or used the software.
+The limits of the head start are as plain as the head start. The code was published on 29 September 2026. The web service has never been deployed. The CI workflow runs in public on every change and passes: tests on Python 3.13 and 3.14, tests against Postgres, a dependency audit and a build of the container image. The Docker Compose deployment itself has never been started. Nobody outside the team has reviewed the code or used the software.
 
 A team chosen through an RFP would start by making these decisions and writing this software. This team would start by publishing, deploying and submitting for review software that exists.
 
