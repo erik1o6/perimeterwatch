@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "base.html" import sev with context %}
+{% block title %}Scan of {{ target.root_domain }} · {{ product }}{% endblock %}
+
+{% macro finding_rows(items) %}
+  {% for f in items %}
+  <tr><td>{{ sev(f) }}</td><td class="name">{{ f.title }}</td><td class="name mono">{{ f.asset_key }}</td></tr>
+  {% endfor %}
+{% endmacro %}
+
+{% block content %}
+<div class="eyebrow">Scan · <a href="/targets/{{ target.id }}">{{ target.root_domain }}</a></div>
+
+{% if running %}
+<h1>{{ "Waiting to start" if scan.status == "queued" else "Scanning" }}</h1>
+<p class="status" role="status">
+  {% if scan.status == "queued" %}The scan is in the queue.
+  {% else %}The scan is running. A passive scan takes a minute or two. Active checks take longer.{% endif %}
+</p>
+<p class="muted">This page refreshes by itself every few seconds. You can close it: the scan carries on.</p>
+
+{% elif scan.status == "failed" %}
+<h1>The scan did not finish</h1>
+<p class="banner error" role="alert">{{ scan.error or "The scan stopped unexpectedly." }}</p>
+<p><a href="/targets/{{ target.id }}">Back to {{ target.root_domain }}</a></p>
+
+{% else %}
+<h1>{{ scan.finished_at.isoformat() | when }}</h1>
+<p class="lede">{{ r.methodology.mode_meaning }} {{ r.authorisation.basis }}</p>
+
+<div class="counts">
+  {% for name, n in r.summary.by_severity.items() %}
+  <div class="count sev-{{ name }}"><b>{{ n }}</b><span>{{ name }}</span></div>
+  {% endfor %}
+</div>
+
+<p>
+  Download the full report:
+  <a href="/scans/{{ scan.id }}/report.html">HTML</a>,
+  <a href="/scans/{{ scan.id }}/report.json">JSON</a>.
+  <span class="muted">Personal details are masked.
+  <a href="/scans/{{ scan.id }}/report.html?personal=shown">Download with them shown</a> (recorded in the audit log).</span>
+</p>
+
+<section>
+  <h2>Changes since the previous scan</h2>
+  {% set d = r.diff %}
+  {% if d.baseline %}
+  <p class="lede">This is the first scan of this domain, so it sets the baseline.</p>
+  {% elif not d.has_changes %}
+  <p class="lede">Nothing changed.</p>
+  {% else %}
+  {% for title, items in [("New", d.new), ("Resolved", d.resolved)] %}
+  {% if items %}
+  <h3>{{ title }} <span class="tag plain">{{ items | length }}</span></h3>
+  <div class="tablewrap"><table><tbody>{{ finding_rows(items) }}</tbody></table></div>
+  {% endif %}
+  {% endfor %}
+  {% if d.changed %}
+  <h3>Changed <span class="tag plain">{{ d.changed | length }}</span></h3>
+  <div class="tablewrap"><table><tbody>
+    {% for c in d.changed %}
+    <tr><td>{{ sev(c.after) }}</td><td class="name">{{ c.after.title }}</td>
+    <td class="mono">{{ c.before.state | value }} → {{ c.after.state | value }}</td></tr>
+    {% endfor %}
+  </tbody></table></div>
+  {% endif %}
+  {% endif %}
+</section>
+
+<section>
+  <h2>All findings in this scan <span class="tag plain">{{ r.findings | length }}</span></h2>
+  {% if r.findings %}
+  <div class="tablewrap"><table>
+    <thead><tr><th>Severity</th><th>Finding</th><th>Affects</th></tr></thead>
+    <tbody>{{ finding_rows(r.findings) }}</tbody>
+  </table></div>
+  {% else %}<p class="empty">No findings.</p>{% endif %}
+</section>
+
+<section>
+  <h2>What ran</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Check</th><th>Result</th><th>Detail</th></tr></thead>
+    <tbody>
+    {% for c in r.coverage %}
+    <tr>
+      <td>{{ c.title }}</td>
+      <td>{{ c.status | ucfirst }}</td>
+      <td>{% if c.reason %}{{ c.reason | ucfirst }}.{% endif %}{% for n in c.notes %} {{ n }}{% endfor %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Audit log · {{ product }}{% endblock %}
+{% block content %}
+<h1>Audit log</h1>
+<p class="lede">Who did what in your organisation's account, newest first. Entries cannot be edited or removed.</p>
+{% if entries %}
+<div class="tablewrap"><table>
+  <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Detail</th><th>From</th></tr></thead>
+  <tbody>
+  {% for e in entries %}
+  <tr>
+    <td>{{ e.created_at.isoformat() | when }}</td>
+    <td class="name">{{ e.actor }}</td>
+    <td class="mono">{{ e.action }}</td>
+    <td class="name mono">{{ e.meta | value if e.meta else "" }}</td>
+    <td class="mono">{{ e.ip or "" }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+<p class="empty">Nothing recorded yet.</p>
+{% endif %}
+{% endblock %}

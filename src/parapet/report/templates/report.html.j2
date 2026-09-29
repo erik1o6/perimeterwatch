@@ -1,0 +1,285 @@
+{% macro sev(f) %}<span class="tag sev-{{ f.severity.label }}">{{ f.severity.label }}</span>{% endmacro %}
+
+{% macro finding(f, open=false) %}
+<details class="finding sev-{{ f.severity.label }}"{% if open %} open{% endif %}>
+  <summary>
+    {{ sev(f) }}
+    <span class="title">{{ f.title }}</span>
+  </summary>
+  <div class="body">
+    <dl class="kv">
+      <dt>Affects</dt><dd class="mono">{{ f.asset_key }}</dd>
+      <dt>Certainty</dt><dd>{{ f.confidence.value | label }}</dd>
+      {% for key, val in f.evidence.items() %}
+      <dt>{{ key | label }}</dt><dd class="mono">{{ val | value }}</dd>
+      {% endfor %}
+    </dl>
+    {% if f.severity_note %}<p class="note">{{ f.severity_note }}</p>{% endif %}
+    {% if f.remediation %}
+    <div class="why">What to do</div>
+    <p>{{ f.remediation }}</p>
+    {% endif %}
+    {% if f.references %}
+    <div class="why">Reference</div>
+    <p class="mono">{% for ref in f.references %}{{ ref }}{% if not loop.last %}<br>{% endif %}{% endfor %}</p>
+    {% endif %}
+    {% if f.attribution %}<p class="note">{{ f.attribution }}</p>{% endif %}
+  </div>
+</details>
+{% endmacro %}
+
+{% macro finding_list(items, open_above=3) %}
+  {% for f in items %}{{ finding(f, open=(f.severity >= open_above)) }}{% endfor %}
+{% endmacro %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>{{ r.target.root_domain }} exposure report</title>
+<style>{{ css | safe }}</style>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <div class="eyebrow">{{ r.product }} · Exposure report</div>
+  <h1>{{ r.target.root_domain }}</h1>
+  <p class="lede">What is publicly visible about this organisation's systems, as an outsider would find it.</p>
+  <dl class="meta">
+    <div><dt>Scanned</dt><dd>{{ r.scan.finished_at | when }}</dd></div>
+    <div><dt>Depth</dt><dd>{{ r.scan.mode | label }}</dd></div>
+    <div><dt>Authorisation</dt><dd>{{ r.authorisation.level | label }}</dd></div>
+    <div><dt>Scan reference</dt><dd class="mono">{{ r.scan.id[:8] }}</dd></div>
+  </dl>
+  <p class="note sans">{{ r.methodology.mode_meaning }} {{ r.authorisation.basis }}</p>
+  <nav>
+    <a href="#summary">Summary</a>
+    <a href="#changes">Changes</a>
+    {% for s in r.sections %}<a href="#{{ s.category.value }}">{{ s.title }}</a>{% endfor %}
+    <a href="#coverage">Coverage</a>
+    <a href="#method">Method</a>
+  </nav>
+</header>
+
+<section id="summary">
+  <h2>Summary</h2>
+  <p class="lede">
+    {{ r.summary.total }} finding{{ "" if r.summary.total == 1 else "s" }} across
+    {{ r.summary.names_discovered }} discovered name{{ "" if r.summary.names_discovered == 1 else "s" }},
+    of which {{ r.summary.hosts_resolving }} currently resolve{{ "s" if r.summary.hosts_resolving == 1 else "" }}.
+  </p>
+  <div class="counts">
+    {% for name, n in r.summary.by_severity.items() %}
+    <div class="count sev-{{ name }}"><b>{{ n }}</b><span>{{ name }}</span></div>
+    {% endfor %}
+  </div>
+
+  <h3>Baseline checks</h3>
+  <ul class="checks">
+    {% for c in r.checklist %}
+    <li class="check {{ c.status }}">
+      <span class="mark">{{ {"pass": "✓", "fail": "✕", "unknown": "–"}[c.status] }}</span>
+      <span>{{ c.label }}</span>
+      <small>{{ c.detail }}</small>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <h3>Do these first</h3>
+  {% if r.actions %}
+  <ol class="actions">
+    {% for a in r.actions %}
+    <li>
+      <span class="what"><span class="tag sev-{{ a.severity }}">{{ a.severity }}</span>
+      {{ a.title }}{% if a.count > 1 %} (and {{ a.count - 1 }} similar){% endif %}</span><br>
+      {{ a.remediation }}
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="empty">Nothing needs action.</p>
+  {% endif %}
+</section>
+
+<section id="changes">
+  <h2>Changes since the previous scan</h2>
+  {% set d = r.diff %}
+  {% if d.baseline %}
+  <p class="lede">This is the first scan of this domain, so it sets the baseline. Later reports list what changed.</p>
+  {% elif not d.has_changes %}
+  <p class="lede">Nothing changed. {{ d.unchanged }} finding{{ "" if d.unchanged == 1 else "s" }} carried over.</p>
+  {% else %}
+  <p class="lede">
+    {{ d.new | length }} new, {{ d.resolved | length }} resolved, {{ d.changed | length }} changed,
+    {{ d.unchanged }} unchanged.
+  </p>
+  {% if d.new %}<div class="change-group"><h3>New <span>{{ d.new | length }}</span></h3>{{ finding_list(d.new, 5) }}</div>{% endif %}
+  {% if d.changed %}
+  <div class="change-group"><h3>Changed <span>{{ d.changed | length }}</span></h3>
+    {% for c in d.changed %}
+    <details class="finding sev-{{ c.after.severity.label }}" open>
+      <summary>{{ sev(c.after) }}<span class="title">{{ c.after.title }}</span></summary>
+      <div class="body">
+        <dl class="kv">
+          <dt>Affects</dt><dd class="mono">{{ c.after.asset_key }}</dd>
+          {% if c.before.severity != c.after.severity %}
+          <dt>Severity</dt><dd>{{ c.before.severity.label }} → {{ c.after.severity.label }}</dd>
+          {% endif %}
+          <dt>Before</dt><dd class="mono">{{ c.before.state | value }}</dd>
+          <dt>Now</dt><dd class="mono">{{ c.after.state | value }}</dd>
+        </dl>
+      </div>
+    </details>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if d.resolved %}<div class="change-group"><h3>Resolved <span>{{ d.resolved | length }}</span></h3>{{ finding_list(d.resolved, 5) }}</div>{% endif %}
+  {% if d.assets_new or d.assets_removed or d.assets_changed %}
+  <h3>Assets</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Change</th><th>Kind</th><th>Name</th><th>Detail</th></tr></thead>
+    <tbody>
+    {% for a in d.assets_new %}<tr><td>Appeared</td><td>{{ a.type.value | label }}</td><td class="name mono">{{ a.key }}</td><td class="mono">{{ a.state | value }}</td></tr>{% endfor %}
+    {% for a in d.assets_removed %}<tr><td>Gone</td><td>{{ a.type.value | label }}</td><td class="name mono">{{ a.key }}</td><td></td></tr>{% endfor %}
+    {% for c in d.assets_changed %}<tr><td>Changed</td><td>{{ c.after.type.value | label }}</td><td class="name mono">{{ c.after.key }}</td><td class="mono">{{ c.before.state | value }} → {{ c.after.state | value }}</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  {% endif %}
+  {% endif %}
+  {% if not d.baseline and (d.stale or d.assets_stale) %}
+  <p class="note">
+    {{ d.stale | length }} earlier finding{{ "" if d.stale | length == 1 else "s" }} and
+    {{ d.assets_stale | length }} asset{{ "" if d.assets_stale | length == 1 else "s" }} could not be
+    re-checked, because the check that found them did not complete this time. They are not counted as resolved.
+  </p>
+  {% endif %}
+</section>
+
+{% for s in r.sections %}
+<section id="{{ s.category.value }}">
+  <h2>{{ s.title }}</h2>
+  <p class="lede">{{ s.intro }}</p>
+
+  {% if not s.ran %}
+  <p class="empty">Not checked in this scan: {{ s.skipped_reason }}.</p>
+  {% else %}
+
+  {% if s.category.value == "email" and s.extra %}
+  <dl class="kv">
+    <dt>Mail servers</dt><dd class="mono">{{ s.extra.mx | value }}</dd>
+    <dt>SPF record</dt><dd class="mono">{{ s.extra.spf_record | value }}</dd>
+    <dt>DMARC record</dt><dd class="mono">{{ s.extra.dmarc_record | value }}</dd>
+    <dt>DKIM selectors found</dt><dd class="mono">{{ s.extra.dkim_selectors | value }}</dd>
+    <dt>MTA-STS</dt><dd class="mono">{{ s.extra.mta_sts | value }}</dd>
+  </dl>
+  {% endif %}
+
+  {% if s.findings %}
+  {{ finding_list(s.findings) }}
+  {% else %}
+  <p class="empty">No issues found.</p>
+  {% endif %}
+
+  {% if s.category.value == "surface" %}
+  <h3>Hosts that resolve <span class="tag plain">{{ r.hosts | length }}</span></h3>
+  {% if r.hosts %}
+  <div class="tablewrap"><table>
+    <thead><tr><th>Name</th><th>Points to</th><th>Addresses</th><th>Note</th></tr></thead>
+    <tbody>
+    {% for h in r.hosts %}
+    <tr>
+      <td class="name mono">{{ h.name }}</td>
+      <td class="name mono">{{ h.cname or "" }}</td>
+      <td class="mono">{{ h.ips | join(", ") }}</td>
+      <td>{{ h.note }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <p class="empty">No resolving hosts were recorded.</p>
+  {% endif %}
+  {% if r.hosts_not_resolving %}
+  <p class="note">{{ r.hosts_not_resolving }} further name{{ "" if r.hosts_not_resolving == 1 else "s" }}
+  appear{{ "s" if r.hosts_not_resolving == 1 else "" }} in public records but no longer resolve{{ "s" if r.hosts_not_resolving == 1 else "" }}.
+  The full list is in the JSON report.</p>
+  {% endif %}
+  {% endif %}
+
+  {% if s.category.value == "lookalike" and r.lookalike_assets %}
+  <h3>Registered variations <span class="tag plain">{{ r.lookalike_assets | length }}</span></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Domain</th><th>Shown as</th><th>Technique</th><th>Web address</th><th>Takes mail</th></tr></thead>
+    <tbody>
+    {% for a in r.lookalike_assets %}
+    <tr>
+      <td class="name mono">{{ a.key }}</td>
+      <td class="name">{{ a.attributes.display }}</td>
+      <td>{{ a.attributes.technique }}</td>
+      <td>{{ a.state.has_address | value }}</td>
+      <td>{{ a.state.mail_capable | value }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% endif %}
+
+  {% endif %}
+</section>
+{% endfor %}
+
+<section id="coverage">
+  <h2>Coverage and limitations</h2>
+  <p class="lede">What ran, what did not, and why. A check that did not run says nothing about that area.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Check</th><th>Depth</th><th>Result</th><th>Detail</th><th>Time</th></tr></thead>
+    <tbody>
+    {% for c in r.coverage %}
+    <tr>
+      <td>{{ c.title }}<br><span class="mono">{{ c.module }}</span></td>
+      <td>{{ c.mode }}</td>
+      <td><span class="tag {{ 'sev-high' if c.status == 'failed' else ('sev-medium' if c.status in ('partial', 'skipped') else 'plain') }}">{{ c.status }}</span></td>
+      <td>
+        {% if c.reason %}{{ c.reason | ucfirst }}.{% endif %}
+        {% if c.hint %} To fix: <span class="mono">{{ c.hint }}</span>{% endif %}
+        {% for n in c.notes %}<div>{{ n }}</div>{% endfor %}
+        {% if c.stats %}<div class="mono">{{ c.stats | value }}</div>{% endif %}
+      </td>
+      <td>{{ c.seconds }}s</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+
+<section id="method">
+  <h2>Method</h2>
+  <dl class="kv">
+    <dt>Sources consulted</dt><dd>{{ r.methodology.contacted | value }}</dd>
+    <dt>Identified as</dt><dd class="mono">{{ r.methodology.user_agent }}</dd>
+    <dt>Contact</dt><dd class="mono">{{ r.methodology.contact_url }}</dd>
+    {% if r.methodology.abuse_email %}<dt>Abuse reports</dt><dd class="mono">{{ r.methodology.abuse_email }}</dd>{% endif %}
+    <dt>Data kept for</dt><dd>{{ r.methodology.retention_days }} days</dd>
+    {% if r.scan.tool_versions %}<dt>Tool versions</dt><dd class="mono">{{ r.scan.tool_versions | value }}</dd>{% endif %}
+    <dt>Tool</dt><dd>{{ r.product }} {{ r.product_version }}, report format {{ r.schema_version }}</dd>
+  </dl>
+  <p class="note">
+    This report lists what can be seen from outside. It is not a penetration test or an audit, and it
+    gives no overall score. An area with no findings is not proven safe.
+    {% if r.personal_redacted %}Personal details have been masked in this copy.{% endif %}
+  </p>
+  {% for a in r.attributions %}<p class="note">{{ a }}</p>{% endfor %}
+</section>
+
+<footer>
+  Confidential. Prepared for {{ r.target.root_domain }}.
+  <span class="long">Generated by {{ r.product }} on {{ r.scan.finished_at | when }}. Scan {{ r.scan.id[:8] }}.</span>
+</footer>
+
+</div>
+</body>
+</html>

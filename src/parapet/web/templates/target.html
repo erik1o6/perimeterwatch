@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% from "base.html" import csrf_field, sev with context %}
+{% block title %}{{ target.root_domain }} · {{ product }}{% endblock %}
+{% block content %}
+<div class="eyebrow">Domain</div>
+<h1>{{ target.root_domain }}</h1>
+<p class="lede">
+  {% if verified %}Control of this domain is proven. All checks are available.
+  {% elif can_scan %}Not verified. Scans use public records, and details about individual people are withheld.
+  {% else %}Not verified. Prove that you control this domain to start scanning it.{% endif %}
+</p>
+
+<section>
+  <h2>Findings <span class="tag plain">{{ findings | length }}</span></h2>
+  {% if findings %}
+  <div class="tablewrap"><table>
+    <thead><tr><th>Severity</th><th>Finding</th><th>First seen</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for item in findings %}
+    <tr>
+      <td>{{ sev(item.finding) }}</td>
+      <td class="name"><a href="/findings/{{ item.id }}">{{ item.finding.title }}</a></td>
+      <td>{{ item.first_seen.isoformat() | when if item.first_seen else "" }}</td>
+      <td>{{ "Not re-checked" if item.status == "stale" else item.status | ucfirst }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  <p class="note">Names and addresses of people are masked in this list. Opening such a finding shows
+  the detail and is recorded in the audit log.</p>
+  {% elif scans %}
+  <p class="empty">No open findings.</p>
+  {% else %}
+  <p class="empty">Nothing yet. Run the first scan below.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Scans</h2>
+  {% if who.can_edit and not can_scan %}
+  <p class="note">Scanning starts once the domain is verified. <a href="#verify">Prove control of the domain</a>.</p>
+  {% elif who.can_edit %}
+  <form method="post" action="/targets/{{ target.id }}/scans" class="card">
+    {{ csrf_field() }}
+    <div class="row">
+      <div>
+        <label for="depth">Depth</label>
+        <select id="depth" name="depth">
+          <option value="passive">Passive: public records only</option>
+          <option value="probe">Probe: also one web request per host</option>
+          {% if verified %}<option value="active">Active: also ports and exposure checks</option>{% endif %}
+        </select>
+      </div>
+      <div><button type="submit">Scan now</button></div>
+    </div>
+    {% if not verified %}<p class="note">Active checks become available once the domain is verified.</p>{% endif %}
+  </form>
+  {% endif %}
+  {% if scans %}
+  <div class="tablewrap"><table>
+    <thead><tr><th>Started</th><th>Depth</th><th>Requested by</th><th>Result</th></tr></thead>
+    <tbody>
+    {% for s in scans %}
+    <tr>
+      <td><a href="/scans/{{ s.id }}">{{ s.created_at.isoformat() | when }}</a></td>
+      <td>{{ s.mode | ucfirst }}</td>
+      <td class="name">{{ s.requested_by }}</td>
+      <td>{{ s.status | ucfirst }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% endif %}
+</section>
+
+<section id="verify">
+  <h2>Proof of domain control</h2>
+  {% if verified %}
+  <p>Verified on {{ verification.verified_at.isoformat() | when }}. Keep the DNS record in place: it is
+  checked again before every active scan and once a day. Removing it withdraws authorisation.</p>
+  {% elif verification %}
+  <p>Create this record where the domain's DNS is managed, then check it.</p>
+  <dl class="kv record">
+    <dt>Type</dt><dd class="mono">TXT</dd>
+    <dt>Name</dt><dd class="mono">{{ record_name }}</dd>
+    <dt>Value</dt><dd class="mono">{{ record_value }}</dd>
+  </dl>
+  {% if verification.last_result %}<p class="note">Last check: {{ verification.last_result }}</p>{% endif %}
+  {% if who.can_edit %}
+  <form method="post" action="/targets/{{ target.id }}/verify/check">
+    {{ csrf_field() }}<button type="submit">Check the record</button>
+  </form>
+  {% endif %}
+  {% else %}
+  <p>Proving control unlocks active checks and shows which staff addresses appear in breach data.
+  It takes one DNS record.</p>
+  {% if who.can_edit %}
+  <form method="post" action="/targets/{{ target.id }}/verify/start">
+    {{ csrf_field() }}<button type="submit">Get the DNS record</button>
+  </form>
+  {% endif %}
+  {% endif %}
+</section>
+
+{% if who.can_edit %}
+<section>
+  <h2>Settings</h2>
+  <form method="post" action="/targets/{{ target.id }}/settings">
+    {{ csrf_field() }}
+    <label for="github_org">GitHub organisation</label>
+    <input id="github_org" name="github_org" type="text" maxlength="39" value="{{ config.github_org or '' }}"
+           autocapitalize="none" spellcheck="false">
+    <label for="safe">Safe multisig address (Ethereum mainnet)</label>
+    <input id="safe" name="safe" type="text" maxlength="42" placeholder="0x…"
+           value="{{ config.safes[0].address if config.safes else '' }}" autocapitalize="none" spellcheck="false">
+    <div class="row">
+      <div>
+        <label for="job_board_kind">Job board</label>
+        <select id="job_board_kind" name="job_board_kind">
+          <option value="greenhouse" {{ "selected" if config.job_board and config.job_board.kind == "greenhouse" }}>Greenhouse</option>
+          <option value="lever" {{ "selected" if config.job_board and config.job_board.kind == "lever" }}>Lever</option>
+        </select>
+      </div>
+      <div>
+        <label for="job_board">Board name</label>
+        <input id="job_board" name="job_board" type="text" maxlength="64"
+               value="{{ config.job_board.value if config.job_board else '' }}" autocapitalize="none" spellcheck="false">
+      </div>
+    </div>
+    <label for="interval">Scan automatically</label>
+    <select id="interval" name="interval">
+      {% for hours, text in [(24, "Every day"), (72, "Every 3 days"), (168, "Every week"), (0, "Only when I ask")] %}
+      <option value="{{ hours }}" {{ "selected" if (target.scan_interval_hours or 0) == hours }}>{{ text }}</option>
+      {% endfor %}
+    </select>
+    <br><button type="submit">Save settings</button>
+  </form>
+
+  <h3>Remove this domain</h3>
+  <p>This deletes every scan and finding stored for {{ target.root_domain }}. It cannot be undone.</p>
+  <form method="post" action="/targets/{{ target.id }}/delete">
+    {{ csrf_field() }}
+    <label for="confirm">Type the domain name to confirm</label>
+    <input id="confirm" name="confirm" type="text" maxlength="253" autocomplete="off" autocapitalize="none" spellcheck="false">
+    <button class="danger" type="submit">Remove domain and delete its data</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

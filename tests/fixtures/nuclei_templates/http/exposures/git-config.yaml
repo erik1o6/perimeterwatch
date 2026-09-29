@@ -1,0 +1,12 @@
+id: git-config
+info:
+  name: Git Configuration - Detect
+  severity: medium
+  tags: config,git,exposure
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.git/config"
+    matchers:
+      - type: word
+        words: ["[core]"]

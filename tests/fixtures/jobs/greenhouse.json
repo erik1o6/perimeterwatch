@@ -1,0 +1,5 @@
+{"jobs":[
+ {"id":1,"title":"Senior DevOps Engineer","content":"&lt;p&gt;You will run our &lt;strong&gt;Kubernetes&lt;/strong&gt; clusters on AWS with Terraform. We use Fireblocks for treasury operations and HashiCorp Vault for secrets.&lt;/p&gt;"},
+ {"id":2,"title":"Smart Contract Engineer","content":"&lt;p&gt;Solidity and Foundry. Monitoring with Tenderly. You will be a cheerleader for good testing, steering our roadmap.&lt;/p&gt;"},
+ {"id":3,"title":"<script>alert(1)</script>","content":"&lt;p&gt;Okta and CrowdStrike experience is a plus. kubernetes again.&lt;/p&gt;"}
+],"meta":{"total":3}}

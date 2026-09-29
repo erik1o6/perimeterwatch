@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "base.html" import csrf_field, sev with context %}
+{% block title %}Finding · {{ product }}{% endblock %}
+{% block content %}
+<div class="eyebrow">Finding · <a href="/targets/{{ target.id }}">{{ target.root_domain }}</a></div>
+<h1>{{ f.title }}</h1>
+<p>{{ sev(f) }} <span class="muted">{{ row.status | ucfirst }}. First seen {{ row.first_seen.isoformat() | when }},
+last seen {{ row.last_seen.isoformat() | when }}.</span></p>
+
+{% if f.sensitivity.value != "normal" %}
+<p class="banner">This finding holds {{ "details about a person" if f.sensitivity.value == "personal" else "details of a credential" }}.
+Your view of it has been recorded in the audit log.</p>
+{% endif %}
+
+<dl class="kv">
+  <dt>Affects</dt><dd class="mono">{{ f.asset_key }}</dd>
+  <dt>Certainty</dt><dd>{{ f.confidence.value | label }}</dd>
+  {% for key, val in f.evidence.items() %}
+  <dt>{{ key | label }}</dt><dd class="mono">{{ val | value }}</dd>
+  {% endfor %}
+</dl>
+{% if f.severity_note %}<p class="note">{{ f.severity_note }}</p>{% endif %}
+
+{% if f.remediation %}
+<h2>What to do</h2>
+<p>{{ f.remediation }}</p>
+{% endif %}
+{% if f.references %}
+<h3>Reference</h3>
+<p class="mono">{% for ref in f.references %}{{ ref }}{% if not loop.last %}<br>{% endif %}{% endfor %}</p>
+{% endif %}
+{% if f.attribution %}<p class="note">{{ f.attribution }}</p>{% endif %}
+
+{% if who.can_edit and row.status in ("open", "stale", "accepted") %}
+<h2>Status</h2>
+<form method="post" action="/findings/{{ row.id }}/status">
+  {{ csrf_field() }}
+  {% if row.status == "accepted" %}
+  <p>This finding is marked as an accepted risk. It stays in reports but no longer raises alerts as new.</p>
+  <input type="hidden" name="status" value="open">
+  <button class="quiet" type="submit">Reopen</button>
+  {% else %}
+  <p>If this is intended, or a risk you have decided to live with, you can mark it so.</p>
+  <input type="hidden" name="status" value="accepted">
+  <button class="quiet" type="submit">Mark as accepted risk</button>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}

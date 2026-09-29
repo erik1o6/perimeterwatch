@@ -1,0 +1,16 @@
+{
+  "_comment": "Technology names looked for in job postings, grouped by what they reveal. Matched as whole words, case-insensitive unless marked exact.",
+  "groups": {
+    "cloud": ["AWS", "Amazon Web Services", "GCP", "Google Cloud", "Azure", "Cloudflare", "DigitalOcean", "Hetzner", "Vercel", "Netlify", "Fly.io", "Heroku"],
+    "infrastructure": ["Kubernetes", "Docker", "Terraform", "Pulumi", "Ansible", "Helm", "ArgoCD", "Nomad", "Consul", "Istio", "Nginx", "Traefik", "Caddy"],
+    "ci_cd": ["GitHub Actions", "GitLab", "Jenkins", "CircleCI", "Buildkite", "TeamCity", "Bitbucket"],
+    "secrets_and_identity": ["HashiCorp Vault", "AWS KMS", "Okta", "Auth0", "Keycloak", "1Password", "Bitwarden", "LastPass", "Google Workspace", "Microsoft 365", "Azure AD", "Entra ID", "JumpCloud", "YubiKey"],
+    "key_management": ["Fireblocks", "Copper", "BitGo", "Anchorage", "Ledger Enterprise", "Safe multisig", "Gnosis Safe", "MPC", "HSM", "Turnkey", "Dfns", "Qredo"],
+    "security_tooling": ["CrowdStrike", "SentinelOne", "Splunk", "Datadog", "Wiz", "Snyk", "Lacework", "Tenable", "Qualys", "Elastic SIEM", "Sumo Logic", "Panther", "Falco", "Kandji", "Jamf", "Intune"],
+    "monitoring": ["Grafana", "Prometheus", "Sentry", "New Relic", "PagerDuty", "Opsgenie", "Tenderly", "OpenZeppelin Defender", "Forta", "Hypernative", "Hexagate"],
+    "data": ["PostgreSQL", "Postgres", "MySQL", "MongoDB", "Redis", "Kafka", "RabbitMQ", "Elasticsearch", "ClickHouse", "Snowflake", "BigQuery", "DynamoDB"],
+    "web3_stack": ["Solidity", "Vyper", "Foundry", "Hardhat", "Geth", "Erigon", "Reth", "Nethermind", "Alchemy", "Infura", "QuickNode", "The Graph", "Chainlink", "LayerZero", "Wormhole", "Cosmos SDK", "Anchor"],
+    "collaboration": ["Slack", "Discord", "Telegram", "Notion", "Jira", "Confluence", "Linear", "Zendesk", "Intercom", "HubSpot", "Salesforce"]
+  },
+  "exact": ["MPC", "HSM", "GCP", "AWS", "Anchor", "Copper", "Linear", "Helm", "Nomad", "Reth", "Wiz", "Panther", "Falco"]
+}

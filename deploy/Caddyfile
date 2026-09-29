@@ -1,0 +1,39 @@
+# TLS certificates are obtained and renewed automatically.
+# SITE_ADDRESS is the public host name, for example "watch.example.org".
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$SITE_ADDRESS} {
+	encode gzip
+
+	# RFC 9116. Replace the placeholders in docs/legal/security.txt before going live.
+	handle /.well-known/security.txt {
+		root * /srv/well-known
+		rewrite * /security.txt
+		file_server
+	}
+
+	handle {
+		reverse_proxy app:8000 {
+			# Replace, never append: the app trusts the last entry of this header.
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	# The application sets its own security headers. These two belong to the proxy.
+	header {
+		-Server
+		-Via
+	}
+
+	request_body {
+		max_size 2MB
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

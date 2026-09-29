@@ -1,0 +1,32 @@
+{% macro csrf_field() %}<input type="hidden" name="csrf" value="{{ csrf }}">{% endmacro %}
+{% macro sev(f) %}<span class="tag sev-{{ f.severity.label }}">{{ f.severity.label }}</span>{% endmacro %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}{{ product }}{% endblock %}</title>
+<link rel="stylesheet" href="/report.css">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+{% if who %}
+<header class="topbar">
+  <a class="brand" href="/targets">{{ product }}</a>
+  <nav>
+    <a href="/targets">Domains</a>
+    <a href="/alerts">Alerts</a>
+    {% if who.membership.role == "owner" %}<a href="/audit">Audit log</a>{% endif %}
+  </nav>
+  <span class="who">{{ who.user.email }}</span>
+  <form method="post" action="/logout">{{ csrf_field() }}<button class="link" type="submit">Sign out</button></form>
+</header>
+{% endif %}
+<main class="page">
+{% if error is defined and error %}<p class="banner error" role="alert">{{ error }}</p>{% endif %}
+{% if notice is defined and notice %}<p class="banner ok" role="status">{{ notice }}</p>{% endif %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>
