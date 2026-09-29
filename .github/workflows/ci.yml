@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, types, tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.15"
+          python-version: ${{ matrix.python }}
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy src
+      # No test touches the network. Live tests are marked and excluded by default.
+      - run: uv run pytest
+
+  postgres:
+    name: Tests against Postgres
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: pw
+          POSTGRES_PASSWORD: pw
+          POSTGRES_DB: pw
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pw" --health-interval 5s --health-timeout 3s --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.15"
+          python-version: "3.14"
+      - run: uv sync --frozen --extra postgres
+      - name: Migrations apply to an empty database
+        env:
+          PARAPET_DATABASE_URL: postgresql+psycopg://pw:pw@localhost:5432/pw
+          PARAPET_DATA_DIR: ${{ runner.temp }}/parapet
+        run: uv run parapet db migrate
+      - name: Storage, engine and web tests
+        env:
+          PARAPET_TEST_DATABASE_URL: postgresql+psycopg://pw:pw@localhost:5432/pw
+        run: uv run pytest tests/unit/test_engine_and_storage.py tests/web
+
+  audit:
+    name: Known vulnerabilities in dependencies
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.15"
+      - run: uv sync --frozen
+      - run: uv export --frozen --no-dev --no-emit-project --format requirements-txt -o requirements.txt
+      - run: uv run pip-audit --requirement requirements.txt --disable-pip
+
+  documents:
+    name: Draft banners
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Every legal document is marked as a draft
+        run: |
+          status=0
+          for file in docs/legal/*; do
+            if ! head -n 1 "$file" | grep -q "DRAFT. Not legal advice. Requires review by a qualified lawyer"; then
+              echo "::error file=$file::missing the draft banner on its first line"
+              status=1
+            fi
+          done
+          exit $status
+
+  image:
+    name: Container image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build, downloading and verifying every pinned tool
+        run: docker build -f deploy/Dockerfile -t parapet:ci .
+      - name: Tools in the image are intact
+        run: docker run --rm parapet:ci tools verify
+      - name: The image does not run as root
+        run: test "$(docker run --rm --entrypoint id parapet:ci -u)" != "0"
+      - name: Compose file is valid
+        env:
+          POSTGRES_PASSWORD: ci
+          SITE_ADDRESS: localhost
+          ACME_EMAIL: ci@example.org
+        run: |
+          touch deploy/.env
+          docker compose -f deploy/docker-compose.yml config --quiet
