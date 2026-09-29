@@ -18,8 +18,8 @@ One part is not.
 |---|---|
 | DNS, DNSSEC, inbound mail forwarding | Free with Cloudflare |
 | TLS certificates | Free, obtained automatically by the bundled proxy |
-| Sending sign-in links and alerts | Free tiers exist at several mail providers. Check the current limits before choosing |
-| **A server** | **Not free.** A small virtual server is a few dollars a month |
+| Sending sign-in links and alerts | Free with Resend, up to 3,000 messages a month |
+| **A server** | **Not free.** About €5.49 a month at Hetzner for 2 vCPUs and 4 GB of memory, plus a small charge for the IPv4 address, before VAT |
 | Breach data | Paid. Left switched off until funded |
 
 Until there is a server, steps 1 to 3 can still be done. They fix every finding in the
@@ -62,12 +62,37 @@ to a mailbox you read. Cloudflare adds the MX records and an SPF record itself. 
 forwarding address is not visible to people who write to you, but your replies come from
 your own mailbox unless you set up sending as well.
 
-**Sending.** Sign-in links and alerts go out through an SMTP provider. After choosing one:
+**Sending.** Sign-in links and alerts go out through Resend. Its free plan allows 3,000
+messages a month and 100 a day, which is far more than sign-in links and alerts need.
+Figures and settings below were read from Resend's own pages on 30 September 2026.
 
-1. Add the provider to the SPF record. There must be only one SPF record: edit the one
-   Cloudflare created, do not add a second. It should end in `-all`.
-2. Add the DKIM records the provider gives you.
-3. Add a DMARC record:
+1. Create a Resend account and add `perimeterwatch.org` as a domain.
+2. Resend shows three DNS records. Add them in Cloudflare, each set to **DNS only**.
+   Copy the values from Resend. When pasting a name, leave the domain off: enter `send`,
+   not `send.perimeterwatch.org`.
+
+   | Type | Name | Purpose |
+   |---|---|---|
+   | MX | `send` | Where bounces are returned |
+   | TXT | `send` | SPF for the sending subdomain |
+   | TXT | `resend._domainkey` | DKIM key |
+
+   These sit on the `send` subdomain, so they do not clash with the SPF record that
+   Cloudflare's email routing puts on the domain itself.
+3. Create an API key in Resend with permission to send only. It is the SMTP password.
+4. Put these in `deploy/.env` on the server:
+
+   ```sh
+   PW_SMTP_HOST=smtp.resend.com
+   PW_SMTP_PORT=587
+   PW_SMTP_USER=resend
+   PW_SMTP_PASSWORD=<the API key>
+   PW_MAIL_FROM=Perimeterwatch <no-reply@perimeterwatch.org>
+   ```
+
+   Port 587 is the one to use. Hetzner blocks outbound ports 25 and 465 on cloud servers
+   and leaves 587 open.
+5. Add a DMARC record:
 
    | Type | Name | Value |
    |---|---|---|
@@ -75,9 +100,6 @@ your own mailbox unless you set up sending as well.
 
    Forward `dmarc@` too, or use Cloudflare's DMARC Management, which gives you an address
    for reports. After a week or two of clean reports, change `p=quarantine` to `p=reject`.
-
-If you are not ready to send mail, publish a DMARC record anyway. With no sending provider,
-`p=reject` is safe at once, since no legitimate mail exists to be rejected.
 
 ## Step 3: prove control to Perimeterwatch itself
 
