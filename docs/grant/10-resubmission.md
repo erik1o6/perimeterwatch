@@ -53,7 +53,7 @@ code2142 is a security lead with more than ten years of experience, the last sev
 **Why a grant and not an RFP.** The previous version of this submission did not claim a prototype. This one does, and it can be checked:
 
 - The code is public under the Apache-2.0 licence.
-- It has 27 checks at three depths, a command-line tool, and a web service with sign-in, separation between organisations, domain verification, scheduled scans, alerts and an audit log.
+- It has 34 checks at three depths, a command-line tool, and a web service with sign-in, separation between organisations, domain verification, scheduled scans, alerts and an audit log.
 - 1,422 automated tests pass in public on every change, including tests against Postgres and a build of the container image.
 - One test file tries every route of the web service as a different organisation and confirms that nothing leaks.
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import re
 import socket
 import ssl
 from datetime import UTC, datetime
@@ -99,6 +100,19 @@ def fetch_certificate(host: str, ip: str, timeout: float = 8.0) -> dict[str, Any
     }
 
 
+MAX_CERT_NAMES = 100
+_CERT_NAME_RE = re.compile(
+    r"^(\*\.)?[a-z0-9_]([a-z0-9_-]{0,61}[a-z0-9_])?(\.[a-z0-9_]([a-z0-9_-]{0,61}[a-z0-9_])?)+$"
+)
+
+
+def certificate_names(row: dict[str, Any]) -> list[str]:
+    """Hostnames the certificate covers. Anything that is not a plain name is dropped."""
+    raw = [*(row.get("subject_an") or []), row.get("subject_cn")]
+    names = {str(n).lower().rstrip(".") for n in raw if isinstance(n, str)}
+    return sorted(n for n in names if len(n) <= 253 and _CERT_NAME_RE.match(n))[:MAX_CERT_NAMES]
+
+
 @register
 class TlsCerts(ScanModule):
     spec = ModuleSpec(
@@ -154,6 +168,7 @@ class TlsCerts(ScanModule):
                     attributes={
                         "cert_expires": not_after.date().isoformat() if not_after else "",
                         "cert_issuer": str(row.get("issuer_cn") or "")[:100],
+                        "cert_names": certificate_names(row),
                     },
                     state={"tls": True},
                 )

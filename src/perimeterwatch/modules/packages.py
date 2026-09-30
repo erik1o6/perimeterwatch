@@ -1,5 +1,7 @@
 """The packages the organisation publishes on npm and PyPI: who can publish them, whether
-the names are still registered, and whether packages with confusingly similar names exist.
+the names are still registered, whether packages with confusingly similar names exist,
+and whether the latest release carries a provenance record naming the repository and
+workflow that built it.
 
 Reads the registries' public records only. Nothing is downloaded or installed.
 """
@@ -7,6 +9,8 @@ Reads the registries' public records only. Nothing is downloaded or installed.
 from __future__ import annotations
 
 import asyncio
+import base64
+import binascii
 import json
 import re
 from dataclasses import dataclass, field
@@ -14,6 +18,7 @@ from datetime import datetime, timedelta
 from email.utils import getaddresses
 from itertools import zip_longest
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 
@@ -48,6 +53,19 @@ REQUEST_TIMEOUT_S = 30.0
 RECENT = timedelta(days=90)
 ABSENT_TTL = timedelta(hours=12)
 CACHE_NAMESPACE = "packages.absent"
+MAX_PROVENANCE_BYTES = 500_000
+MAX_ATTESTATIONS = 10  # per answer
+MAX_FILE_CHARS = 200
+MAX_REPOSITORY_CHARS = 200
+MAX_WORKFLOW_CHARS = 200
+MAX_ENVIRONMENT_CHARS = 100
+PROVENANCE_TTL = timedelta(days=7)
+PROVENANCE_NAMESPACE = "packages.provenance"
+SLSA_PREFIX = "https://slsa.dev/provenance/"
+PYPI_NO_PROVENANCE = "No provenance available"
+# Where a build can run, as named in provenance records.
+SOURCE_HOSTS = {"github.com": "github", "gitlab.com": "gitlab"}
+PUBLISHER_KINDS = {"github", "gitlab", "google", "activestate"}
 
 _NPM_PART = r"[A-Za-z0-9~\-][A-Za-z0-9._~\-]*"
 _NPM_RE = re.compile(rf"^(?:@({_NPM_PART})/)?({_NPM_PART})$")
@@ -55,6 +73,13 @@ _PYPI_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9._\-]*[A-Za-z0-9])?$")
 _ACCOUNT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._~\-]{0,59}$")
 _VERSION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.+!_\-]{0,59}$")
 _SEPARATORS = "-_."
+_SEGMENT = r"[A-Za-z0-9_][A-Za-z0-9._\-]{0,99}"
+_REPOSITORY_RE = re.compile(rf"^{_SEGMENT}/{_SEGMENT}$")
+_NESTED_REPOSITORY_RE = re.compile(rf"^{_SEGMENT}(?:/{_SEGMENT}){{1,5}}$")
+_WORKFLOW_RE = re.compile(r"^[A-Za-z0-9._\-]+(?:/[A-Za-z0-9._\-]+)*$")
+_FILE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._+!\-]*$")
+_ENVIRONMENT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ._\-]*$")
+_PUBLISHER_ID_RE = re.compile(r"^[a-z][a-z0-9_\-]{0,29}$")
 
 # Characters easily mistaken or mistyped for one another.
 _SIMILAR = {
@@ -72,6 +97,11 @@ PYPI_METADATA_NOTE = (
     "PyPI did not list the accounts that can publish {name}. The names shown come from "
     "the package's own description, which its publisher writes, so they do not prove who "
     "can publish."
+)
+PROVENANCE_NOTE = (
+    "A provenance record names the repository and workflow that built a release. This "
+    "check reports whether the registry holds such a record for the latest release and "
+    "the one before it. It does not verify the record's signature."
 )
 LOOKALIKE_NOTE = (
     "Packages with similar names were looked for by trying up to {limit} close spellings "
@@ -201,7 +231,7 @@ def names_from_metadata(info: dict[str, Any]) -> list[str]:
 
 
 def version_text(value: object) -> str:
-    return value if isinstance(value, str) and _VERSION_RE.match(value) else ""
+    return value if isinstance(value, str) and _VERSION_RE.fullmatch(value) else ""
 
 
 def parse_date(value: object) -> datetime | None:
@@ -214,6 +244,73 @@ def parse_date(value: object) -> datetime | None:
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=utcnow().tzinfo)
 
 
+def repository_text(value: object, *, nested: bool = False) -> str:
+    """An owner/name pair, or nothing if the value is not plainly one."""
+    if not isinstance(value, str) or len(value) > MAX_REPOSITORY_CHARS:
+        return ""
+    pattern = _NESTED_REPOSITORY_RE if nested else _REPOSITORY_RE
+    if not pattern.fullmatch(value) or any(set(part) == {"."} for part in value.split("/")):
+        return ""
+    return value
+
+
+def workflow_text(value: object) -> str:
+    """The path of a workflow file inside a repository, or nothing."""
+    if not isinstance(value, str) or len(value) > MAX_WORKFLOW_CHARS:
+        return ""
+    if not _WORKFLOW_RE.fullmatch(value) or any(set(part) == {"."} for part in value.split("/")):
+        return ""
+    return value
+
+
+def file_text(value: object) -> str:
+    """The name of a release file, or nothing if it is not safe to put in an address."""
+    if not isinstance(value, str) or len(value) > MAX_FILE_CHARS:
+        return ""
+    return value if _FILE_RE.fullmatch(value) and ".." not in value else ""
+
+
+def environment_text(value: object) -> str:
+    if not isinstance(value, str) or len(value) > MAX_ENVIRONMENT_CHARS:
+        return ""
+    return value if _ENVIRONMENT_RE.fullmatch(value) else ""
+
+
+def source_repository(value: object) -> tuple[str, str]:
+    """(kind, owner/name) from a repository address in a provenance record."""
+    if not isinstance(value, str) or len(value) > MAX_REPOSITORY_CHARS + 100:
+        return "", ""
+    address = value.removeprefix("git+")
+    if not address.startswith("https://"):
+        return "", ""
+    host, _, path = address.removeprefix("https://").partition("/")
+    kind = SOURCE_HOSTS.get(host.lower(), "")
+    path = path.split("@", 1)[0].removesuffix(".git")
+    return (kind, repository_text(path, nested=kind == "gitlab")) if kind else ("", "")
+
+
+@dataclass
+class Publisher:
+    """The automated publisher named in a provenance record. Never a person."""
+
+    kind: str = ""
+    repository: str = ""
+    workflow: str = ""
+    environment: str = ""
+
+
+@dataclass
+class Release:
+    """One version, and what is needed to look up its provenance record."""
+
+    version: str
+    # npm says in the version's own record whether a provenance record exists.
+    # None means the record could not be understood.
+    attested: bool | None = None
+    trusted_publisher: str = ""  # npm: the kind of trusted publisher, never who
+    file: str = ""  # PyPI: one file of the release
+
+
 @dataclass
 class Record:
     """What a registry says about one package."""
@@ -223,6 +320,40 @@ class Record:
     created: datetime | None = None
     source: str = "accounts"  # accounts | description
     roles: dict[str, str] = field(default_factory=dict)
+    release: Release | None = None  # the latest version
+    before: Release | None = None  # the version published before it
+    history_known: bool = False  # whether `before` could be worked out at all
+
+
+def version_before(latest: str, times: dict[str, datetime]) -> tuple[str, bool]:
+    """The version published last before `latest`, and whether that could be told."""
+    when = times.get(latest)
+    if when is None:
+        return "", False
+    earlier = [(t, v) for v, t in times.items() if v != latest and t < when]
+    return (max(earlier)[1] if earlier else ""), True
+
+
+def npm_release(version: str, entry: object) -> Release:
+    """Reads only whether provenance exists. The publishing person is never read."""
+    release = Release(version)
+    dist = entry.get("dist") if isinstance(entry, dict) else None
+    if not isinstance(dist, dict):
+        return release
+    attestations = dist.get("attestations")
+    if attestations is None:
+        release.attested = False
+    elif isinstance(attestations, dict):
+        provenance = attestations.get("provenance")
+        kind = provenance.get("predicateType") if isinstance(provenance, dict) else None
+        if isinstance(kind, str) and len(kind) <= 100 and kind.startswith(SLSA_PREFIX):
+            release.attested = True
+    user = entry.get("_npmUser") if isinstance(entry, dict) else None
+    trusted = user.get("trustedPublisher") if isinstance(user, dict) else None
+    identifier = trusted.get("id") if isinstance(trusted, dict) else None
+    if isinstance(identifier, str) and _PUBLISHER_ID_RE.fullmatch(identifier):
+        release.trusted_publisher = identifier
+    return release
 
 
 def read_npm(document: object) -> Record:
@@ -232,11 +363,39 @@ def read_npm(document: object) -> Record:
     latest = tags.get("latest") if isinstance(tags, dict) else document.get("version")
     times = document.get("time")
     created = parse_date(times.get("created")) if isinstance(times, dict) else None
-    return Record(
+    record = Record(
         maintainers=account_names(document.get("maintainers"), "name"),
         latest=version_text(latest),
         created=created,
     )
+    if not record.latest:
+        return record
+    versions = document.get("versions")
+    if not isinstance(versions, dict):
+        # The record of a single version, read when the full history was too large.
+        if document.get("version") == record.latest:
+            record.release = npm_release(record.latest, document)
+        return record
+    record.release = npm_release(record.latest, versions.get(record.latest))
+    published = {}
+    for version, value in times.items() if isinstance(times, dict) else []:
+        when = parse_date(value) if version_text(version) and version in versions else None
+        if when is not None:
+            published[version] = when
+    previous, record.history_known = version_before(record.latest, published)
+    if previous:
+        record.before = npm_release(previous, versions.get(previous))
+    return record
+
+
+def pypi_release(version: str, files: object) -> Release:
+    names = sorted(
+        name
+        for item in (files if isinstance(files, list) else [])
+        if isinstance(item, dict) and (name := file_text(item.get("filename")))
+    )
+    sources = [n for n in names if n.endswith(".tar.gz")]
+    return Release(version, file=(sources or names or [""])[0])
 
 
 def read_pypi(document: object) -> Record:
@@ -255,20 +414,43 @@ def read_pypi(document: object) -> Record:
         record.source = "description"
         record.maintainers = names_from_metadata(info)
     uploads = []
+    published = {}
     releases = document.get("releases")
-    for files in releases.values() if isinstance(releases, dict) else []:
+    for version, files in releases.items() if isinstance(releases, dict) else []:
+        times = []
         for item in files if isinstance(files, list) else []:
             when = parse_date(item.get("upload_time_iso_8601")) if isinstance(item, dict) else None
             if when is not None:
-                uploads.append(when)
+                times.append(when)
+        uploads.extend(times)
+        if times and version_text(version):
+            published[version] = min(times)
     record.created = min(uploads) if uploads else None
+    if record.latest and isinstance(releases, dict):
+        record.release = pypi_release(record.latest, releases.get(record.latest))
+        previous, record.history_known = version_before(record.latest, published)
+        if previous:
+            record.before = pypi_release(previous, releases.get(previous))
     return record
 
 
+def size_text(limit: int) -> str:
+    return f"{limit // 1_000_000} MB" if limit >= 1_000_000 else f"{limit // 1_000} kB"
+
+
 async def request(
-    ctx: ScanContext, method: str, url: str, host: str, *, limit: int = MAX_SMALL_BYTES
+    ctx: ScanContext,
+    method: str,
+    url: str,
+    host: str,
+    *,
+    limit: int = MAX_SMALL_BYTES,
+    read: tuple[int, ...] = (200,),
 ) -> tuple[int, bytes]:
-    """One request to a fixed registry host, with the answer capped in size."""
+    """One request to a fixed registry host, with the answer capped in size.
+
+    The body is read only for the statuses in `read`.
+    """
     checked = httpx.URL(url)
     if checked.host != host or checked.scheme != "https" or ".." in checked.path:
         raise RegistryError("the address built for the registry was not safe to use")
@@ -280,11 +462,11 @@ async def request(
                 method, checked, headers={"Accept": "application/json"}
             ) as response:
                 status = response.status_code
-                if method == "GET" and status == 200:
+                if method == "GET" and status in read:
                     async for chunk in response.aiter_bytes():
                         body.extend(chunk)
                         if len(body) > limit:
-                            raise TooLarge(f"{host} sent more than {limit // 1_000_000} MB")
+                            raise TooLarge(f"{host} sent more than {size_text(limit)}")
     except TimeoutError as exc:
         raise RegistryError(f"{host} took too long to answer") from exc
     except httpx.HTTPError as exc:
@@ -320,6 +502,188 @@ async def lookup(ctx: ScanContext, registry: str, name: str) -> Record | None:
     if status != 200:
         raise RegistryError(f"npm answered HTTP {status}")
     return read_npm(as_json(body, NPM_HOST))
+
+
+def npm_provenance_url(name: str, version: str) -> str:
+    package = name.replace("/", "%2f")
+    return f"https://{NPM_HOST}/-/npm/v1/attestations/{package}@{quote(version, safe='')}"
+
+
+def pypi_provenance_url(name: str, version: str, file: str) -> str:
+    parts = "/".join(quote(part, safe="") for part in (name, version, file))
+    return f"https://{PYPI_HOST}/integrity/{parts}/provenance"
+
+
+def checked_publisher(publisher: Publisher) -> Publisher | None:
+    """The publisher with every field validated again, or None if any is not plain."""
+    kind = publisher.kind if publisher.kind in PUBLISHER_KINDS else ""
+    repository = repository_text(publisher.repository, nested=kind == "gitlab")
+    workflow = workflow_text(publisher.workflow)
+    if not kind or (kind in SOURCE_HOSTS.values() and not (repository and workflow)):
+        return None
+    if kind not in SOURCE_HOSTS.values():
+        repository, workflow = "", ""  # these publishers are not tied to a repository
+    return Publisher(kind, repository, workflow, environment_text(publisher.environment))
+
+
+def npm_publisher(document: object) -> Publisher:
+    """The repository and workflow named in npm's provenance record for one version."""
+    rows = document.get("attestations") if isinstance(document, dict) else None
+    for row in rows[:MAX_ATTESTATIONS] if isinstance(rows, list) else []:
+        kind = row.get("predicateType") if isinstance(row, dict) else None
+        if not isinstance(kind, str) or not kind.startswith(SLSA_PREFIX):
+            continue
+        bundle = row.get("bundle")
+        envelope = bundle.get("dsseEnvelope") if isinstance(bundle, dict) else None
+        payload = envelope.get("payload") if isinstance(envelope, dict) else None
+        if not isinstance(payload, str) or len(payload) > MAX_PROVENANCE_BYTES:
+            continue
+        try:
+            statement = json.loads(base64.b64decode(payload, validate=True))
+        except (ValueError, RecursionError, binascii.Error):
+            continue
+        predicate = statement.get("predicate") if isinstance(statement, dict) else None
+        if not isinstance(predicate, dict):
+            continue
+        # Two layouts are in use: version 1, and the older version 0.2.
+        build = predicate.get("buildDefinition")
+        external = build.get("externalParameters") if isinstance(build, dict) else None
+        workflow = external.get("workflow") if isinstance(external, dict) else None
+        invocation = predicate.get("invocation")
+        source = invocation.get("configSource") if isinstance(invocation, dict) else None
+        if isinstance(workflow, dict):
+            address, path = workflow.get("repository"), workflow.get("path")
+        elif isinstance(source, dict):
+            address, path = source.get("uri"), source.get("entryPoint")
+        else:
+            continue
+        where, repository = source_repository(address)
+        found = checked_publisher(Publisher(where, repository, workflow_text(path)))
+        if found is not None:
+            return found
+    raise RegistryError("npm's provenance record did not name a repository and workflow")
+
+
+def pypi_publisher(document: object) -> Publisher:
+    """The publisher PyPI names for one file. A publisher's email address is never read."""
+    bundles = document.get("attestation_bundles") if isinstance(document, dict) else None
+    for bundle in bundles[:MAX_ATTESTATIONS] if isinstance(bundles, list) else []:
+        row = bundle.get("publisher") if isinstance(bundle, dict) else None
+        if not isinstance(row, dict) or not isinstance(row.get("kind"), str):
+            continue
+        kind = row["kind"][:30].lower()
+        workflow = row.get("workflow_filepath") if kind == "gitlab" else row.get("workflow")
+        found = checked_publisher(
+            Publisher(
+                kind,
+                repository_text(row.get("repository"), nested=kind == "gitlab"),
+                workflow_text(workflow),
+                environment_text(row.get("environment")),
+            )
+        )
+        if found is not None:
+            return found
+    raise RegistryError("PyPI's provenance record did not name a publisher")
+
+
+def cached_provenance(ctx: ScanContext, key: str) -> tuple[bool, Publisher | None]:
+    """(whether an answer was remembered, the answer). What is remembered is checked again."""
+    text = ctx.cache_get(PROVENANCE_NAMESPACE, key)
+    if text is None or len(text) > 2_000:
+        return False, None
+    try:
+        data = json.loads(text)
+    except (ValueError, RecursionError):
+        return False, None
+    if data == {"present": False}:
+        return True, None
+    if not isinstance(data, dict) or not all(isinstance(v, str) for v in data.values()):
+        return False, None
+    found = checked_publisher(
+        Publisher(
+            data.get("kind", ""),
+            data.get("repository", ""),
+            data.get("workflow", ""),
+            data.get("environment", ""),
+        )
+    )
+    return found is not None, found
+
+
+def remember_provenance(ctx: ScanContext, key: str, publisher: Publisher | None) -> None:
+    data: dict[str, Any] = {"present": False}
+    if publisher is not None:
+        data = {
+            "kind": publisher.kind,
+            "repository": publisher.repository,
+            "workflow": publisher.workflow,
+            "environment": publisher.environment,
+        }
+    ctx.cache_set(PROVENANCE_NAMESPACE, key, json.dumps(data), PROVENANCE_TTL)
+
+
+async def provenance(
+    ctx: ScanContext, registry: str, name: str, release: Release, *, details: bool = True
+) -> Publisher | None:
+    """The publisher named in the provenance record of one version, or None when the
+    registry says plainly that the version has no such record.
+
+    Anything short of a plain answer raises RegistryError, so that a lookup that failed
+    is never taken to mean that the record is absent. A published version cannot be
+    replaced, so a plain answer is remembered. With `details` off, npm is not asked for
+    the record itself and the publisher returned is empty.
+    """
+    version = version_text(release.version)
+    if not version:
+        raise RegistryError("the version number was not one that can be looked up")
+    key = f"{registry}:{name}@{version}"
+    if registry == "npm":
+        if release.attested is None:
+            raise RegistryError(f"npm's record of version {version} could not be understood")
+        if not release.attested:
+            return None
+        if not details:
+            return Publisher()
+        known, publisher = cached_provenance(ctx, key)
+        if known and publisher is not None:
+            return publisher
+        status, body = await request(
+            ctx, "GET", npm_provenance_url(name, version), NPM_HOST, limit=MAX_PROVENANCE_BYTES
+        )
+        if status != 200:
+            raise RegistryError(f"npm answered HTTP {status}")
+        publisher = npm_publisher(as_json(body, NPM_HOST))
+        remember_provenance(ctx, key, publisher)
+        return publisher
+
+    file = file_text(release.file)
+    if not file:
+        raise RegistryError(f"PyPI listed no usable file for version {version}")
+    known, publisher = cached_provenance(ctx, key)
+    if known:
+        return publisher
+    status, body = await request(
+        ctx,
+        "GET",
+        pypi_provenance_url(name, version, file),
+        PYPI_HOST,
+        limit=MAX_PROVENANCE_BYTES,
+        read=(200, 404),
+    )
+    if status == 404:
+        # PyPI answers 404 both for a file without provenance and for a file it does not
+        # know. Only the first, which comes with a message saying so, means "absent".
+        answer = as_json(body, PYPI_HOST)
+        message = answer.get("message") if isinstance(answer, dict) else None
+        if not isinstance(message, str) or not message.startswith(PYPI_NO_PROVENANCE):
+            raise RegistryError("PyPI did not recognise the release file")
+        remember_provenance(ctx, key, None)
+        return None
+    if status != 200:
+        raise RegistryError(f"PyPI answered HTTP {status}")
+    publisher = pypi_publisher(as_json(body, PYPI_HOST))
+    remember_provenance(ctx, key, publisher)
+    return publisher
 
 
 async def exists(ctx: ScanContext, registry: str, name: str) -> bool:
@@ -387,8 +751,9 @@ class Packages(ScanModule):
         title="Published packages",
         category=Category.SUPPLY_CHAIN,
         mode=ScanMode.PASSIVE,
-        description="Who can publish your npm and PyPI packages, and whether packages "
-        "with confusingly similar names exist.",
+        description="Who can publish your npm and PyPI packages, whether packages "
+        "with confusingly similar names exist, and whether the latest release names the "
+        "repository and workflow that built it.",
         contacts=("npm registry", "npm download counts", "PyPI"),
         default_timeout_s=1500,
     )
@@ -423,7 +788,7 @@ class Packages(ScanModule):
             wanted += len(names)
             own = set(names)
             for name in names:
-                await self._package(ctx, registry, name, own, out)
+                await self._package(ctx, target, registry, name, own, out)
 
         if out.variants_checked:
             out.notes.append(LOOKALIKE_NOTE.format(limit=MAX_VARIANTS))
@@ -446,7 +811,13 @@ class Packages(ScanModule):
         )
 
     async def _package(
-        self, ctx: ScanContext, registry: str, name: str, own: set[str], out: Outcome
+        self,
+        ctx: ScanContext,
+        target: Target,
+        registry: str,
+        name: str,
+        own: set[str],
+        out: Outcome,
     ) -> None:
         label = "npm" if registry == "npm" else "PyPI"
         key = f"{registry}:{name}"
@@ -519,7 +890,121 @@ class Packages(ScanModule):
                     else Confidence.LIKELY,
                 )
             )
+            await self._provenance(ctx, target, registry, name, record, out)
         await self._lookalikes(ctx, registry, name, own, record, out)
+
+    async def _provenance(
+        self,
+        ctx: ScanContext,
+        target: Target,
+        registry: str,
+        name: str,
+        record: Record,
+        out: Outcome,
+    ) -> None:
+        label = "npm" if registry == "npm" else "PyPI"
+        key = f"{registry}:{name}"
+
+        def unread(why: str) -> None:
+            out.problems += 1
+            out.notes.append(
+                f"The provenance of {label} package {name} could not be read: {why}. "
+                "Nothing is reported about it from this scan."
+            )
+
+        if PROVENANCE_NOTE not in out.notes:
+            out.notes.append(PROVENANCE_NOTE)
+        if record.release is None:
+            unread("the registry did not say which version is the latest")
+            return
+        latest = record.release.version
+        try:
+            publisher = await provenance(ctx, registry, name, record.release)
+        except RegistryError as exc:
+            unread(str(exc))
+            return
+        evidence: dict[str, Any] = {
+            "registry": label,
+            "name": name,
+            "page": page_url(registry, name),
+            "latest_version": latest,
+            "note": PROVENANCE_NOTE,
+        }
+        if publisher is not None:
+            evidence["environment"] = publisher.environment
+            if record.release.trusted_publisher:
+                evidence["trusted_publisher"] = record.release.trusted_publisher
+            steps, why = 0, None
+            org = (target.github_org or "").strip().lower()
+            owner = publisher.repository.split("/")[0].lower()
+            if org and (publisher.kind != "github" or owner != org):
+                steps = 1
+                why = (
+                    "The package is published from a repository outside your GitHub "
+                    f"organisation {target.github_org}."
+                )
+            source = publisher.repository or f"a {publisher.kind} publisher"
+            title = f"{label} package {name} is published from {source}"
+            if publisher.workflow:
+                title += f" by the workflow {publisher.workflow}"
+            out.findings.append(
+                self.finding(
+                    "package.provenance.publisher",
+                    AssetType.PACKAGE,
+                    key,
+                    title,
+                    identity={"registry": registry},
+                    state={
+                        "kind": publisher.kind,
+                        "repository": publisher.repository,
+                        "workflow": publisher.workflow,
+                    },
+                    evidence=evidence,
+                    confidence=Confidence.CONFIRMED,
+                    severity_steps=steps,
+                    severity_note=why,
+                )
+            )
+            return
+
+        had_one = False
+        if record.before is not None:
+            try:
+                earlier = await provenance(ctx, registry, name, record.before, details=False)
+            except RegistryError as exc:
+                unread(f"version {record.before.version}, the one before the latest: {exc}")
+                return
+            had_one = earlier is not None
+            evidence["previous_version"] = record.before.version
+        elif not record.history_known:
+            unread("the registry did not say which version came before the latest")
+            return
+        if had_one and record.before is not None:
+            out.findings.append(
+                self.finding(
+                    "package.provenance.lost",
+                    AssetType.PACKAGE,
+                    key,
+                    f"{label} package {name} version {latest} has no provenance record, "
+                    f"but version {record.before.version} had one",
+                    identity={"registry": registry},
+                    state={"latest_version": latest},
+                    evidence=evidence,
+                    confidence=Confidence.CONFIRMED,
+                )
+            )
+            return
+        out.findings.append(
+            self.finding(
+                "package.provenance.absent",
+                AssetType.PACKAGE,
+                key,
+                f"{label} package {name} is published without a provenance record",
+                identity={"registry": registry},
+                evidence=evidence,
+                confidence=Confidence.CONFIRMED,
+            )
+        )
 
     async def _lookalikes(
         self,

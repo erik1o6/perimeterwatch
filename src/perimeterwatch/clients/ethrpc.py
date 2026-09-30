@@ -195,7 +195,10 @@ async def get_storage_at(ctx: ScanContext, rpc_url: str, address: str, slot: str
     params = [_check_address(address), slot, "latest"]
     result = await call(ctx, rpc_url, "eth_getStorageAt", params)
     body = _body(result)
-    # Most nodes answer with all 32 bytes. A few strip leading zeros.
+    # Most nodes answer with all 32 bytes. A few strip leading zeros. An empty
+    # answer is not a zero: read as one, it would say that an owner was removed.
+    if not body:
+        raise RpcError("the node gave an empty answer for a storage slot")
     if len(body) > 64:
         raise RpcError("unexpected response length")
     return "0x" + body.rjust(64, "0")

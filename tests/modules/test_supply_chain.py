@@ -899,6 +899,10 @@ class Registries:
         if request.url.host == "api.npmjs.org":
             return self.downloads(path)
         answer = self.routes.get((request.url.host, path))
+        if answer is None and path.startswith("/integrity/"):
+            # What PyPI says about a file it knows that has no provenance record.
+            file = path.split("/")[-2]
+            return httpx.Response(404, json={"message": f"No provenance available for {file}"})
         if answer is None:
             return httpx.Response(404, json={"error": "Not found"})
         if callable(answer):
@@ -967,8 +971,11 @@ class TestPackagesNpm:
         registries.npm("acme-sdk", json.loads(fixture_text("packages", "npm_acme-sdk.json")))
         result = await Packages().run(npm_target("acme-sdk"), make_ctx(handler=registries))
         assert result.status is ModuleStatus.OK
-        [finding] = result.findings
-        assert finding.kind == "package.maintainers"
+        assert [f.kind for f in result.findings] == [
+            "package.maintainers",
+            "package.provenance.absent",
+        ]
+        [finding] = by_kind(result, "package.maintainers")
         assert finding.asset_type is AssetType.PACKAGE
         assert finding.asset_key == "npm:acme-sdk"
         assert finding.state == {
@@ -986,7 +993,11 @@ class TestPackagesNpm:
         registries.npm("acme-sdk", json.loads(fixture_text("packages", "npm_acme-sdk.json")))
         registries.npm("acme_sdk", json.loads(fixture_text("packages", "npm_lookalike.json")))
         result = await Packages().run(npm_target("acme-sdk"), make_ctx(handler=registries))
-        assert len(result.findings) == 2
+        assert [f.kind for f in result.findings] == [
+            "package.maintainers",
+            "package.provenance.absent",
+            "package.lookalike",
+        ]
         no_personal_data(result)
 
     async def test_email_in_the_name_field_is_dropped(
@@ -1059,7 +1070,11 @@ class TestPackagesPypi:
         registries.pypi("acme-sdk", json.loads(fixture_text("packages", "pypi_acme-sdk.json")))
         result = await Packages().run(pypi_target("Acme_SDK"), make_ctx(handler=registries))
         assert result.status is ModuleStatus.OK
-        [finding] = result.findings
+        assert [f.kind for f in result.findings] == [
+            "package.maintainers",
+            "package.provenance.absent",
+        ]
+        [finding] = by_kind(result, "package.maintainers")
         assert finding.asset_key == "pypi:acme-sdk"
         assert finding.state == {
             "maintainers": ["alice-acme", "bob-acme"],
@@ -1078,7 +1093,7 @@ class TestPackagesPypi:
         del document["ownership"]
         registries.pypi("acme-sdk", document)
         result = await Packages().run(pypi_target("acme-sdk"), make_ctx(handler=registries))
-        [finding] = result.findings
+        [finding] = by_kind(result, "package.maintainers")
         assert finding.state["maintainers"] == ["Alice Example", "Bob Example"]
         assert finding.state["source"] == "description"
         assert any("do not prove who can publish" in n for n in result.notes)
@@ -1393,10 +1408,13 @@ class TestPackagesBadAnswers:
     ) -> None:
         registries.npm("acme-sdk", document)
         result = await Packages().run(npm_target("acme-sdk"), make_ctx(handler=registries))
-        assert result.status is ModuleStatus.OK
-        [finding] = by_kind(result, "package.maintainers")
+        # No latest version can be told, so the provenance is reported as not read.
+        assert result.status is ModuleStatus.PARTIAL
+        [finding] = result.findings
+        assert finding.kind == "package.maintainers"
         assert finding.state["maintainers"] == []
         assert finding.state["latest_version"] == ""
+        assert any("provenance" in n and "could not be read" in n for n in result.notes)
 
     @pytest.mark.parametrize(
         "document",
@@ -1412,7 +1430,8 @@ class TestPackagesBadAnswers:
     ) -> None:
         registries.pypi("acme-sdk", document)
         result = await Packages().run(pypi_target("acme-sdk"), make_ctx(handler=registries))
-        assert result.status in (ModuleStatus.OK, ModuleStatus.FAILED)
+        assert result.status in (ModuleStatus.PARTIAL, ModuleStatus.FAILED)
+        assert [f.kind for f in result.findings if "provenance" in f.kind] == []
 
     @pytest.mark.parametrize("status", [301, 403, 429, 500, 503])
     async def test_error_statuses(self, make_ctx: Any, registries: Registries, status: int) -> None:
@@ -1447,7 +1466,10 @@ class TestPackagesBadAnswers:
         target = Target(root_domain=ROOT, npm_packages=["acme-sdk"], pypi_packages=["acme-sdk"])
         result = await Packages().run(target, make_ctx(handler=registries))
         assert result.status is ModuleStatus.PARTIAL
-        assert [f.kind for f in result.findings] == ["package.maintainers"]
+        assert [f.kind for f in result.findings] == [
+            "package.maintainers",
+            "package.provenance.absent",
+        ]
 
 
 # --------------------------------------------------------------------------

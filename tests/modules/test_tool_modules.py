@@ -257,6 +257,43 @@ class TestPorts:
         assert by_port["8080"].severity is Severity.MEDIUM
         assert by_port["8080"].evidence["hosts"] == [ROOT, APP]
 
+    async def test_ipv6_is_scanned_and_ipv6_only_ports_are_reported(
+        self, make_ctx: Any, tools: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        v6 = "2606:4700:4700::1111"
+        ctx = make_ctx(mode=ScanMode.ACTIVE, level=AuthLevel.DNS_VERIFIED, tools_dir=tools)
+        ctx.assets.add(resolved({APP: [PUBLIC_IP, v6], f"v4only.{ROOT}": ["104.18.0.7"]}))
+        monkeypatch.setattr(ports, "has_ipv6_route", lambda: True)
+        rows = [
+            {"ip": PUBLIC_IP, "port": 443}, {"ip": v6, "port": 443},
+            {"ip": v6, "port": 22}, {"ip": v6, "port": 6379},
+            {"ip": "104.18.0.7", "port": 8080},
+        ]  # fmt: skip
+        runner = FakeRunner({"naabu": "\n".join(json.dumps(r) for r in rows)})
+        monkeypatch.setattr(ports, "run_tool", runner)
+        result = await Ports().run(TARGET, ctx)
+
+        assert v6 in runner.last("naabu")["files"]["naabu-targets.txt"].split()
+        only = {f.identity["port"]: f for f in result.findings if f.kind == "ports.ipv6_only_open"}
+        assert set(only) == {"22", "6379"}, "443 is open on both, so it is not reported"
+        assert only["6379"].severity is Severity.HIGH and "Redis" in only["6379"].title
+        assert only["22"].asset_key == APP
+        assert not any(f.asset_key == f"v4only.{ROOT}" for f in only.values())
+
+    async def test_ipv6_is_left_out_when_this_machine_cannot_reach_it(
+        self, make_ctx: Any, tools: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        v6 = "2606:4700:4700::1111"
+        ctx = make_ctx(mode=ScanMode.ACTIVE, level=AuthLevel.DNS_VERIFIED, tools_dir=tools)
+        ctx.assets.add(resolved({APP: [PUBLIC_IP, v6]}))
+        monkeypatch.setattr(ports, "has_ipv6_route", lambda: False)
+        runner = FakeRunner({"naabu": json.dumps({"ip": PUBLIC_IP, "port": 443})})
+        monkeypatch.setattr(ports, "run_tool", runner)
+        result = await Ports().run(TARGET, ctx)
+        assert runner.last("naabu")["files"]["naabu-targets.txt"].split() == [PUBLIC_IP]
+        assert any("no IPv6 connection" in n for n in result.notes)
+        assert not [f for f in result.findings if f.kind == "ports.ipv6_only_open"]
+
     async def test_recorded_output_for_an_unvetted_address_is_ignored(
         self, ctx: Any, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -393,3 +430,13 @@ class TestGitHubSecrets:
             assert parse_result(row) is None
         except AttributeError:
             pytest.fail("malformed tool output must not crash the module")
+
+
+def test_certificate_names_keep_only_plain_hostnames() -> None:
+    from perimeterwatch.modules.tls_certs import certificate_names
+
+    row = {
+        "subject_cn": "Acme-Protocol.xyz.",
+        "subject_an": ["*.acme-protocol.xyz", "<script>alert(1)</script>", "a b.xyz", 7, ""],
+    }
+    assert certificate_names(row) == ["*.acme-protocol.xyz", "acme-protocol.xyz"]

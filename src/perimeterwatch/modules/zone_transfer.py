@@ -30,7 +30,7 @@ from perimeterwatch.core.models import (
 )
 from perimeterwatch.core.module import ModuleSpec, ScanModule, register
 from perimeterwatch.safety.domains import registrable_domain
-from perimeterwatch.safety.netguard import is_public_ip
+from perimeterwatch.safety.netguard import has_ipv6_route, is_ipv6, is_public_ip
 from perimeterwatch.safety.targets import blocked_by
 
 MAX_NAMESERVERS = 8
@@ -80,9 +80,12 @@ class ZoneTransfer(ScanModule):
         findings: list[Finding] = []
         notes: list[str] = []
         tried = 0
+        ipv6_ok = has_ipv6_route()
         for server in servers:
             ips, _ = await ctx.dns.addresses(server)
-            usable = [ip for ip in ips if is_public_ip(ip) and ":" not in ip]
+            usable = [ip for ip in ips if is_public_ip(ip) and (not is_ipv6(ip) or ipv6_ok)]
+            # IPv4 first, so behaviour is unchanged where a server has both.
+            usable.sort(key=is_ipv6)
             if not usable:
                 notes.append(f"{server} has no public address and was not asked.")
                 continue

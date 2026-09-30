@@ -26,6 +26,7 @@ def patch_checks(monkeypatch: pytest.MonkeyPatch, dns: Any, **results: Any) -> N
         "spf": (ROOT, "v=spf1 include:_spf.google.com -all"),
         "dmarc": (f"_dmarc.{ROOT}", "v=DMARC1; p=reject"),
         "mta_sts": (f"_mta-sts.{ROOT}", "v=STSv1; id=20260901"),
+        "tls_rpt": (f"_smtp._tls.{ROOT}", "v=TLSRPTv1; rua=mailto:tls@acme-protocol.xyz"),
     }
     for name, (host, value) in published.items():
         if results.get(name) is ABSENT:
@@ -49,6 +50,7 @@ def patch_checks(monkeypatch: pytest.MonkeyPatch, dns: Any, **results: Any) -> N
         },
     }
     results.pop("mta_sts", None)
+    results.pop("tls_rpt", None)
     defaults.update(results)
     for name in ("spf", "dmarc"):
         if (published[name][0], "TXT") not in dns.records:
@@ -228,6 +230,7 @@ async def test_subdomain_inherits_the_organisation_dmarc_policy(
     dns.add(sub, "TXT", ["v=spf1 -all"])
     dns.add(f"_dmarc.{ROOT}", "TXT", ["v=DMARC1; p=reject"])
     dns.add(f"_mta-sts.{sub}", "TXT", ["v=STSv1; id=1"])
+    dns.add(f"_smtp._tls.{sub}", "TXT", ["v=TLSRPTv1; rua=mailto:tls@acme-protocol.xyz"])
     dns.add(
         f"google._domainkey.{sub}",
         "TXT",
@@ -338,3 +341,32 @@ class TestMtaStsPolicy:
         ctx = make_ctx(mode=ScanMode.PROBE, handler=self.handler(status=404))
         result = await EmailPosture().run(Target(root_domain=ROOT), ctx)
         assert "email.mta_sts.invalid" in kinds(result)
+
+
+class TestTlsReporting:
+    async def test_policy_without_a_reporting_record(
+        self, monkeypatch: pytest.MonkeyPatch, make_ctx: Any, mail_domain: Any
+    ) -> None:
+        patch_checks(monkeypatch, mail_domain, tls_rpt=ABSENT)
+        result = await run(make_ctx)
+        assert "email.tls_rpt.missing" in kinds(result)
+        finding = next(f for f in result.findings if f.kind == "email.tls_rpt.missing")
+        assert finding.severity is Severity.LOW
+        assert result.assets[0].attributes["tls_rpt"] == "missing"
+
+    async def test_not_asked_for_where_no_policy_exists(
+        self, monkeypatch: pytest.MonkeyPatch, make_ctx: Any, mail_domain: Any
+    ) -> None:
+        patch_checks(monkeypatch, mail_domain, mta_sts=ABSENT, tls_rpt=ABSENT)
+        result = await run(make_ctx)
+        assert "email.tls_rpt.missing" not in kinds(result)
+
+    async def test_a_failed_lookup_is_not_a_missing_record(
+        self, monkeypatch: pytest.MonkeyPatch, make_ctx: Any, mail_domain: Any
+    ) -> None:
+        patch_checks(monkeypatch, mail_domain)
+        del mail_domain.records[(f"_smtp._tls.{ROOT}", "TXT")]
+        mail_domain.errors.add(f"_smtp._tls.{ROOT}")
+        result = await run(make_ctx)
+        assert "email.tls_rpt.missing" not in kinds(result)
+        assert result.status is ModuleStatus.PARTIAL

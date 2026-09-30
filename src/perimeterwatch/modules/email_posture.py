@@ -153,6 +153,27 @@ class EmailPosture(ScanModule):
         if "mta_sts" in results and receives_mail:
             findings.extend(self._mta_sts(domain, results["mta_sts"], attributes))
 
+        if receives_mail and sts_present:
+            # Reports are about failures of a published policy, so the record is
+            # only asked for where a policy exists.
+            rpt_present = await self._present("tls_rpt", domain, ctx)
+            if rpt_present is None:
+                failures += 1
+                notes.append("TLS reporting lookup failed, so it was not assessed.")
+            else:
+                attributes["tls_rpt"] = "present" if rpt_present else "missing"
+                if not rpt_present:
+                    findings.append(
+                        self.finding(
+                            "email.tls_rpt.missing",
+                            AssetType.DOMAIN,
+                            domain,
+                            f"{domain} publishes no TLS reporting record",
+                            evidence={"looked_up": f"_smtp._tls.{domain}"},
+                            confidence=Confidence.CONFIRMED,
+                        )
+                    )
+
         if receives_mail:
             findings.extend(await self._dkim(domain, ctx, attributes))
         else:
@@ -173,6 +194,7 @@ class EmailPosture(ScanModule):
             "spf": ("", "v=spf1"),
             "dmarc": ("_dmarc.", "v=dmarc1"),
             "mta_sts": ("_mta-sts.", "v=stsv1"),
+            "tls_rpt": ("_smtp._tls.", "v=tlsrptv1"),
         }[check]
         names = [f"{prefix}{domain}"]
         apex = registrable_domain(domain)

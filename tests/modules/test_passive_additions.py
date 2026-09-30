@@ -172,7 +172,11 @@ def record(
     *,
     name: str = ROOT,
     expires_in_days: float | None = 300,
-    status: Any = ("client transfer prohibited", "client delete prohibited"),
+    status: Any = (
+        "client transfer prohibited",
+        "client delete prohibited",
+        "server transfer prohibited",
+    ),
     registrar: Any = "Example Registrar Ltd",
     nameservers: Any = ("NS2.DNS-HOST.NET", "ns1.dns-host.net"),
     extra_entities: list[dict[str, Any]] | None = None,
@@ -234,7 +238,11 @@ class TestDomainRegistration:
         assert finding.state == {
             "registrar": "Example Registrar Ltd",
             "nameservers": ["ns1.dns-host.net", "ns2.dns-host.net"],
-            "status": ["client delete prohibited", "client transfer prohibited"],
+            "status": [
+                "client delete prohibited",
+                "client transfer prohibited",
+                "server transfer prohibited",
+            ],
         }
         assert finding.evidence["registered_on"] == "2021-03-04"
         assert finding.evidence["expires_on"]
@@ -362,7 +370,36 @@ class TestDomainRegistration:
     ) -> None:
         ctx = make_ctx(handler=rdap(router, record(status=status)))
         result = await DomainRegistration().run(TARGET, ctx)
+        assert "domain.registration.unlocked" not in kinds(result)
+
+    async def test_registrar_lock_without_a_registry_lock(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        status = ("client transfer prohibited", "client delete prohibited")
+        ctx = make_ctx(handler=rdap(router, record(status=status)))
+        result = await DomainRegistration().run(TARGET, ctx)
+        assert kinds(result) == [
+            "domain.registration.details",
+            "domain.registration.no_registry_lock",
+        ]
+        finding = result.findings[-1]
+        assert finding.severity is Severity.LOW
+        assert finding.evidence["status"] == sorted(status)
+
+    @pytest.mark.parametrize("extra", ["server transfer prohibited", "server update prohibited"])
+    async def test_any_registry_status_counts_as_a_registry_lock(
+        self, make_ctx: Any, router: Router, extra: str
+    ) -> None:
+        ctx = make_ctx(handler=rdap(router, record(status=("client transfer prohibited", extra))))
+        result = await DomainRegistration().run(TARGET, ctx)
         assert kinds(result) == ["domain.registration.details"]
+
+    async def test_an_unlocked_domain_is_not_also_told_about_the_registry(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        ctx = make_ctx(handler=rdap(router, record(status=("active",))))
+        result = await DomainRegistration().run(TARGET, ctx)
+        assert "domain.registration.no_registry_lock" not in kinds(result)
 
     async def test_no_status_published_is_not_called_unlocked(
         self, make_ctx: Any, router: Router
@@ -542,7 +579,8 @@ class TestDomainRegistration:
         hostile["handle"] = SCRIPT
         result = await DomainRegistration().run(TARGET, make_ctx(handler=rdap(router, hostile)))
         assert result.status is ModuleStatus.OK
-        [finding] = result.findings
+        finding = result.findings[0]
+        assert finding.kind == "domain.registration.details"
         assert finding.state["nameservers"] == ["ns1.dns-host.net"]
         assert finding.state["status"] == ["client transfer prohibited"]
         assert len(finding.state["registrar"]) <= 100
@@ -872,6 +910,25 @@ class TestSpfChain:
 # phishing_lists
 # --------------------------------------------------------------------------
 
+POLKADOT = "polkadot.js.org"
+POLKADOT_PATH = "/phishing/all.json"
+PHISH_DB = "phish.co.za"
+PHISH_DB_PATH = "/latest/phishing-domains-ACTIVE.txt"
+LIST_ADDRESSES = {
+    (GITHUB_RAW, LIST_PATH),
+    (POLKADOT, POLKADOT_PATH),
+    (PHISH_DB, PHISH_DB_PATH),
+}
+
+METAMASK_NAME = "MetaMask eth-phishing-detect"
+POLKADOT_NAME = "polkadot-js/phishing"
+PHISH_DB_NAME = "Phishing.Database"
+
+# Lists that hold nothing of interest, for tests about one list at a time.
+QUIET_METAMASK: dict[str, Any] = {"blacklist": ["unrelated-wallet.io"], "whitelist": []}
+QUIET_POLKADOT: dict[str, Any] = {"allow": [], "deny": ["unrelated-stake.io"]}
+QUIET_LINES = "unrelated-shop.net\n"
+
 
 def lookalikes_result(
     *names: str, status: ModuleStatus = ModuleStatus.OK, extra: list[Asset] | None = None
@@ -883,15 +940,79 @@ def lookalikes_result(
     return ModuleResult(module="lookalikes", status=status, assets=[*assets, *(extra or [])])
 
 
-def blocklist(router: Router, answer: Any = None) -> Router:
-    if answer is None:
+def own_hosts(*names: str) -> ModuleResult:
+    """Hosts of the organisation's own, as the DNS check reports them."""
+    assets = [
+        Asset(
+            type=AssetType.DOMAIN if name == ROOT else AssetType.SUBDOMAIN,
+            key=name,
+            source_module="dns_resolve",
+        )
+        for name in names
+    ]
+    return ModuleResult(module="dns_resolve", status=ModuleStatus.OK, assets=assets)
+
+
+def as_lines(*names: str) -> str:
+    return "".join(f"{name}\n" for name in names)
+
+
+def served(answer: Any) -> Any:
+    """Text is served as a plain text file, freshly for every request."""
+    if isinstance(answer, str | bytes):
+        return lambda _request: httpx.Response(
+            200, content=answer, headers={"content-type": "text/plain"}
+        )
+    return answer
+
+
+def blocklist(
+    router: Router, answer: Any = None, *, polkadot: Any = None, lines: Any = None
+) -> Router:
+    """Serve the three lists. With nothing given, all three come from the fixtures.
+
+    When any list is given, the ones not given hold nothing of interest.
+    """
+    if answer is None and polkadot is None and lines is None:
         answer = json.loads(fixture_text("phishing", "config.json"))
-    router.add(GITHUB_RAW, LIST_PATH, answer)
+        polkadot = json.loads(fixture_text("phishing", "all.json"))
+        lines = fixture_text("phishing", "phishing-domains-ACTIVE.txt")
+    router.add(GITHUB_RAW, LIST_PATH, served(QUIET_METAMASK if answer is None else answer))
+    router.add(POLKADOT, POLKADOT_PATH, served(QUIET_POLKADOT if polkadot is None else polkadot))
+    router.add(PHISH_DB, PHISH_DB_PATH, served(QUIET_LINES if lines is None else lines))
     return router
+
+
+def one_list(router: Router, which: str, names: list[str]) -> Router:
+    """Serve the given names from one list only."""
+    if which == "metamask":
+        return blocklist(router, {"blacklist": names, "whitelist": []})
+    if which == "polkadot":
+        return blocklist(router, polkadot={"allow": [], "deny": names})
+    return blocklist(router, lines=as_lines(*names))
+
+
+def in_pieces(body: bytes, size: int) -> Any:
+    """Serve a body a few bytes at a time, as a slow download would arrive."""
+
+    async def pieces() -> Any:
+        for start in range(0, len(body), size):
+            yield body[start : start + size]
+
+    return lambda _request: httpx.Response(200, content=pieces())
 
 
 def keys(result: ModuleResult) -> list[str]:
     return [f.asset_key for f in result.findings]
+
+
+def of_kind(result: ModuleResult, kind: str) -> list[Any]:
+    return [f for f in result.findings if f.kind == kind]
+
+
+LISTS = ["metamask", "polkadot", "lines"]
+LIST_NAMES = {"metamask": METAMASK_NAME, "polkadot": POLKADOT_NAME, "lines": PHISH_DB_NAME}
+LICENCES = {"metamask": "DBAD", "polkadot": "Apache", "lines": "MIT"}
 
 
 class TestPhishingLists:
@@ -902,56 +1023,184 @@ class TestPhishingLists:
         )
         result = await PhishingLists().run(TARGET, ctx)
         assert result.status is ModuleStatus.OK
-        assert {f.kind for f in result.findings} == {"lookalike.reported_phishing"}
-        assert keys(result) == [
+        assert [f.asset_key for f in of_kind(result, "brand.own_domain_blocklisted")] == [
+            f"app.{ROOT}"
+        ]
+        reported = of_kind(result, "lookalike.reported_phishing")
+        assert len(reported) == len(result.findings) - 1
+        assert [f.asset_key for f in reported] == [
             "acme-protoco1.xyz",
             "acme-protocol.app",
             "acme-protocol-airdrop.com",
+            "acme-protocol-giveaway.net",
             "acme-protocol.pages.dev",
             "login.acme-protocol-rewards.net",
+            "stake.acme-protocol.pages.dev",
         ]
-        listed = result.findings[0]
-        assert listed.severity is Severity.HIGH
+        listed = reported[0]
         assert listed.confidence is Confidence.LIKELY
         assert listed.asset_type is AssetType.LOOKALIKE_DOMAIN
         assert listed.identity == {}
-        assert listed.state == {"lists": ["MetaMask eth-phishing-detect"]}
+        assert listed.state == {"lists": [METAMASK_NAME, POLKADOT_NAME]}
+        assert listed.evidence["lists"] == [METAMASK_NAME, POLKADOT_NAME]
         assert listed.evidence["also_a_registered_variation"] is True
         assert "MetaMask" in (listed.attribution or "")
         # A listed name under a lookalike is reported against the lookalike.
-        assert result.findings[1].evidence["listed_names"] == ["claim.acme-protocol.app"]
-        by_name = result.findings[2]
+        assert reported[1].evidence["listed_names"] == [
+            "acme-protocol.app",
+            "claim.acme-protocol.app",
+        ]
+        assert reported[1].evidence["lists"] == [METAMASK_NAME, PHISH_DB_NAME]
+        by_name = reported[2]
+        assert by_name.severity is Severity.HIGH
         assert by_name.confidence is Confidence.CANDIDATE
         assert by_name.evidence["also_a_registered_variation"] is False
+        assert by_name.evidence["lists"] == [METAMASK_NAME]
         assert result.stats == {
-            "blocklist_names": 10,
+            "blocklists_read": 3,
+            "blocklists_failed": 0,
+            "blocklist_names": 10 + 7 + 12,
             "lookalikes_compared": 3,
             "lookalikes_listed": 2,
-            "name_matches": 3,
+            "name_matches": 5,
+            "own_names_listed": 1,
         }
 
-    async def test_only_the_list_publisher_is_contacted(
+    @pytest.mark.parametrize("which", LISTS)
+    async def test_each_list_matches_on_its_own(
+        self, make_ctx: Any, router: Router, which: str
+    ) -> None:
+        one_list(router, which, ["unrelated-first.io", "acme-protoco1.xyz", "unrelated-last.io"])
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.OK
+        [finding] = result.findings
+        assert finding.kind == "lookalike.reported_phishing"
+        assert finding.asset_key == "acme-protoco1.xyz"
+        assert finding.evidence["lists"] == [LIST_NAMES[which]]
+        assert finding.state == {"lists": [LIST_NAMES[which]]}
+        assert finding.severity is Severity.HIGH
+        assert finding.severity_note is None
+        # The source and its licence are named.
+        assert LIST_NAMES[which] in (finding.attribution or "")
+        assert LICENCES[which] in (finding.attribution or "")
+
+    @pytest.mark.parametrize(
+        ("metamask", "polkadot", "lines", "lists"),
+        [
+            (True, True, False, [METAMASK_NAME, POLKADOT_NAME]),
+            (True, False, True, [METAMASK_NAME, PHISH_DB_NAME]),
+            (False, True, True, [POLKADOT_NAME, PHISH_DB_NAME]),
+            (True, True, True, [METAMASK_NAME, POLKADOT_NAME, PHISH_DB_NAME]),
+        ],
+    )
+    async def test_two_lists_agreeing_raise_the_severity_one_step(
+        self,
+        make_ctx: Any,
+        router: Router,
+        metamask: bool,
+        polkadot: bool,
+        lines: bool,
+        lists: list[str],
+    ) -> None:
+        name = "acme-protoco1.xyz"
+        blocklist(
+            router,
+            {"blacklist": [name] if metamask else ["unrelated-wallet.io"]},
+            polkadot={"allow": [], "deny": [name] if polkadot else ["unrelated-stake.io"]},
+            lines=as_lines(name if lines else "unrelated-shop.net"),
+        )
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result(name))
+        [finding] = (await PhishingLists().run(TARGET, ctx)).findings
+        assert finding.evidence["lists"] == lists
+        assert finding.severity is Severity.CRITICAL  # never more than one step
+        assert "one step higher" in (finding.severity_note or "")
+        for listed in lists:
+            assert listed in (finding.attribution or "")
+        assert sorted(finding.evidence["licences"]) == sorted(lists)
+
+    async def test_lists_agree_when_one_holds_the_name_and_another_a_name_below_it(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        blocklist(
+            router,
+            {"blacklist": ["claim.acme-protoco1.xyz"]},
+            lines=as_lines("acme-protoco1.xyz"),
+        )
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
+        [finding] = (await PhishingLists().run(TARGET, ctx)).findings
+        assert finding.asset_key == "acme-protoco1.xyz"
+        assert finding.evidence["lists"] == [METAMASK_NAME, PHISH_DB_NAME]
+        assert finding.severity is Severity.CRITICAL
+
+    async def test_matching_is_by_whole_name_never_by_part_of_one(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        near_misses = [
+            "xacmee.xyz",
+            "acmee.xyz.evil-host.com",
+            "acme.xyz.evil-host.com",
+            "notacme.xyz",
+            "acme.xyz.co",
+            "acmee.xy",
+            "xyz.acmee",
+        ]
+        blocklist(
+            router,
+            {"blacklist": near_misses},
+            polkadot={"allow": [], "deny": [*near_misses, "pay.acmee.xyz"]},
+            lines=as_lines(*near_misses),
+        )
+        ctx = make_ctx(root="acme.xyz", handler=router)
+        ctx.assets.add(lookalikes_result("acmee.xyz"))
+        result = await PhishingLists().run(Target(root_domain="acme.xyz"), ctx)
+        [finding] = result.findings
+        assert finding.asset_key == "acmee.xyz"
+        assert finding.evidence["listed_names"] == ["pay.acmee.xyz"]
+        assert finding.evidence["lists"] == [POLKADOT_NAME]
+
+    async def test_name_written_in_another_alphabet_is_matched(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        encoded = "acmé-protocol.xyz".encode("idna").decode("ascii")
+        blocklist(router, polkadot={"allow": [], "deny": ["acmé-protocol.xyz"]})
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result(encoded))
+        [finding] = (await PhishingLists().run(TARGET, ctx)).findings
+        assert finding.asset_key == encoded
+        assert finding.evidence["shown_as"] == "acmé-protocol.xyz"
+
+    async def test_only_the_list_publishers_are_contacted(
         self, make_ctx: Any, router: Router
     ) -> None:
         ctx = make_ctx(handler=blocklist(router))
         ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
-        await PhishingLists().run(TARGET, ctx)
-        [request] = router.requests
-        assert (request.url.host, request.url.path) == (GITHUB_RAW, LIST_PATH)
-        assert request.method == "GET"
-        assert request.url.query == b""
-        # The organisation's name is not sent anywhere.
-        assert "acme" not in str(request.url)
-        assert "acme" not in str(request.headers)
+        ctx.assets.add(own_hosts(ROOT, f"app.{ROOT}"))
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.findings
+        assert len(router.requests) == 3
+        assert {(r.url.host, r.url.path) for r in router.requests} == LIST_ADDRESSES
+        for request in router.requests:
+            assert request.method == "GET"
+            assert request.url.scheme == "https"
+            assert request.url.query == b""
+            assert request.content == b""
+            # Neither the organisation's name nor a lookalike is sent anywhere.
+            assert "acme" not in str(request.url).lower()
+            assert "acme" not in str(request.headers).lower()
 
-    async def test_own_and_allowed_names_are_not_reported(
+    async def test_own_and_allowed_names_are_not_reported_as_lookalikes(
         self, make_ctx: Any, router: Router
     ) -> None:
         ctx = make_ctx(handler=blocklist(router))
         ctx.assets.add(lookalikes_result("acme-protocol-docs.org", ROOT, f"app.{ROOT}"))
         result = await PhishingLists().run(TARGET, ctx)
         assert "acme-protocol-docs.org" not in keys(result)
-        assert not any(ctx.in_scope(k) for k in keys(result))
+        reported = of_kind(result, "lookalike.reported_phishing")
+        assert not any(ctx.in_scope(f.asset_key) for f in reported)
         assert result.stats["lookalikes_compared"] == 1
 
     async def test_brand_scan_runs_without_the_lookalikes_module(
@@ -959,11 +1208,14 @@ class TestPhishingLists:
     ) -> None:
         result = await PhishingLists().run(TARGET, make_ctx(handler=blocklist(router)))
         assert result.status is ModuleStatus.PARTIAL
-        assert keys(result) == [
+        assert [f.asset_key for f in of_kind(result, "lookalike.reported_phishing")] == [
             "acme-protocol-airdrop.com",
+            "acme-protocol-giveaway.net",
+            "acme-protocol.app",
             "acme-protocol.pages.dev",
             "claim.acme-protocol.app",
             "login.acme-protocol-rewards.net",
+            "stake.acme-protocol.pages.dev",
         ]
         assert any("lookalike search did not finish" in n for n in result.notes)
 
@@ -989,12 +1241,17 @@ class TestPhishingLists:
         assert keys(result) == ["acmee.xyz"]
         assert any("too short" in n for n in result.notes)
 
-    async def test_nothing_to_check_makes_no_request(self, make_ctx: Any) -> None:
-        ctx = make_ctx(root="acme.xyz")
+    async def test_own_domain_is_still_checked_when_there_is_nothing_else_to_compare(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        blocklist(router, lines=as_lines("acme.xyz", "acme-airdrop.com"))
+        ctx = make_ctx(root="acme.xyz", handler=router)
         ctx.assets.add(lookalikes_result())
         result = await PhishingLists().run(Target(root_domain="acme.xyz"), ctx)
-        assert result.status is ModuleStatus.SKIPPED
-        assert "too short" in (result.skip_reason or "")
+        assert result.status is ModuleStatus.OK
+        assert [(f.kind, f.asset_key) for f in result.findings] == [
+            ("brand.own_domain_blocklisted", "acme.xyz")
+        ]
 
     async def test_brand_must_be_part_of_the_name_not_of_a_longer_label(
         self, make_ctx: Any, router: Router
@@ -1023,104 +1280,386 @@ class TestPhishingLists:
         assert len(result.findings) == 1 + 50
         assert keys(result)[0] == "acme-protocol-079.com"
         assert keys(result)[1:] == names[:50]
-        assert any("79 domains on the blocklist" in n for n in result.notes)
+        assert any("79 domains on the blocklists" in n for n in result.notes)
 
-    async def test_list_is_cached(self, make_ctx: Any, router: Router) -> None:
-        ctx = make_ctx(handler=blocklist(router))
-        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
-        first = await PhishingLists().run(TARGET, ctx)
-        second = await PhishingLists().run(TARGET, ctx)
-        assert len(router.requests) == 1
-        assert keys(first) == keys(second)
-        assert first.status is second.status is ModuleStatus.OK
-        cached = json.loads(ctx.cache_get("phishing_lists", "metamask"))
-        assert set(cached) == {"blacklist", "whitelist", "truncated"}
 
-    @pytest.mark.parametrize(
-        "answer",
-        [
-            httpx.Response(200, text="<html>rate limited</html>"),
-            httpx.Response(200, text='{"blacklist": ["a.com"'),
-            httpx.Response(200, text=""),
-            httpx.Response(200, json=["acme-protoco1.xyz"]),
-            httpx.Response(200, json={"whitelist": []}),
-            httpx.Response(200, json={"blacklist": "acme-protoco1.xyz"}),
-            httpx.Response(200, json={"blacklist": [], "whitelist": {"a": 1}}),
-            httpx.Response(404, text="404: Not Found"),
-            httpx.Response(429, text="slow down"),
-            httpx.Response(500, text="oops"),
-            httpx.Response(302, headers={"location": "https://evil.net/config.json"}),
-        ],
-    )
-    async def test_bad_list_fails_plainly(
-        self, make_ctx: Any, router: Router, answer: httpx.Response
+class TestOwnDomainOnABlocklist:
+    @pytest.mark.parametrize("which", LISTS)
+    async def test_own_domain_listed(self, make_ctx: Any, router: Router, which: str) -> None:
+        one_list(router, which, ["unrelated-first.io", ROOT])
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.OK
+        [finding] = result.findings
+        assert finding.kind == "brand.own_domain_blocklisted"
+        assert finding.category is Category.LOOKALIKE
+        assert finding.asset_type is AssetType.DOMAIN
+        assert finding.asset_key == ROOT
+        assert finding.severity is Severity.HIGH
+        assert finding.confidence is Confidence.CONFIRMED
+        assert finding.state == {"lists": [LIST_NAMES[which]]}
+        assert finding.evidence["lists"] == [LIST_NAMES[which]]
+        assert "warn their users away" in finding.evidence["why_it_matters"]
+        assert LIST_NAMES[which] in (finding.attribution or "")
+        assert LICENCES[which] in (finding.attribution or "")
+        assert result.stats["own_names_listed"] == 1
+
+    async def test_own_subdomains_listed(self, make_ctx: Any, router: Router) -> None:
+        blocklist(
+            router,
+            {"blacklist": [f"app.{ROOT}"]},
+            polkadot={"allow": [], "deny": [f"app.{ROOT}", f"Vote.{ROOT}."]},
+            lines=as_lines(f"old.staging.{ROOT}"),
+        )
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        ctx.assets.add(own_hosts(ROOT, f"app.{ROOT}"))
+        result = await PhishingLists().run(TARGET, ctx)
+        assert {f.kind for f in result.findings} == {"brand.own_domain_blocklisted"}
+        assert keys(result) == [f"app.{ROOT}", f"vote.{ROOT}", f"old.staging.{ROOT}"]
+        assert {f.asset_type for f in result.findings} == {AssetType.SUBDOMAIN}
+        app, vote, old = result.findings
+        assert app.evidence["lists"] == [METAMASK_NAME, POLKADOT_NAME]
+        assert app.evidence["found_by_this_scan"] is True
+        assert vote.evidence["lists"] == [POLKADOT_NAME]
+        assert vote.evidence["found_by_this_scan"] is False
+        assert old.evidence["lists"] == [PHISH_DB_NAME]
+        assert "Phishing.Database" in (old.attribution or "")
+        assert "MetaMask" not in (old.attribution or "")
+
+    async def test_names_that_only_resemble_the_own_domain_are_not_own(
+        self, make_ctx: Any, router: Router
     ) -> None:
-        ctx = make_ctx(handler=blocklist(router, answer))
+        names = [f"x{ROOT}", f"{ROOT}.evil-host.com", f"app.{ROOT}.evil-host.net"]
+        blocklist(router, {"blacklist": names}, lines=as_lines(*names))
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        result = await PhishingLists().run(TARGET, ctx)
+        assert of_kind(result, "brand.own_domain_blocklisted") == []
+        assert result.stats["own_names_listed"] == 0
+
+    async def test_each_list_has_its_own_allow_list(self, make_ctx: Any, router: Router) -> None:
+        # MetaMask allows the domain, so its own entry does not count. polkadot's
+        # allow-list says nothing about it, so polkadot's entry does.
+        blocklist(
+            router,
+            {"blacklist": [ROOT, f"app.{ROOT}"], "whitelist": [ROOT]},
+            polkadot={"allow": ["pages.dev"], "deny": [f"app.{ROOT}"]},
+        )
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        result = await PhishingLists().run(TARGET, ctx)
+        [finding] = result.findings
+        assert finding.asset_key == f"app.{ROOT}"
+        assert finding.evidence["lists"] == [POLKADOT_NAME]
+        assert "MetaMask" not in dump(result)
+
+    async def test_allow_listed_names_are_not_reported(self, make_ctx: Any, router: Router) -> None:
+        blocklist(
+            router,
+            {"blacklist": [ROOT, f"app.{ROOT}", "acme-protoco1.xyz"], "whitelist": [ROOT]},
+            polkadot={
+                "allow": [ROOT, "acme-protoco1.xyz", "*.acme-protocol-host.co", "pages.dev"],
+                "deny": [
+                    ROOT,
+                    "acme-protoco1.xyz",
+                    "claim.acme-protocol-host.co",
+                    "stake.acme-protocol.pages.dev",
+                ],
+            },
+        )
+        ctx = make_ctx(handler=router)
         ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
         result = await PhishingLists().run(TARGET, ctx)
-        assert result.status is ModuleStatus.FAILED
-        assert "blocklist" in (result.skip_reason or "")
-        assert result.findings == []
-        assert ctx.cache_get("phishing_lists", "metamask") is None
-        assert router.hosts() == {GITHUB_RAW}
+        assert of_kind(result, "brand.own_domain_blocklisted") == []
+        # polkadot allows names exactly: a name below a shared host is still reported.
+        assert [(f.asset_key, f.evidence["lists"]) for f in result.findings] == [
+            ("acme-protoco1.xyz", [METAMASK_NAME]),
+            ("stake.acme-protocol.pages.dev", [POLKADOT_NAME]),
+        ]
+        assert result.findings[0].severity is Severity.HIGH
 
-    async def test_unreachable_list(self, make_ctx: Any, router: Router) -> None:
+    async def test_own_findings_are_capped(self, make_ctx: Any, router: Router) -> None:
+        blocklist(router, lines=as_lines(*(f"h{i:03d}.{ROOT}" for i in range(70))))
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        result = await PhishingLists().run(TARGET, ctx)
+        assert len(result.findings) == 50
+        assert any("70 of your own names" in n for n in result.notes)
+
+
+BAD_JSON_LISTS = [
+    httpx.Response(200, text="<html>rate limited</html>"),
+    httpx.Response(200, text='{"blacklist": ["a.com"'),
+    httpx.Response(200, text=""),
+    httpx.Response(200, content=b"\x00\xff\xfe\x80" * 50),
+    httpx.Response(200, text="[" * 100_000),
+    httpx.Response(200, json=["acme-protoco1.xyz"]),
+    httpx.Response(200, json={"whitelist": [], "allow": []}),
+    httpx.Response(200, json={"blacklist": "acme-protoco1.xyz", "deny": "acme-protoco1.xyz"}),
+    httpx.Response(200, json={"blacklist": [], "whitelist": {"a": 1}, "deny": [], "allow": 7}),
+    httpx.Response(404, text="404: Not Found"),
+    httpx.Response(429, text="slow down"),
+    httpx.Response(500, text="oops"),
+    httpx.Response(302, headers={"location": "https://evil.net/config.json"}),
+]
+
+BAD_LINE_LISTS = [
+    httpx.Response(200, text="<html>\n<body>\n<p>rate limited</p>\n</body>\n</html>\n"),
+    httpx.Response(200, text=""),
+    httpx.Response(200, text="\n\n\n"),
+    httpx.Response(200, content=b"\x00\xff\xfe\x80\n" * 50),
+    httpx.Response(200, text='{"blacklist": ["acme-protoco1.xyz"]}'),
+    httpx.Response(200, text="http://acme-protoco1.xyz/a\nhttp://b.example/c\n"),
+    httpx.Response(404, text="acme-protoco1.xyz\n"),
+    httpx.Response(429, text="slow down"),
+    httpx.Response(500, text="oops"),
+    httpx.Response(302, headers={"location": "https://evil.net/list.txt"}),
+]
+
+
+class TestPhishingListDownloads:
+    @pytest.mark.parametrize("which", ["metamask", "polkadot"])
+    @pytest.mark.parametrize("answer", BAD_JSON_LISTS)
+    async def test_bad_list_makes_the_result_partial(
+        self, make_ctx: Any, router: Router, which: str, answer: httpx.Response
+    ) -> None:
+        good = ["acme-protoco1.xyz", f"app.{ROOT}"]
+        if which == "metamask":
+            blocklist(router, answer, polkadot={"allow": [], "deny": good})
+        else:
+            blocklist(router, {"blacklist": good}, polkadot=answer)
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
+        result = await PhishingLists().run(TARGET, ctx)
+        # Partial, so that what this list reported earlier is kept as not re-checked.
+        assert result.status is ModuleStatus.PARTIAL
+        assert any(LIST_NAMES[which] in n and "not re-checked" in n for n in result.notes)
+        assert ctx.cache_get("phishing_lists", which) is None
+        # The other lists still match.
+        assert keys(result) == [f"app.{ROOT}", "acme-protoco1.xyz"]
+        other = METAMASK_NAME if which == "polkadot" else POLKADOT_NAME
+        assert all(f.evidence["lists"] == [other] for f in result.findings)
+        assert result.stats["blocklists_failed"] == 1
+        assert {(r.url.host, r.url.path) for r in router.requests} == LIST_ADDRESSES
+
+    @pytest.mark.parametrize("answer", BAD_LINE_LISTS)
+    async def test_bad_list_of_lines_makes_the_result_partial(
+        self, make_ctx: Any, router: Router, answer: httpx.Response
+    ) -> None:
+        blocklist(router, {"blacklist": ["acme-protoco1.xyz"]}, lines=answer)
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.PARTIAL
+        assert any(PHISH_DB_NAME in n and "not re-checked" in n for n in result.notes)
+        assert keys(result) == ["acme-protoco1.xyz"]
+        assert result.findings[0].evidence["lists"] == [METAMASK_NAME]
+        assert not any(key.startswith("phishing_database") for _, key in ctx.cache.data)
+        assert {(r.url.host, r.url.path) for r in router.requests} == LIST_ADDRESSES
+
+    @pytest.mark.parametrize("which", LISTS)
+    async def test_unreachable_list(self, make_ctx: Any, router: Router, which: str) -> None:
         def down(request: httpx.Request) -> httpx.Response:
             raise httpx.ReadTimeout("timed out", request=request)
 
-        ctx = make_ctx(handler=blocklist(router, down))
+        blocklist(router)
+        host, path = {
+            "metamask": (GITHUB_RAW, LIST_PATH),
+            "polkadot": (POLKADOT, POLKADOT_PATH),
+            "lines": (PHISH_DB, PHISH_DB_PATH),
+        }[which]
+        router.add(host, path, down)
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz", "acme-protocol.app"))
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.PARTIAL
+        assert any(LIST_NAMES[which] in n and "ReadTimeout" in n for n in result.notes)
+        assert "acme-protoco1.xyz" in keys(result)
+        assert "acme-protocol.app" in keys(result)
+        assert LIST_NAMES[which] not in json.dumps([f.evidence for f in result.findings])
+
+    async def test_every_list_failing_fails_the_module(self, make_ctx: Any, router: Router) -> None:
+        ctx = make_ctx(handler=router)  # every address answers 404
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
         result = await PhishingLists().run(TARGET, ctx)
         assert result.status is ModuleStatus.FAILED
-        assert "ReadTimeout" in (result.skip_reason or "")
+        assert "no blocklist could be read" in (result.skip_reason or "")
+        for name in LIST_NAMES.values():
+            assert name in (result.skip_reason or "")
+        assert result.findings == []
+        assert ctx.cache.data == {}
 
-    async def test_oversized_list_is_not_read(
+    async def test_oversized_lists_are_not_read(
         self, make_ctx: Any, router: Router, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(phishing_module, "MAX_BYTES", 1000)
-        blocklist(router, {"blacklist": [f"acme-protocol-{i}.com" for i in range(200)]})
-        result = await PhishingLists().run(TARGET, make_ctx(handler=router))
-        assert result.status is ModuleStatus.FAILED
-        assert "larger than expected" in (result.skip_reason or "")
+        many = [f"acme-protocol-{i}.com" for i in range(200)]
+        blocklist(
+            router,
+            {"blacklist": many},
+            polkadot={"allow": [], "deny": many},
+            lines=as_lines("acme-protocol-small.com"),
+        )
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.PARTIAL
+        assert sum("larger than expected" in n for n in result.notes) == 2
+        assert keys(result) == ["acme-protocol-small.com"]
 
-    async def test_overlong_list_is_cut_and_marked_partial(
+    async def test_oversized_list_of_lines_is_not_read(
         self, make_ctx: Any, router: Router, monkeypatch: pytest.MonkeyPatch
     ) -> None:
+        monkeypatch.setattr(phishing_module, "MAX_STREAM_BYTES", 1000)
+        body = as_lines(*(f"acme-protocol-{i}.com" for i in range(200))).encode()
+        blocklist(router, lines=in_pieces(body, 300))
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.PARTIAL
+        assert any(PHISH_DB_NAME in n and "larger than expected" in n for n in result.notes)
+        # What was matched before the limit was reached is thrown away, not half-reported.
+        assert result.findings == []
+        assert not any(key.startswith("phishing_database") for _, key in ctx.cache.data)
+
+    @pytest.mark.parametrize("which", LISTS)
+    async def test_overlong_list_is_cut_and_marked_partial(
+        self, make_ctx: Any, router: Router, monkeypatch: pytest.MonkeyPatch, which: str
+    ) -> None:
         monkeypatch.setattr(phishing_module, "MAX_ENTRIES", 3)
-        blocklist(router, {"blacklist": [f"acme-protocol-{i}.com" for i in range(9)]})
+        one_list(router, which, [f"acme-protocol-{i}.com" for i in range(9)])
         ctx = make_ctx(handler=router)
         ctx.assets.add(lookalikes_result())
         result = await PhishingLists().run(TARGET, ctx)
         assert result.status is ModuleStatus.PARTIAL
         assert len(result.findings) == 3
+        assert any(LIST_NAMES[which] in n and "first part" in n for n in result.notes)
         # The cached copy remembers that it was cut.
         again = await PhishingLists().run(TARGET, ctx)
         assert again.status is ModuleStatus.PARTIAL
+        assert len(router.requests) == 3
 
-    async def test_hostile_entries_never_reach_findings(
+    async def test_too_many_matching_lines_are_cut(
+        self, make_ctx: Any, router: Router, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(phishing_module, "MAX_STREAM_MATCHES", 4)
+        blocklist(router, lines=as_lines(*(f"acme-protocol-{i}.com" for i in range(9))))
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.PARTIAL
+        assert len(result.findings) == 4
+
+    async def test_list_of_lines_is_matched_as_it_arrives(
         self, make_ctx: Any, router: Router
     ) -> None:
-        blocklist(
-            router,
-            {
-                "blacklist": [
-                    f"{SCRIPT}.acme-protocol-airdrop.com",
-                    "acme-protocol-airdrop.com/../../etc/passwd",
-                    "https://acme-protocol-claim.com/login?x=1",
-                    "acme-protocol-claim.com:8080",
-                    "user@acme-protocol-mail.com",
-                    "acme-protocol" + LONG + ".com",
-                    "acme-protocol .com",
-                    "acme-protocol",
-                    "*.acme-protocol-wild.com",
-                    None,
-                    7,
-                    {"name": "acme-protocol-dict.com"},
-                    ["acme-protocol-list.com"],
-                    "ACME-PROTOCOL-Upper.COM.",
-                ],
-                "whitelist": [SCRIPT, None],
-            },
-        )
+        names = [f"unrelated-{i}.net" for i in range(500)]
+        names[137] = "acme-protoco1.xyz"
+        names[138] = "pay.acme-protoco1.xyz\r"
+        names[400] = f"app.{ROOT}"
+        names[499] = "acme-protocol-last.com"
+        body = as_lines(*names).encode().rstrip(b"\n")  # no newline after the last line
+        blocklist(router, lines=in_pieces(body, 7))
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.OK
+        assert keys(result) == [f"app.{ROOT}", "acme-protoco1.xyz", "acme-protocol-last.com"]
+        assert result.findings[1].evidence["listed_names"] == [
+            "acme-protoco1.xyz",
+            "pay.acme-protoco1.xyz",
+        ]
+        # Only what matched is kept, not the list.
+        [cached] = [v for (_, key), v in ctx.cache.data.items() if key.startswith("phishing_d")]
+        assert "unrelated" not in cached
+        assert len(json.loads(cached)["blocked"]) == 4
+        assert json.loads(cached)["total"] == 500
+
+    async def test_lists_are_downloaded_once_and_cached(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        ctx = make_ctx(handler=blocklist(router))
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
+        first = await PhishingLists().run(TARGET, ctx)
+        second = await PhishingLists().run(TARGET, ctx)
+        assert len(router.requests) == 3
+        assert keys(first) == keys(second)
+        assert [f.evidence for f in first.findings] == [f.evidence for f in second.findings]
+        assert first.stats == second.stats
+        assert first.status is second.status is ModuleStatus.OK
+        whole_lists, matches_only, also_whole = sorted(key for _, key in ctx.cache.data)
+        assert (whole_lists, also_whole) == ("metamask", "polkadot")
+        # The key of the third says nothing about who was looked for.
+        assert matches_only.startswith("phishing_database:")
+        assert "acme" not in matches_only
+        whole = json.loads(ctx.cache_get("phishing_lists", "metamask"))
+        assert set(whole) == {"blocked", "allowed", "allowed_trees", "truncated", "total"}
+        assert "unrelated-wallet.io" in whole["blocked"]
+
+    async def test_whole_lists_are_shared_between_organisations(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        ctx = make_ctx(handler=blocklist(router))
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
+        await PhishingLists().run(TARGET, ctx)
+        other = make_ctx(root="unrelated-wallet.io", handler=router)
+        other.cache = ctx.cache
+        other.assets.add(lookalikes_result())
+        result = await PhishingLists().run(Target(root_domain="unrelated-wallet.io"), other)
+        assert [(f.kind, f.asset_key) for f in result.findings] == [
+            ("brand.own_domain_blocklisted", "unrelated-wallet.io")
+        ]
+        # The two lists that are read whole were not downloaded again. The third keeps
+        # only what matched for one organisation, so it is read again for another.
+        assert [r.url.host for r in router.requests[3:]] == [PHISH_DB]
+
+    async def test_damaged_cache_entry_is_replaced(self, make_ctx: Any, router: Router) -> None:
+        ctx = make_ctx(handler=blocklist(router))
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz"))
+        ctx.cache_set("phishing_lists", "metamask", "{not json", timedelta(hours=1))
+        ctx.cache_set("phishing_lists", "polkadot", json.dumps({"blocked": 7}), timedelta(hours=1))
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.OK
+        assert len(router.requests) == 3
+        assert result.findings[1].evidence["lists"] == [METAMASK_NAME, POLKADOT_NAME]
+
+    @pytest.mark.parametrize("which", LISTS)
+    async def test_hostile_entries_never_reach_findings(
+        self, make_ctx: Any, router: Router, which: str
+    ) -> None:
+        hostile: list[Any] = [
+            f"{SCRIPT}.acme-protocol-airdrop.com",
+            f"acme-protocol-tag.com{SCRIPT}",
+            "acme-protocol-airdrop.com/../../etc/passwd",
+            "https://acme-protocol-claim.com/login?x=1",
+            "acme-protocol-claim.com:8080",
+            "user@acme-protocol-mail.com",
+            "acme-protocol" + LONG + ".com",
+            "acme-protocol-" + "a" * 70 + ".com",
+            "acme-protocol .com",
+            "acme-protocol",
+            "*.acme-protocol-wild.com",
+            "*.acme-protoco1.xyz",
+            f"*.{ROOT}",
+            f"{ROOT}/login",
+            f"evil.{ROOT}{SCRIPT}",
+            "203.0.113.7",
+            "[2001:db8::1]",
+            "acme-protoco1.xyz.203.0.113.7",
+            "acme-protocol-\x00zero.com",
+            "acme-protocol-\u202egpj.com",
+            "ACME-PROTOCOL-Upper.COM.",
+        ]
+        if which == "metamask":
+            extra = [None, 7, {"name": "acme-protocol-dict.com"}, ["acme-protocol-list.com"]]
+            blocklist(router, {"blacklist": [*hostile, *extra], "whitelist": [SCRIPT, None]})
+        elif which == "polkadot":
+            extra = [None, 7, {"name": "acme-protocol-dict.com"}, ["acme-protocol-list.com"]]
+            blocklist(router, polkadot={"deny": [*hostile, *extra], "allow": [SCRIPT, None, "*"]})
+        else:
+            blocklist(router, lines=as_lines(*hostile, *("plain-name.net" for _ in hostile)))
         ctx = make_ctx(handler=router)
         hostile_asset = Asset(
             type=AssetType.LOOKALIKE_DOMAIN, key=f"{SCRIPT}.xyz", source_module="lookalikes"
@@ -1128,14 +1667,44 @@ class TestPhishingLists:
         other_type = Asset(
             type=AssetType.SUBDOMAIN, key="acme-protocol-upper.com", source_module="lookalikes"
         )
-        ctx.assets.add(lookalikes_result(extra=[hostile_asset, other_type]))
+        ctx.assets.add(lookalikes_result("acme-protoco1.xyz", extra=[hostile_asset, other_type]))
         result = await PhishingLists().run(TARGET, ctx)
         assert result.status is ModuleStatus.OK
         assert keys(result) == ["acme-protocol-upper.com"]
         assert result.findings[0].confidence is Confidence.CANDIDATE
         text = dump(result)
-        for bad in ("<", "etc/passwd", "https://acme", "login?", "@", "a" * 100, "*", ":8080"):
+        for bad in (
+            "<",
+            "etc/passwd",
+            "https://acme",
+            "login",
+            "@",
+            "a" * 64,
+            "*",
+            ":8080",
+            "203.0.113.7",
+            "2001:db8",
+            "zero",
+            "gpj",
+        ):
             assert bad not in text
+
+    async def test_very_long_line_is_dropped_without_being_held(
+        self, make_ctx: Any, router: Router
+    ) -> None:
+        body = (
+            b"acme-protocol-before.com\n"
+            + b"acme-protocol-"
+            + b"a" * 200_000
+            + b".com\n"
+            + b"acme-protocol-after.com\n"
+        )
+        blocklist(router, lines=in_pieces(body, 4096))
+        ctx = make_ctx(handler=router)
+        ctx.assets.add(lookalikes_result())
+        result = await PhishingLists().run(TARGET, ctx)
+        assert result.status is ModuleStatus.OK
+        assert keys(result) == ["acme-protocol-after.com", "acme-protocol-before.com"]
 
 
 # --------------------------------------------------------------------------
@@ -1509,7 +2078,7 @@ class TestNoContactWithTheOrganisation:
             assert result.status is ModuleStatus.OK
             assert result.findings
 
-        assert router.hosts() == {IANA, REGISTRY, GITHUB_RAW, ARCHIVE}
+        assert router.hosts() == {IANA, REGISTRY, GITHUB_RAW, POLKADOT, PHISH_DB, ARCHIVE}
         for request in router.requests:
             assert request.method == "GET"
             assert request.url.scheme == "https"

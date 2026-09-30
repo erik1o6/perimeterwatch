@@ -1,0 +1,16 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+# Invented values. The signature below is not a real one.
+Contact: mailto:psirt@acme-protocol.xyz
+- -----------------------------------------
+Expires: 2099-12-31T23:59:59.000Z
+Policy: https://acme-protocol.xyz/security/policy
+Preferred-Languages: en
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEinventedinventedinventedinventedinventedFAmXinventedACgkQ
+Contact: mailto:attacker@evil-host.net
+inventedinventedinventedinventedinventedinventedinventedinvented
+=AbCd
+-----END PGP SIGNATURE-----

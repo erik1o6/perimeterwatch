@@ -441,6 +441,21 @@ class DomainRegistration(ScanModule):
                     confidence=Confidence.CONFIRMED,
                 )
             )
+        elif not any(status.startswith("server ") for status in record.statuses):
+            findings.append(
+                self.finding(
+                    "domain.registration.no_registry_lock",
+                    AssetType.DOMAIN,
+                    domain,
+                    f"{domain} shows a registrar lock but no lock at the registry",
+                    evidence={
+                        "status": list(record.statuses),
+                        "how_decided": "No status set by the registry is published. A registry "
+                        "lock shows as statuses such as 'server transfer prohibited'.",
+                    },
+                    confidence=Confidence.LIKELY,
+                )
+            )
         return self.result(
             findings=findings,
             notes=notes,

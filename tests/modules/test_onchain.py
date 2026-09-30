@@ -277,6 +277,15 @@ class TestEthRpc:
         value = await ethrpc.get_storage_at(ctx, RPC, CONTRACT, contract_control.SLOT_ADMIN)
         assert value == "0x" + word(0)
 
+    async def test_an_empty_storage_answer_is_not_read_as_zero(
+        self, make_ctx: Any, chain: FakeChain
+    ) -> None:
+        chain.storage[(CONTRACT.lower(), contract_control.SLOT_ADMIN)] = "0x"
+        with pytest.raises(ethrpc.RpcError):
+            await ethrpc.get_storage_at(
+                make_ctx(handler=chain), RPC, CONTRACT, contract_control.SLOT_ADMIN
+            )
+
 
 # --- contract_control --------------------------------------------------------------
 

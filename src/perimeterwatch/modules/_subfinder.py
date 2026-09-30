@@ -21,12 +21,31 @@ SOURCE_KEYS = {
 }
 
 
+# Sources whose free plans forbid use in a service that serves other
+# organisations. A key for one of these is used in a hosted deployment only if
+# the operator states, in `licensed_sources`, that their plan allows it.
+RESTRICTED = frozenset({"virustotal", "securitytrails"})
+
+
+def held_back(ctx: ScanContext) -> list[str]:
+    """Sources with a key set that will not be used, because of their terms."""
+    if ctx.settings.env == "dev":
+        return []
+    licensed = {s.lower() for s in ctx.settings.licensed_sources}
+    return sorted(
+        source
+        for source, secret_name in SOURCE_KEYS.items()
+        if source in RESTRICTED and source not in licensed and ctx.secret(secret_name)
+    )
+
+
 def provider_config(ctx: ScanContext) -> str:
     """YAML for subfinder's provider file. Values are JSON strings, which YAML accepts."""
+    skip = set(held_back(ctx))
     lines = []
     for source, secret_name in SOURCE_KEYS.items():
         value = ctx.secret(secret_name)
-        if value:
+        if value and source not in skip:
             lines.append(f"{source}:\n  - {json.dumps(value)}")
     return "\n".join(lines) + "\n"
 

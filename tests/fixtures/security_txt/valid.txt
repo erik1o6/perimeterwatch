@@ -1,0 +1,13 @@
+# Invented values, in the shape large sites publish.
+Contact: https://bounty.acme-protocol.xyz/report
+Contact: mailto:security@acme-protocol.xyz
+# All abuse reports go to a separate team.
+Contact: mailto:abuse@acme-protocol.xyz
+
+Encryption: https://acme-protocol.xyz/.well-known/pgp-key.txt
+Acknowledgments: https://acme-protocol.xyz/security/thanks
+Policy: https://acme-protocol.xyz/security/policy 
+Hiring: https://acme-protocol.xyz/careers
+Preferred-Languages: en, de-CH
+Canonical: https://acme-protocol.xyz/.well-known/security.txt
+Expires: 2099-04-01T00:00:00z

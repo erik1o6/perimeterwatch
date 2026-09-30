@@ -12,12 +12,18 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from perimeterwatch.core.models import Asset, Finding, ModuleStatus, ScanSnapshot
+from perimeterwatch.core.models import Asset, Finding, ModuleStatus, ScanSnapshot, Severity
+from perimeterwatch.core.severity import change_severity
 
 
 class FindingChange(BaseModel):
     before: Finding
     after: Finding
+
+    @property
+    def severity(self) -> Severity:
+        """How serious this change is, which can be more than the finding itself."""
+        return change_severity(self.after.kind, self.after.severity)
 
 
 class AssetChange(BaseModel):
@@ -120,7 +126,7 @@ def compute_diff(prev: ScanSnapshot | None, curr: ScanSnapshot) -> ScanDiff:
     diff.new.sort(key=_severity_key)
     diff.resolved.sort(key=_severity_key)
     diff.stale.sort(key=_severity_key)
-    diff.changed.sort(key=lambda c: _severity_key(c.after))
+    diff.changed.sort(key=lambda c: (-int(c.severity), c.after.kind, c.after.asset_key))
     for assets in (diff.assets_new, diff.assets_removed, diff.assets_stale):
         assets.sort(key=lambda a: (a.type.value, a.key))
     diff.assets_changed.sort(key=lambda c: (c.after.type.value, c.after.key))

@@ -20,6 +20,7 @@ from perimeterwatch.config import Settings
 from perimeterwatch.core.diff import ScanDiff
 from perimeterwatch.core.errors import ValidationError
 from perimeterwatch.core.models import Finding, ScanSnapshot, Sensitivity, Severity, utcnow
+from perimeterwatch.core.severity import change_severity
 from perimeterwatch.safety.domains import validate_email
 from perimeterwatch.storage.repo import _aware
 from perimeterwatch.storage.tables import AlertChannel, AlertDelivery
@@ -112,7 +113,13 @@ def compose(
         return f"{domain}: first scan, {len(new)} finding(s)", "\n".join(lines)
 
     new = [f for f in diff.new if f.severity >= min_severity]
-    changed = [c.after for c in diff.changed if c.after.severity >= min_severity]
+    # A change to a watched finding is judged by what the change means, not by
+    # the finding's everyday severity. A new signer on a Safe is not "info".
+    changed = [
+        c.after.model_copy(update={"severity": change_severity(c.after.kind, c.after.severity)})
+        for c in diff.changed
+    ]
+    changed = [f for f in changed if f.severity >= min_severity]
     resolved = [f for f in diff.resolved if f.severity >= min_severity]
     if not (new or changed or resolved):
         return None

@@ -121,8 +121,8 @@
   {% if d.changed %}
   <div class="change-group"><h3>Changed <span>{{ d.changed | length }}</span></h3>
     {% for c in d.changed %}
-    <details class="finding sev-{{ c.after.severity.label }}" open>
-      <summary>{{ sev(c.after) }}<span class="title">{{ c.after.title }}</span></summary>
+    <details class="finding sev-{{ c.severity.label }}" open>
+      <summary><span class="tag sev-{{ c.severity.label }}">{{ c.severity.label }}</span><span class="title">{{ c.after.title }}</span></summary>
       <div class="body">
         <dl class="kv">
           <dt>Affects</dt><dd class="mono">{{ c.after.asset_key }}</dd>

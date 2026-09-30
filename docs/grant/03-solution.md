@@ -146,7 +146,7 @@ A second breach source is present in the code and switched off by default: Hudso
 These steps work once the repository is published, which is the first item of Milestone 1. Until then the maintainer can show the same steps on a call.
 
 1. Clone the repository: https://github.com/erik1o6/perimeterwatch
-2. Run `make dev`, then `make test`. The expected result is 1,422 tests passed.
+2. Run `make dev`, then `make test`. The expected result is 2,532 tests passed.
 3. Run a passive scan against a domain the reviewer owns and open the HTML report.
 4. Or open the published sample report: **[TODO: URL, once published]**.
 

@@ -21,6 +21,7 @@ Every setting is an environment variable. Update this file when a setting is add
 | `PW_LOOKALIKE_MAX_PERMUTATIONS` | 6000 | How many name variations to look up. |
 | `PW_DKIM_SELECTORS_EXTRA` | empty | Extra DKIM selector names to try, as a JSON list. |
 | `PW_NEVER_CONTACT` | empty | Hosts, addresses or networks that must never be contacted, as a JSON list. |
+| `PW_LICENSED_SOURCES` | empty | Data sources whose licence you hold allows use in a service for other organisations, as a JSON list. Without an entry, a hosted deployment does not use the VirusTotal or SecurityTrails keys. |
 | `PW_BREACH_PROVIDERS` | ['hibp'] | Breach sources to use, as a JSON list. |
 | `PW_HUDSONROCK_ENABLED` | false | Use Hudson Rock's count-only lookup. Needs their written permission in a hosted service. |
 | `PW_BASE_URL` | http://127.0.0.1:8000 | Public address of the web service. Used in sign-in links and alerts. |

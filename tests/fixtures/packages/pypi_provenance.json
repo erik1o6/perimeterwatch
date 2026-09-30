@@ -1,0 +1,25 @@
+{
+  "attestation_bundles": [
+    {
+      "attestations": [
+        {
+          "envelope": {
+            "signature": "AAAA",
+            "statement": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJzdWJqZWN0IjpbeyJuYW1lIjoiYWNtZV9zZGsudGFyLmd6IiwiZGlnZXN0Ijp7InNoYTI1NiI6IjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAifX1dLCJwcmVkaWNhdGVUeXBlIjoiaHR0cHM6Ly9kb2NzLnB5cGkub3JnL2F0dGVzdGF0aW9ucy9wdWJsaXNoL3YxIiwicHJlZGljYXRlIjpudWxsfQ=="
+          },
+          "verification_material": {
+            "trimmed": true
+          },
+          "version": 1
+        }
+      ],
+      "publisher": {
+        "environment": "release",
+        "kind": "GitHub",
+        "repository": "acme-protocol/acme-sdk",
+        "workflow": "release.yml"
+      }
+    }
+  ],
+  "version": 1
+}

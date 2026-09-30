@@ -75,7 +75,14 @@ class Subdomains(ScanModule):
                 notes.append(f"{wildcards} wildcard certificate names were seen.")
 
         if ctx.tools.available("subfinder"):
-            from perimeterwatch.modules._subfinder import run_subfinder
+            from perimeterwatch.modules._subfinder import held_back, run_subfinder
+
+            for source in held_back(ctx):
+                notes.append(
+                    f"The key for {source} was not used. Its free plan does not allow use in "
+                    "a service for other organisations. If your plan does, name it in "
+                    "PW_LICENSED_SOURCES."
+                )
 
             try:
                 found = await run_subfinder(root, ctx)

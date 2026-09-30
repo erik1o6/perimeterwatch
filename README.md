@@ -19,25 +19,32 @@ last, so you see what is new.
 |---|---|---|
 | Hostnames | Every name under your domain seen in public records | passive |
 | DNS | DNSSEC, CAA, wildcards, names pointing at private addresses | passive |
+| DNSSEC quality | Weak algorithms, signatures about to expire, zones that can be listed in full | passive |
 | Email | Whether SPF, DMARC, DKIM and MTA-STS stop others sending as you | passive |
 | Lookalike domains | Registered names resembling yours, and whether they can take mail | passive |
 | Dangling DNS | Names pointing at hosted resources that no longer exist | passive |
 | Public code | Credentials committed to your public GitHub repositories | passive |
 | Multisig | Owners and threshold of your Safe, and any change to them | passive |
+| Multisig modules | Modules, guard and fallback handler of your Safe. A module can move funds without an owner's signature | passive |
 | Job postings | Which systems your own postings name | passive |
-| Domain registration | Expiry, transfer lock, and changes of registrar or nameservers | passive |
+| Domain registration | Expiry, transfer lock, registry lock, and changes of registrar or nameservers | passive |
 | SPF chain | Domains your SPF record trusts that no longer exist | passive |
-| Phishing lists | Lookalike domains already reported as phishing | passive |
+| Phishing lists | Lookalike domains already reported as phishing, and your own domain if a blocklist names it | passive |
 | Web archives | Sensitive-looking addresses that archives have recorded | passive |
-| Packages | Lookalikes of your npm and PyPI packages, and changes to who can publish | passive |
+| Packages | Lookalikes of your npm and PyPI packages, changes to who can publish, and releases that lost their provenance | passive |
 | Repository health | Weak branch protection and risky workflow settings | passive |
 | Contracts | Owner, admin and implementation of your contracts, and any change | passive |
 | ENS names | Expiry, and changes of owner or target address | passive |
+| Frontend pointers | Changes to the content your ENS name or DNSLink record points to | passive |
+| Origin servers | Servers behind your content delivery network that can be reached directly | passive |
+| Outside services | The services your domain depends on, and any change to the list | passive |
 | Breach data | Staff addresses in breaches and malware logs | passive, verified domain |
 | Frontend | Changes to the scripts your site serves; missing security headers | probe |
 | Web servers | What answers, and what software it reveals | probe |
 | Certificates | Expired, expiring or mismatched certificates | probe |
-| Ports | Services reachable from the internet | active |
+| Security contact | A missing, expired or invalid `security.txt` | probe |
+| Nameservers | Servers that do not answer for your zone, disagree, or answer for anyone | probe |
+| Ports | Services reachable from the internet, over IPv4 and IPv6 | active |
 | Exposures | Readable config files, open admin pages | active |
 | TLS configuration | Old TLS versions and weak cipher suites still accepted | active |
 | Zone transfer | Nameservers that hand out your whole DNS zone | active |

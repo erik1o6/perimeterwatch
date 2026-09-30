@@ -19,9 +19,9 @@ from perimeterwatch.core.models import (
     Target,
 )
 from perimeterwatch.core.module import ModuleSpec, ScanModule, register
-from perimeterwatch.safety.netguard import is_public_ip
+from perimeterwatch.safety.netguard import has_ipv6_route, is_ipv6, is_public_ip
 from perimeterwatch.safety.subprocess import run_tool
-from perimeterwatch.safety.targets import contactable_hosts
+from perimeterwatch.safety.targets import Contactable, contactable_hosts
 
 EXPECTED = {80, 443}
 MAX_ADDRESSES = 200
@@ -55,9 +55,16 @@ class Ports(ScanModule):
         targets = contactable_hosts(ctx)
         notes = [f"{host} was not scanned: {why}." for host, why in targets.excluded.items()]
         # Addresses are passed, not names, so the tool scans exactly what was vetted.
-        addresses = sorted(
-            {ip for h in targets.hosts for ip in h.public_ips if ":" not in ip and is_public_ip(ip)}
-        )
+        found = {ip for h in targets.hosts for ip in h.public_ips if is_public_ip(ip)}
+        if any(is_ipv6(ip) for ip in found) and not has_ipv6_route():
+            # Scanning anyway would report every IPv6 port as closed, which would
+            # look like a clean result and mean nothing.
+            found = {ip for ip in found if not is_ipv6(ip)}
+            notes.append(
+                "IPv6 addresses were not scanned: this machine has no IPv6 connection. "
+                "Services open only over IPv6 would not be seen."
+            )
+        addresses = sorted(found)
         truncated = targets.truncated or len(addresses) > MAX_ADDRESSES
         addresses = addresses[:MAX_ADDRESSES]
         if not addresses:
@@ -110,6 +117,7 @@ class Ports(ScanModule):
                         else None,
                     )
                 )
+        findings.extend(self._ipv6_only(targets, open_ports))
         if truncated:
             notes.append(f"Only the first {MAX_ADDRESSES} addresses were scanned.")
         return self.result(
@@ -121,3 +129,40 @@ class Ports(ScanModule):
                 "open_ports": sum(len(p) for p in open_ports.values()),
             },
         )
+
+    def _ipv6_only(self, targets: Contactable, open_ports: dict[str, set[int]]) -> list[Finding]:
+        """Ports open on a host's IPv6 address and closed on all its IPv4 addresses.
+
+        That pattern usually means the firewall rules were written for IPv4 only.
+        """
+        findings = []
+        scanned = set(open_ports)
+        for host in targets.hosts:
+            v4 = [ip for ip in host.public_ips if not is_ipv6(ip)]
+            v6 = [ip for ip in host.public_ips if is_ipv6(ip)]
+            if not v4 or not v6:
+                continue
+            open_v4 = set().union(*(open_ports.get(ip, set()) for ip in v4))
+            open_v6 = set().union(*(open_ports.get(ip, set()) for ip in v6))
+            # Only meaningful if the IPv6 side answered at all.
+            if not any(ip in scanned for ip in v6):
+                continue
+            for port in sorted(open_v6 - open_v4):
+                service = RISKY.get(port)
+                findings.append(
+                    self.finding(
+                        "ports.ipv6_only_open",
+                        AssetType.SUBDOMAIN,
+                        host.host,
+                        f"Port {port}{f' ({service})' if service else ''} on {host.host} "
+                        "is open over IPv6 but closed over IPv4",
+                        identity={"port": str(port)},
+                        evidence={"port": port, "ipv6_addresses": v6[:4], "ipv4_addresses": v4[:4]},
+                        confidence=Confidence.CONFIRMED,
+                        severity_steps=1 if service else 0,
+                        severity_note=f"{service} should not normally be reachable from the internet."
+                        if service
+                        else None,
+                    )
+                )
+        return findings

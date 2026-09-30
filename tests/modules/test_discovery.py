@@ -318,3 +318,39 @@ class TestLookalikes:
 
 def test_auth_level_import_is_used() -> None:
     assert AuthLevel.NONE.rank == 0
+
+
+class TestRestrictedSources:
+    """Free plans of some sources forbid use in a service for other organisations."""
+
+    @pytest.fixture
+    def keys(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("VIRUSTOTAL_API_KEY", "vt-key-0123456789")
+        monkeypatch.setenv("SECURITYTRAILS_API_KEY", "st-key-0123456789")
+        monkeypatch.setenv("CERTSPOTTER_API_KEY", "cs-key-0123456789")
+
+    def test_development_uses_every_key(self, make_ctx: Any, keys: None) -> None:
+        from perimeterwatch.modules._subfinder import held_back, provider_config
+
+        ctx = make_ctx()
+        assert held_back(ctx) == []
+        assert "vt-key" in provider_config(ctx) and "st-key" in provider_config(ctx)
+
+    def test_hosted_service_holds_restricted_keys_back(self, make_ctx: Any, keys: None) -> None:
+        from perimeterwatch.modules._subfinder import held_back, provider_config
+
+        ctx = make_ctx()
+        ctx.settings.env = "production"
+        assert held_back(ctx) == ["securitytrails", "virustotal"]
+        config = provider_config(ctx)
+        assert "vt-key" not in config and "st-key" not in config
+        assert "cs-key" in config, "sources without such terms are unaffected"
+
+    def test_operator_can_state_a_licence(self, make_ctx: Any, keys: None) -> None:
+        from perimeterwatch.modules._subfinder import held_back, provider_config
+
+        ctx = make_ctx()
+        ctx.settings.env = "production"
+        ctx.settings.licensed_sources = ["VirusTotal"]
+        assert held_back(ctx) == ["securitytrails"]
+        assert "vt-key" in provider_config(ctx)

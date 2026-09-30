@@ -92,6 +92,11 @@ class Settings(BaseSettings):
     # This is how an opt-out request from the operator of a host is honoured.
     never_contact: list[str] = Field(default_factory=list)
 
+    # Data sources for which the operator holds a licence that allows use in a
+    # service for other organisations, for example ["virustotal"]. Without an
+    # entry here, a hosted deployment does not use the key for such a source.
+    licensed_sources: list[str] = Field(default_factory=list)
+
     breach_providers: list[str] = Field(default_factory=lambda: ["hibp"])
     hudsonrock_enabled: bool = False
 

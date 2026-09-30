@@ -41,6 +41,8 @@ to publish your changes.
 | crt.sh | Public certificate transparency search. Requests are spaced out and cached |
 | GitHub API | Public data only, read with a token supplied by the operator |
 | MetaMask eth-phishing-detect | Public blocklist of phishing domains, under the DBAD Public License 1.2, which asks for attribution. Findings that use it say so |
+| polkadot-js/phishing | Public blocklist of phishing domains, under the Apache License 2.0. Findings that use it say so |
+| Phishing.Database | Public list of active phishing domains, under the MIT licence. Read line by line, only matches are kept. Findings that use it say so |
 | RDAP (IANA bootstrap and registry servers) | The public registration lookup that replaced WHOIS. Contact details of registrants are never read |
 | Internet Archive Wayback Machine | Public index of archived addresses. The addresses themselves are never fetched |
 | Hudson Rock | Off by default. No terms are published for this endpoint: get written permission before switching it on in a hosted service |

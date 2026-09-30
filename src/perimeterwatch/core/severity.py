@@ -17,6 +17,11 @@ class KindInfo:
     severity: Severity
     remediation: str
     references: tuple[str, ...] = field(default_factory=tuple)
+    # Some findings exist to notice a change: who can sign for a Safe, which
+    # scripts a site serves. They are informational while nothing moves. When
+    # their state changes, the change is treated as this severity, so that it
+    # raises an alert.
+    change_severity: Severity | None = None
 
 
 S = Severity
@@ -285,6 +290,7 @@ KINDS: dict[str, KindInfo] = {
         S.INFO,
         "Informational. A change to owners or threshold will be reported as a change; "
         "confirm any change was intended.",
+        change_severity=S.HIGH,
     ),
     "github.org.two_factor_not_required": KindInfo(
         C.WEB3,
@@ -331,6 +337,7 @@ KINDS: dict[str, KindInfo] = {
         "Informational. A change of registrar or nameservers will be reported as a "
         "change. If you did not make it, treat it as a hijack in progress.",
         (_SEAL_911,),
+        change_severity=S.HIGH,
     ),
     # --- frontend ------------------------------------------------------------
     "frontend.scripts": KindInfo(
@@ -340,6 +347,7 @@ KINDS: dict[str, KindInfo] = {
         "change. If no release explains it, take the site offline and investigate: "
         "this is how wallet-draining code reaches users.",
         (_SEAL_911,),
+        change_severity=S.HIGH,
     ),
     "frontend.script.no_integrity": KindInfo(
         C.SUPPLY_CHAIN,
@@ -366,6 +374,7 @@ KINDS: dict[str, KindInfo] = {
         S.INFO,
         "Informational. A change to who can publish this package will be reported as a "
         "change. Confirm any change was intended.",
+        change_severity=S.HIGH,
     ),
     "package.missing": KindInfo(
         C.SUPPLY_CHAIN,
@@ -409,6 +418,7 @@ KINDS: dict[str, KindInfo] = {
         "Informational. A change of owner, admin or implementation will be reported as "
         "a change. If it was not a planned upgrade, treat it as a compromise.",
         (_SEAL_911,),
+        change_severity=S.HIGH,
     ),
     "web3.contract.single_key_control": KindInfo(
         C.WEB3,
@@ -427,6 +437,7 @@ KINDS: dict[str, KindInfo] = {
         S.INFO,
         "Informational. A change of owner or of the address the name points to will be "
         "reported as a change.",
+        change_severity=S.HIGH,
     ),
     "tls.protocol.legacy": KindInfo(
         C.VULN,
@@ -467,6 +478,7 @@ KINDS: dict[str, KindInfo] = {
         S.INFO,
         "Informational. A change of host key will be reported as a change. If the "
         "server was not rebuilt or re-keyed, something else is answering on that address.",
+        change_severity=S.MEDIUM,
     ),
     "cloud.bucket.public_write": KindInfo(
         C.VULN,
@@ -487,6 +499,230 @@ KINDS: dict[str, KindInfo] = {
         S.MEDIUM,
         "Anyone can read this bucket's access settings, or change them. Remove public "
         "access to the bucket's access control list.",
+    ),
+    # --- more change watching -------------------------------------------------------
+    "web3.safe.modules": KindInfo(
+        C.WEB3,
+        S.INFO,
+        "Informational. A module can move funds from a Safe without any owner signing. "
+        "A module being added or removed will be reported as a change. If you did not "
+        "make it, treat it as a compromise.",
+        (_SEAL_911,),
+        change_severity=S.CRITICAL,
+    ),
+    "web3.safe.module_enabled": KindInfo(
+        C.WEB3,
+        S.MEDIUM,
+        "This Safe has a module enabled. A module can move funds without any owner "
+        "signing, so it carries the same trust as the owners together. Confirm that "
+        "you know what this module is and still need it.",
+    ),
+    "web3.safe.guard": KindInfo(
+        C.WEB3,
+        S.INFO,
+        "Informational. A guard checks every transaction the Safe makes, and can block "
+        "them. A change of guard will be reported as a change.",
+        change_severity=S.HIGH,
+    ),
+    "web3.safe.fallback_handler": KindInfo(
+        C.WEB3,
+        S.INFO,
+        "Informational. The fallback handler answers calls the Safe itself does not "
+        "understand. A change will be reported as a change.",
+        change_severity=S.HIGH,
+    ),
+    "web3.safe.singleton": KindInfo(
+        C.WEB3,
+        S.INFO,
+        "Informational. This is the code the Safe runs. A change will be reported as a "
+        "change. Unless you upgraded the Safe, treat it as a compromise.",
+        (_SEAL_911,),
+        change_severity=S.CRITICAL,
+    ),
+    "web3.ens.contenthash": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.INFO,
+        "Informational. This is the content your ENS name serves as a website. A change "
+        "will be reported as a change. If no release explains it, your frontend has "
+        "been replaced.",
+        (_SEAL_911,),
+        change_severity=S.HIGH,
+    ),
+    "dns.dnslink": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.INFO,
+        "Informational. This DNS record says which content is served for the name on "
+        "IPFS. A change will be reported as a change. If no release explains it, your "
+        "frontend has been replaced.",
+        (_SEAL_911,),
+        change_severity=S.HIGH,
+    ),
+    "brand.own_domain_blocklisted": KindInfo(
+        C.LOOKALIKE,
+        S.HIGH,
+        "Your own domain is on a public phishing blocklist. Wallets and browsers that "
+        "use the list will warn your users away. Check that your site has not been "
+        "compromised, then ask the list's maintainers to remove the entry.",
+    ),
+    "security.contact.missing": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Publish a security.txt file at /.well-known/security.txt with an address for "
+        "reporting vulnerabilities. Without one, someone who finds a flaw has no "
+        "stated way to tell you.",
+        ("https://www.rfc-editor.org/rfc/rfc9116",),
+    ),
+    "security.contact.expired": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Your security.txt file is past its expiry date, so its contents can no longer "
+        "be relied on. Update the Expires line, and check the contact still works.",
+        ("https://www.rfc-editor.org/rfc/rfc9116",),
+    ),
+    "security.contact.invalid": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Your security.txt file lacks a Contact or Expires line. Both are required.",
+        ("https://www.rfc-editor.org/rfc/rfc9116",),
+    ),
+    "security.contact.details": KindInfo(
+        C.SURFACE,
+        S.INFO,
+        "Informational. A change to where vulnerability reports are sent will be "
+        "reported as a change.",
+        change_severity=S.MEDIUM,
+    ),
+    "package.provenance.absent": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.INFO,
+        "This package is published without a provenance record, so nobody can check "
+        "which source code and build produced it. Publishing from CI with provenance "
+        "switched on fixes this.",
+        ("https://docs.npmjs.com/generating-provenance-statements",),
+    ),
+    "package.provenance.lost": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.MEDIUM,
+        "Earlier versions of this package were published with a provenance record and "
+        "the latest was not. That is what a release made from a stolen token looks "
+        "like. Confirm who published it and how.",
+        (_SEAL_911,),
+    ),
+    "package.provenance.publisher": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.INFO,
+        "Informational. This is the repository and workflow that publishes the package. "
+        "A change will be reported as a change. If you did not move your release "
+        "process, treat it as a compromise.",
+        (_SEAL_911,),
+        change_severity=S.HIGH,
+    ),
+    # --- DNS quality -----------------------------------------------------------------
+    "dns.dnssec.weak_algorithm": KindInfo(
+        C.SURFACE,
+        S.MEDIUM,
+        "Your zone is signed with an algorithm or key size that must no longer be "
+        "used. Ask your DNS provider to re-sign the zone with a current algorithm, "
+        "such as ECDSA P-256 (algorithm 13).",
+        ("https://www.rfc-editor.org/rfc/rfc9905.html",),
+    ),
+    "dns.dnssec.signature_expiring": KindInfo(
+        C.SURFACE,
+        S.MEDIUM,
+        "The signatures on your zone are close to expiry. If they lapse, your domain "
+        "stops resolving for everyone whose resolver checks DNSSEC. Signing is "
+        "normally automatic: find out why it has stopped.",
+    ),
+    "dns.dnssec.zone_walkable": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Your zone answers 'no such name' in a way that lets anyone list every name "
+        "in it, one after another. Ask your DNS provider for NSEC3 or compact denial.",
+    ),
+    "dns.dnssec.nsec3_iterations": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Your zone uses extra NSEC3 iterations. They add no real protection, and some "
+        "resolvers treat such zones as unsigned. Set the iteration count to 0.",
+        ("https://www.rfc-editor.org/rfc/rfc9276.html",),
+    ),
+    "dns.nameserver.lame": KindInfo(
+        C.SURFACE,
+        S.MEDIUM,
+        "This nameserver is listed for your domain but does not answer for it. Lookups "
+        "sent to it fail or are delayed. Fix the server or remove it from the list.",
+    ),
+    "dns.nameserver.serial_mismatch": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Your nameservers hold different versions of your zone, so visitors get "
+        "different answers depending on which one they ask. Check that changes are "
+        "reaching every server.",
+    ),
+    "dns.nameserver.no_tcp": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "This nameserver does not answer over TCP. Large answers, including DNSSEC "
+        "ones, need it. Open TCP port 53.",
+    ),
+    "dns.nameserver.open_resolver": KindInfo(
+        C.SURFACE,
+        S.MEDIUM,
+        "This nameserver looks up any name for anyone. Such servers are used to "
+        "amplify attacks on others, and can be fed false answers. Switch recursion "
+        "off on servers that publish your zone.",
+    ),
+    "dns.delegation.mismatch": KindInfo(
+        C.SURFACE,
+        S.MEDIUM,
+        "The nameservers your registry lists differ from the ones your zone lists. "
+        "A nameserver that appears on only one side may be one you no longer control. "
+        "Make the two lists match.",
+    ),
+    "domain.registration.no_registry_lock": KindInfo(
+        C.SURFACE,
+        S.LOW,
+        "Your domain has a lock at the registrar but none at the registry. A registry "
+        "lock needs a person to confirm any change by a separate channel, which stops "
+        "a hijack even when the registrar account is taken over. Ask your registrar "
+        "whether it offers one.",
+        (_SEAL_DNS,),
+    ),
+    "email.tls_rpt.missing": KindInfo(
+        C.EMAIL,
+        S.LOW,
+        "Publish a TLS reporting record, so that other mail servers tell you when "
+        "they could not deliver to you over an encrypted connection.",
+        ("https://www.rfc-editor.org/rfc/rfc8460",),
+    ),
+    # --- origin and dependencies ---------------------------------------------------------
+    "surface.origin.exposed": KindInfo(
+        C.SURFACE,
+        S.MEDIUM,
+        "Your site is served through a content delivery network, but the server behind "
+        "it can be reached directly. Attacks sent straight to it bypass the network's "
+        "protection. Allow connections to the server only from the network's own "
+        "addresses.",
+    ),
+    "surface.origin.candidate": KindInfo(
+        C.SURFACE,
+        S.INFO,
+        "This address may be the server behind your content delivery network. It was "
+        "found in your own DNS records and could not be confirmed.",
+    ),
+    "supply_chain.dependencies": KindInfo(
+        C.SUPPLY_CHAIN,
+        S.INFO,
+        "Informational. These are the outside services your domain relies on. Each is "
+        "a party that could take your site or mail down, or be used to attack you. A "
+        "service being added or removed will be reported as a change.",
+        change_severity=S.LOW,
+    ),
+    "ports.ipv6_only_open": KindInfo(
+        C.VULN,
+        S.MEDIUM,
+        "This port is open over IPv6 and closed over IPv4. That usually means the "
+        "firewall rules cover only IPv4. Apply the same rules to IPv6.",
     ),
     # --- active --------------------------------------------------------------
     "ports.unexpected_open": KindInfo(
@@ -509,6 +745,14 @@ def kind_info(kind: str) -> KindInfo:
         return KINDS[kind]
     except KeyError as exc:
         raise KeyError(f"Unknown finding kind {kind!r}. Add it to core/severity.py.") from exc
+
+
+def change_severity(kind: str, severity: Severity) -> Severity:
+    """How serious a change to a finding of this kind is, for alerts and reports."""
+    info = KINDS.get(kind)
+    if info is None or info.change_severity is None:
+        return severity
+    return max(severity, info.change_severity)
 
 
 def adjust(base: Severity, steps: int) -> Severity:

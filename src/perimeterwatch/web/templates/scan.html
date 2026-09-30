@@ -60,7 +60,7 @@
   <h3>Changed <span class="tag plain">{{ d.changed | length }}</span></h3>
   <div class="tablewrap"><table><tbody>
     {% for c in d.changed %}
-    <tr><td>{{ sev(c.after) }}</td><td class="name">{{ c.after.title }}</td>
+    <tr><td><span class="tag sev-{{ c.severity.label }}">{{ c.severity.label }}</span></td><td class="name">{{ c.after.title }}</td>
     <td class="mono">{{ c.before.state | value }} → {{ c.after.state | value }}</td></tr>
     {% endfor %}
   </tbody></table></div>

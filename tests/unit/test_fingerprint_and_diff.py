@@ -207,3 +207,68 @@ class TestDiff:
             snapshot(module("tls_certs")), snapshot(module("tls_certs", findings=[low, high]))
         )
         assert [f.severity for f in diff.new] == [Severity.HIGH, Severity.LOW]
+
+
+class TestChangeSeverity:
+    """A change to a watched finding is judged by what the change means."""
+
+    def watched(self, owners: list[str]) -> Finding:
+        return finding(
+            kind="web3.safe.owners",
+            asset="eth:0xsafe",
+            module="safe_multisig",
+            category=Category.WEB3,
+            severity=Severity.INFO,
+            state={"owners": owners, "threshold": 2},
+        )
+
+    def test_a_changed_signer_is_high_although_the_finding_is_info(self) -> None:
+        before = snapshot(module("safe_multisig", findings=[self.watched(["a", "b", "c"])]))
+        after = snapshot(module("safe_multisig", findings=[self.watched(["a", "b", "x"])]))
+        [change] = compute_diff(before, after).changed
+        assert change.after.severity is Severity.INFO
+        assert change.severity is Severity.HIGH
+
+    def test_an_ordinary_finding_keeps_its_own_severity(self) -> None:
+        before = snapshot(module("tls_certs", findings=[finding(state={"bucket": "30d"})]))
+        after = snapshot(module("tls_certs", findings=[finding(state={"bucket": "14d"})]))
+        [change] = compute_diff(before, after).changed
+        assert change.severity is Severity.MEDIUM
+
+    def test_a_change_never_lowers_severity(self) -> None:
+        from perimeterwatch.core.severity import change_severity
+
+        assert change_severity("ssh.host_keys", Severity.CRITICAL) is Severity.CRITICAL
+        assert change_severity("no.such.kind", Severity.LOW) is Severity.LOW
+
+    def test_changes_are_ordered_by_what_they_mean(self) -> None:
+        cert_a = finding(asset="a.acme-protocol.xyz", state={"bucket": "30d"})
+        cert_b = finding(asset="a.acme-protocol.xyz", state={"bucket": "14d"})
+        before = snapshot(
+            module("tls_certs", findings=[cert_a]),
+            module("safe_multisig", findings=[self.watched(["a", "b", "c"])]),
+        )
+        after = snapshot(
+            module("tls_certs", findings=[cert_b]),
+            module("safe_multisig", findings=[self.watched(["a", "b", "x"])]),
+        )
+        kinds = [c.after.kind for c in compute_diff(before, after).changed]
+        assert kinds == ["web3.safe.owners", "tls.cert.expiring"]
+
+    def test_an_alert_is_sent_for_a_changed_signer(self) -> None:
+        from perimeterwatch.worker.alerts import compose
+
+        before = snapshot(module("safe_multisig", findings=[self.watched(["a", "b", "c"])]))
+        after = snapshot(module("safe_multisig", findings=[self.watched(["a", "b", "x"])]))
+        diff = compute_diff(before, after)
+        message = compose(after, diff, min_severity=int(Severity.HIGH), link="https://x.example/s")
+        assert message is not None
+        assert "1 changed" in message[0] and message[0].startswith("[high]")
+
+    def test_every_watched_kind_is_informational_until_it_changes(self) -> None:
+        from perimeterwatch.core.severity import KINDS
+
+        watched = {k: i for k, i in KINDS.items() if i.change_severity is not None}
+        assert len(watched) >= 10
+        for kind, info in watched.items():
+            assert info.change_severity > info.severity, kind

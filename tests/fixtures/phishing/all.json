@@ -1,0 +1,22 @@
+{
+  "allow": [
+    "*.fleek.co",
+    "duckdns.org",
+    "github.io",
+    "pages.dev",
+    "vercel.app"
+  ],
+  "deny": [
+    "0-chain-invented.com",
+    "09sync00.duckdns.org",
+    "acme-protoco1.xyz",
+    "stake.acme-protocol.pages.dev",
+    "acme-protocol-claim.fleek.co",
+    "invented-parachain-bonus.network",
+    "polkadot-invented-airdrop.vercel.app"
+  ],
+  "denySub": [
+    "twitter.com/InventedAcmeSupport",
+    "x.com/InventedAcmeSupport"
+  ]
+}
