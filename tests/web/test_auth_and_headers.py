@@ -362,3 +362,26 @@ class TestSecurityTxt:
         expires = datetime.fromisoformat(fields["Expires"].replace("Z", "+00:00"))
         days = (expires - utcnow()).days
         assert 150 <= days <= 190, "RFC 9116 asks for less than a year"
+
+
+class TestSampleReport:
+    def test_the_sample_is_served_with_the_policy_a_report_needs(self, browser: Any) -> None:
+        response = browser().get("/sample-report")
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("text/html")
+        policy = response.headers["Content-Security-Policy"]
+        assert "sandbox" in policy and "default-src 'none'" in policy
+        assert "Since the last scan" in response.text or "Changes since" in response.text
+        assert "<script" not in response.text
+
+    def test_the_same_findings_are_offered_as_json(self, browser: Any) -> None:
+        import json
+
+        response = browser().get("/sample-report.json")
+        assert response.status_code == 200
+        report = json.loads(response.text)
+        assert report["target"]["root_domain"] == "perimeterwatch.org"
+        assert report["findings"], "a sample without findings shows nothing"
+
+    def test_the_public_page_links_to_it(self, browser: Any) -> None:
+        assert 'href="/sample-report"' in browser().get("/").text

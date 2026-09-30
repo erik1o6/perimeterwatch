@@ -29,6 +29,7 @@ SAMPLE = {
 NO_IDENTIFIER = {
     "/", "/login", "/logout", "/healthz", "/report.css", "/targets", "/alerts", "/audit",
     "/auth/{token}", "/legal", "/legal/{slug}", "/.well-known/security.txt",
+    "/sample-report", "/sample-report.json",
 }  # fmt: skip
 
 

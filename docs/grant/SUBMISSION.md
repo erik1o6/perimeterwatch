@@ -68,7 +68,7 @@ Perimeterwatch
 
 https://perimeterwatch.org
 https://github.com/erik1o6/perimeterwatch
-https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report
+https://perimeterwatch.org/sample-report
 
 ## Why this matters
 
@@ -82,6 +82,7 @@ A project adds one DNS record and gets a private list of its weak points, each w
 - forgotten web addresses that someone else could claim
 - a domain without a registry lock, or a change of registrar or nameservers
 - credentials published by mistake in public code
+- systems named in its own job postings, which tell an attacker what it runs
 - a change to its treasury signers, its Safe's modules, or who controls a contract
 - a change to the scripts its website serves
 
@@ -103,8 +104,8 @@ The first version of this submission (xWatch, 9 September 2026) claimed no proto
 
 - **Live beta.** https://perimeterwatch.org has run since 30 September 2026 on one server in Germany, over HTTPS. Sign-up is open. Sign-in by emailed link, proof of domain control, scheduled scans, alerts and an audit log work. The home page lists the checks that run today, the addresses scans come from, and how the operator of a scanned host asks to be left alone.
 - **Public code.** https://github.com/erik1o6/perimeterwatch, under Apache-2.0: 34 checks at three depths (passive, probe, active), 104 kinds of finding, and 10 third-party tools pinned by version and verified by checksum, among them subfinder, nuclei and trufflehog. 33 of the checks run in the beta today.
-- **Tests.** 2,555 automated tests pass in public CI on every change. One test file tries every route of the web service as a different organisation and confirms that nothing leaks.
-- **Sample report.** https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report, from a scan of the project's own domain.
+- **Tests.** 2,560 automated tests pass in public CI on every change. One test file tries every route of the web service as a different organisation and confirms that nothing leaks.
+- **Sample report.** https://perimeterwatch.org/sample-report, from a scan of the project's own domain.
 - **Draft legal documents.** https://perimeterwatch.org/legal, each marked as a draft.
 
 What the prototype is not:
@@ -124,7 +125,7 @@ The grant pays to turn the beta into a service that other organisations can rely
 - Hardening and operating the service for six months: backups with a tested restore, monitoring, the fixes from the security review, and the onboarding flow (inviting colleagues, uploading a staff list, closing an account).
 - An independent security assessment and retest. The service stores a map of each participant's weak points.
 - A lawyer's review of the terms, privacy policy and data processing agreement.
-- A licensed source of breach data for one year. Have I Been Pwned is the planned source. Intelligence X, which the first submission named, is the alternative. The choice is made once a supplier confirms in writing that use by a hosted service for several organisations is allowed.
+- A licensed source of breach data for one year. Have I Been Pwned is the planned source: its Pro 1 plan costs $379 a month, $4,548 a year, for up to 50 domains. Intelligence X, which the first submission named, is the alternative: its Identity Portal plan costs €10,000 a year. Both are published prices, read on 30 September 2026. The choice is made once a supplier confirms in writing that use by a hosted service for several organisations is allowed.
 - Breach findings for work email addresses from a list the project supplies. The service does not collect staff identities from professional networking sites, because of the legal risk. This is narrower than the first submission on purpose.
 - Scheduled monitoring: alerts on change, a source and a certainty label on each finding, and human review of high-risk or uncertain findings.
 - Onboarding at least 25 external Ethereum organisations (registered organisations, DAOs and unincorporated teams), starting with code2142's existing contacts and security-partner referrals.

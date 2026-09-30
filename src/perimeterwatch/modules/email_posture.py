@@ -438,8 +438,11 @@ class EmailPosture(ScanModule):
         for selector, answer in zip(selectors, answers, strict=True):
             for record in answer.records:
                 lowered = record.lower()
-                if "p=" in lowered and ("v=dkim1" in lowered or "k=" in lowered):
-                    found[selector] = dkim_key_bits(record)
+                # The version and key type tags are optional (RFC 6376, 3.6.1). Some
+                # mail services publish the key alone.
+                key = dkim_key_bits(record)
+                if "p=" in lowered and ("v=dkim1" in lowered or "k=" in lowered or key):
+                    found[selector] = key
         attrs["dkim_selectors"] = sorted(found)
 
         if not found:

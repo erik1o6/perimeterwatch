@@ -1,0 +1,1557 @@
+{
+  "schema_version": "1.0",
+  "product": "Perimeterwatch",
+  "product_version": "0.1.0",
+  "scan": {
+    "id": "710736fd-6144-4e6a-8418-0f469a07401c",
+    "started_at": "2026-09-30T15:03:51.203567+00:00",
+    "finished_at": "2026-09-30T15:06:42.880274+00:00",
+    "mode": "probe",
+    "tool_versions": {
+      "httpx": "1.12.0",
+      "subfinder": "2.16.0",
+      "tlsx": "1.4.0"
+    }
+  },
+  "target": {
+    "root_domain": "perimeterwatch.org",
+    "github_org": null,
+    "safes": [],
+    "job_board": null,
+    "npm_packages": [],
+    "pypi_packages": [],
+    "contracts": [],
+    "ens_names": []
+  },
+  "authorisation": {
+    "level": "none",
+    "basis": "No authorisation on record. Passive sources only.",
+    "checked_at": "2026-09-30T15:03:47.108644Z"
+  },
+  "summary": {
+    "total": 10,
+    "by_severity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 1,
+      "low": 4,
+      "info": 5
+    },
+    "by_category": {
+      "email": 3,
+      "surface": 5,
+      "supply_chain": 2
+    },
+    "hosts_resolving": 1,
+    "names_discovered": 2
+  },
+  "checklist": [
+    {
+      "label": "SPF rejects unlisted senders",
+      "status": "fail",
+      "detail": "SPF is missing, broken, or does not reject."
+    },
+    {
+      "label": "DMARC is enforced",
+      "status": "pass",
+      "detail": "Policy is quarantine or reject for all mail."
+    },
+    {
+      "label": "DKIM key found",
+      "status": "fail",
+      "detail": "No key found under common names, or a key is weak."
+    },
+    {
+      "label": "MTA-STS enforced",
+      "status": "fail",
+      "detail": "Inbound mail can be downgraded to plain text."
+    },
+    {
+      "label": "DNSSEC enabled",
+      "status": "fail",
+      "detail": "DNS answers for the domain can be forged."
+    },
+    {
+      "label": "CAA record published",
+      "status": "pass",
+      "detail": "Certificate issuers are restricted."
+    },
+    {
+      "label": "No dangling DNS records",
+      "status": "pass",
+      "detail": "No candidates found."
+    },
+    {
+      "label": "No mail-capable lookalike domains",
+      "status": "pass",
+      "detail": "None found."
+    },
+    {
+      "label": "Certificates valid for 14+ days",
+      "status": "pass",
+      "detail": "No certificate is close to expiry."
+    },
+    {
+      "label": "No secrets in public repositories",
+      "status": "unknown",
+      "detail": "Not checked in this scan."
+    },
+    {
+      "label": "Multisig needs 2+ signatures from 3+ owners",
+      "status": "unknown",
+      "detail": "Not checked in this scan."
+    },
+    {
+      "label": "No staff addresses in malware logs",
+      "status": "unknown",
+      "detail": "Not checked in this scan."
+    }
+  ],
+  "actions": [
+    {
+      "title": "DKIM key 'resend' for perimeterwatch.org is only 1024 bits",
+      "severity": "medium",
+      "remediation": "Rotate this DKIM key to at least 2048-bit RSA or to Ed25519.",
+      "count": 1
+    },
+    {
+      "title": "perimeterwatch.org is not signed with DNSSEC",
+      "severity": "low",
+      "remediation": "Enable DNSSEC at your DNS provider and publish the DS record at your registrar. It protects against forged DNS answers.",
+      "count": 1
+    },
+    {
+      "title": "perimeterwatch.org shows a registrar lock but no lock at the registry",
+      "severity": "low",
+      "remediation": "Your domain has a lock at the registrar but none at the registry. A registry lock needs a person to confirm any change by a separate channel, which stops a hijack even when the registrar account is taken over. Ask your registrar whether it offers one.",
+      "count": 1
+    },
+    {
+      "title": "perimeterwatch.org has no MTA-STS policy",
+      "severity": "low",
+      "remediation": "Publish an MTA-STS policy so sending servers require TLS when delivering to you.",
+      "count": 1
+    },
+    {
+      "title": "The SPF record for perimeterwatch.org only soft-fails unlisted senders",
+      "severity": "low",
+      "remediation": "Once legitimate senders are confirmed, change '~all' to '-all'.",
+      "count": 1
+    }
+  ],
+  "diff": {
+    "baseline": false,
+    "previous_scan_id": "0df892dc-f555-4ed7-a3be-c95d2a8ede69",
+    "current_scan_id": "710736fd-6144-4e6a-8418-0f469a07401c",
+    "new": [
+      {
+        "kind": "email.dkim.weak_key",
+        "module": "email_posture",
+        "category": "email",
+        "title": "DKIM key 'resend' for perimeterwatch.org is only 1024 bits",
+        "severity": 2,
+        "confidence": "confirmed",
+        "sensitivity": "normal",
+        "asset_type": "domain",
+        "asset_key": "perimeterwatch.org",
+        "identity": {
+          "selector": "resend"
+        },
+        "state": {
+          "bits": 1024
+        },
+        "evidence": {
+          "selector": "resend",
+          "key_type": "rsa",
+          "bits": 1024
+        },
+        "remediation": "Rotate this DKIM key to at least 2048-bit RSA or to Ed25519.",
+        "references": [],
+        "attribution": null,
+        "severity_note": null,
+        "fingerprint": "24012968f33984d39f5f83e2664bac0a05e9d5235f9248e9a208a792ea1dcd02",
+        "state_hash": "27127b1e6b98e92413ae2732d8f852b326da017840f905c2a2e2880e9664d4c7"
+      },
+      {
+        "kind": "email.mta_sts.missing",
+        "module": "email_posture",
+        "category": "email",
+        "title": "perimeterwatch.org has no MTA-STS policy",
+        "severity": 1,
+        "confidence": "confirmed",
+        "sensitivity": "normal",
+        "asset_type": "domain",
+        "asset_key": "perimeterwatch.org",
+        "identity": {},
+        "state": {},
+        "evidence": {},
+        "remediation": "Publish an MTA-STS policy so sending servers require TLS when delivering to you.",
+        "references": [
+          "https://www.rfc-editor.org/rfc/rfc8461"
+        ],
+        "attribution": null,
+        "severity_note": null,
+        "fingerprint": "5ea7ac99bd18c03787486f45747696b5ee8c3e572cec8b36afc1bfd1a0294fc6",
+        "state_hash": "ede0de807492408040925c13f91e20c5a5152f167d2e5fc064c61aa4b71f7267"
+      },
+      {
+        "kind": "email.spf.softfail",
+        "module": "email_posture",
+        "category": "email",
+        "title": "The SPF record for perimeterwatch.org only soft-fails unlisted senders",
+        "severity": 1,
+        "confidence": "confirmed",
+        "sensitivity": "normal",
+        "asset_type": "domain",
+        "asset_key": "perimeterwatch.org",
+        "identity": {},
+        "state": {},
+        "evidence": {
+          "record": "v=spf1 include:_spf.mx.cloudflare.net ~all"
+        },
+        "remediation": "Once legitimate senders are confirmed, change '~all' to '-all'.",
+        "references": [
+          "https://www.rfc-editor.org/rfc/rfc7208"
+        ],
+        "attribution": null,
+        "severity_note": null,
+        "fingerprint": "76a493578bf1b9acba3a7b6e5c043f79419247e1938986b6e588fb88d631a59a",
+        "state_hash": "ede0de807492408040925c13f91e20c5a5152f167d2e5fc064c61aa4b71f7267"
+      },
+      {
+        "kind": "frontend.scripts",
+        "module": "frontend",
+        "category": "supply_chain",
+        "title": "perimeterwatch.org serves 0 scripts",
+        "severity": 0,
+        "confidence": "confirmed",
+        "sensitivity": "normal",
+        "asset_type": "domain",
+        "asset_key": "perimeterwatch.org",
+        "identity": {},
+        "state": {
+          "scripts": []
+        },
+        "evidence": {
+          "page": "https://perimeterwatch.org/",
+          "own_script_files": 0,
+          "scripts_written_into_the_page": 0,
+          "scripts_from_other_sites": [],
+          "addresses_that_load_nothing": 0,
+          "base_address_set_by_page": "",
+          "note": "Any script that is added, removed or altered is reported as a change. Many sites put a build code in file names (for example app.3f9a1c.js), so every release changes this list. That is expected: match each reported change to a release. A change that no release explains needs investigating at once. Text after a question mark in a script address is ignored, because it is often only there to refresh caches. Scripts written into the page itself are compared by content, so a page that writes a different value into a script on every visit will be reported as changed at every scan."
+        },
+        "remediation": "Informational. A change to the scripts your site serves will be reported as a change. If no release explains it, take the site offline and investigate: this is how wallet-draining code reaches users.",
+        "references": [
+          "https://securityalliance.org/our-work/seal-911"
+        ],
+        "attribution": null,
+        "severity_note": null,
+        "fingerprint": "1f8bc29e1b285c2d4196cec1f85fdffaa9d5e3a0c8accd0556f2e95b1a4a2372",
+        "state_hash": "e9b8b8fbc6cf6f58db5893dd56e6d59f82a8439a0aac7cd5ceb9f568c827a6be"
+      },
+      {
+        "kind": "security.contact.details",
+        "module": "security_contact",
+        "category": "surface",
+        "title": "perimeterwatch.org publishes where to report security problems",
+        "severity": 0,
+        "confidence": "confirmed",
+        "sensitivity": "normal",
+        "asset_type": "domain",
+        "asset_key": "perimeterwatch.org",
+        "identity": {},
+        "state": {
+          "contacts": [
+            "mailto:security@perimeterwatch.org"
+          ],
+          "policy": [
+            "https://perimeterwatch.org/legal/vulnerability-disclosure"
+          ],
+          "canonical": [
+            "https://perimeterwatch.org/.well-known/security.txt"
+          ]
+        },
+        "evidence": {
+          "address": "https://perimeterwatch.org/.well-known/security.txt",
+          "location_used": "/.well-known/security.txt",
+          "contacts_in_order_of_preference": [
+            "mailto:security@perimeterwatch.org"
+          ],
+          "policy": [
+            "https://perimeterwatch.org/legal/vulnerability-disclosure"
+          ],
+          "canonical": [
+            "https://perimeterwatch.org/.well-known/security.txt"
+          ],
+          "expires": "2027-03-01",
+          "encryption_key": [],
+          "preferred_languages": [
+            "en"
+          ],
+          "acknowledgments": [],
+          "lines_that_could_not_be_read": 0
+        },
+        "remediation": "Informational. A change to where vulnerability reports are sent will be reported as a change.",
+        "references": [],
+        "attribution": null,
+        "severity_note": null,
+        "fingerprint": "357d1f4284b3f59e54cc5cbf7e0db2ce4c3c4b615757cb40ddb307f208b9ac44",
+        "state_hash": "e8cbe22def369783dc90d9a312f0d86b77a31ba2ca573bb9010927067fed55fe"
+      }
+    ],
+    "resolved": [
+      {
+        "kind": "email.dmarc.missing",
+        "module": "email_posture",
+        "category": "email",
+        "title": "perimeterwatch.org has no DMARC record, so spoofed mail is not rejected",
+        "severity": 3,
+        "confidence": "confirmed",
+        "sensitivity": "normal",
+        "asset_type": "domain",
+        "asset_key": "perimeterwatch.org",
+        "identity": {},
+        "state": {},
+        "evidence": {},
+        "remediation": "Publish a DMARC record at _dmarc.<domain>. Start with 'p=none' and a reporting address, review the reports, then move to 'p=quarantine' and 'p=reject'.",
+        "references": [
+          "https://www.rfc-editor.org/rfc/rfc7489"
+        ],
+        "attribution": null,
+        "severity_note": null,
+        "fingerprint": "9306d98b1fed73dd6d74cb5295c010a0f566e4dea2746b808bca99c4e976f4d0",
+        "state_hash": "64beace227906bca8176215387d92c70244d422d596cbef3899df26bb075ea82"
+      },
+      {
+        "kind": "email.spf.missing",
+        "module": "email_posture",
+        "category": "email",
+        "title": "perimeterwatch.org has no SPF record",
+        "severity": 2,
+        "confidence": "confirmed",
+        "sensitivity": "normal",
+        "asset_type": "domain",
+        "asset_key": "perimeterwatch.org",
+        "identity": {},
+        "state": {},
+        "evidence": {},
+        "remediation": "Publish an SPF record listing the services allowed to send mail for this domain, ending in '-all'. If the domain sends no mail, publish 'v=spf1 -all'.",
+        "references": [
+          "https://www.rfc-editor.org/rfc/rfc7208"
+        ],
+        "attribution": null,
+        "severity_note": null,
+        "fingerprint": "3f481a8d5fb459d757d7e0e75716666c9e783082ddd460ab8663c717234b300c",
+        "state_hash": "ef1424cb5c9d0ebc1aa25ca99fc2847f0ddac10a84526abf45ff7fd4553fdadb"
+      },
+      {
+        "kind": "dns.caa.missing",
+        "module": "dns_resolve",
+        "category": "surface",
+        "title": "perimeterwatch.org has no CAA record",
+        "severity": 1,
+        "confidence": "confirmed",
+        "sensitivity": "normal",
+        "asset_type": "domain",
+        "asset_key": "perimeterwatch.org",
+        "identity": {},
+        "state": {},
+        "evidence": {},
+        "remediation": "Publish CAA records naming the certificate authorities allowed to issue for this domain. This limits mis-issuance if a DNS or web account is compromised.",
+        "references": [
+          "https://www.rfc-editor.org/rfc/rfc8659"
+        ],
+        "attribution": null,
+        "severity_note": null,
+        "fingerprint": "644b834389b796a275404428f15d63b149cb3e69361677b5e32de092f60e45fb",
+        "state_hash": "ede0de807492408040925c13f91e20c5a5152f167d2e5fc064c61aa4b71f7267"
+      }
+    ],
+    "changed": [
+      {
+        "before": {
+          "kind": "supply_chain.dependencies",
+          "module": "dependencies",
+          "category": "supply_chain",
+          "title": "perimeterwatch.org relies on 1 outside service",
+          "severity": 0,
+          "confidence": "confirmed",
+          "sensitivity": "normal",
+          "asset_type": "domain",
+          "asset_key": "perimeterwatch.org",
+          "identity": {
+            "built_from": "dns_resolve,domain_registration,email_posture,frontend,http_probe,tls_certs"
+          },
+          "state": {
+            "services": [
+              {
+                "role": "dns",
+                "service": "Cloudflare"
+              }
+            ]
+          },
+          "evidence": {
+            "dns": [
+              {
+                "revealed_by": [
+                  "nameserver felicity.ns.cloudflare.com in the registration record",
+                  "nameserver sonia.ns.cloudflare.com in the registration record",
+                  "nameserver felicity.ns.cloudflare.com in your NS records",
+                  "nameserver sonia.ns.cloudflare.com in your NS records"
+                ],
+                "service": "Cloudflare"
+              }
+            ],
+            "not_read_this_time": [],
+            "note": "Each service listed is an outside party your domain depends on. A service that appears or disappears between scans is reported as a change. Match each change to something your team did. One that nobody can explain needs looking into.",
+            "read_from": [
+              "DNS resolution",
+              "the domain registration check",
+              "the email check",
+              "the web server check",
+              "the certificate check",
+              "the website script check"
+            ]
+          },
+          "remediation": "Informational. These are the outside services your domain relies on. Each is a party that could take your site or mail down, or be used to attack you. A service being added or removed will be reported as a change.",
+          "references": [],
+          "attribution": null,
+          "severity_note": null,
+          "fingerprint": "b790fe859559d219551ccc33c9af776ec61769c1fdcfecbebc61b56a82c63b7a",
+          "state_hash": "72540a662da287f605de3cab8347002a2aea8df0acceb640c70337b58305f113"
+        },
+        "after": {
+          "kind": "supply_chain.dependencies",
+          "module": "dependencies",
+          "category": "supply_chain",
+          "title": "perimeterwatch.org relies on 2 outside services",
+          "severity": 0,
+          "confidence": "confirmed",
+          "sensitivity": "normal",
+          "asset_type": "domain",
+          "asset_key": "perimeterwatch.org",
+          "identity": {
+            "built_from": "dns_resolve,domain_registration,email_posture,frontend,http_probe,tls_certs"
+          },
+          "state": {
+            "services": [
+              {
+                "service": "Cloudflare",
+                "role": "dns"
+              },
+              {
+                "service": "Cloudflare",
+                "role": "mail"
+              },
+              {
+                "service": "Cloudflare",
+                "role": "mail_sending"
+              },
+              {
+                "service": "Let's Encrypt",
+                "role": "certificates"
+              }
+            ]
+          },
+          "evidence": {
+            "dns": [
+              {
+                "service": "Cloudflare",
+                "revealed_by": [
+                  "nameserver felicity.ns.cloudflare.com in the registration record",
+                  "nameserver sonia.ns.cloudflare.com in the registration record",
+                  "nameserver felicity.ns.cloudflare.com in your NS records",
+                  "nameserver sonia.ns.cloudflare.com in your NS records"
+                ]
+              }
+            ],
+            "mail": [
+              {
+                "service": "Cloudflare",
+                "revealed_by": [
+                  "mail server route3.mx.cloudflare.net in your MX records",
+                  "mail server route2.mx.cloudflare.net in your MX records",
+                  "mail server route1.mx.cloudflare.net in your MX records"
+                ]
+              }
+            ],
+            "mail_sending": [
+              {
+                "service": "Cloudflare",
+                "revealed_by": [
+                  "include:_spf.mx.cloudflare.net in your SPF record"
+                ]
+              }
+            ],
+            "certificates": [
+              {
+                "service": "Let's Encrypt",
+                "revealed_by": [
+                  "issued the certificate served by perimeterwatch.org"
+                ]
+              }
+            ],
+            "read_from": [
+              "DNS resolution",
+              "the domain registration check",
+              "the email check",
+              "the web server check",
+              "the certificate check",
+              "the website script check"
+            ],
+            "not_read_this_time": [],
+            "note": "Each service listed is an outside party your domain depends on. A service that appears or disappears between scans is reported as a change. Match each change to something your team did. One that nobody can explain needs looking into."
+          },
+          "remediation": "Informational. These are the outside services your domain relies on. Each is a party that could take your site or mail down, or be used to attack you. A service being added or removed will be reported as a change.",
+          "references": [],
+          "attribution": null,
+          "severity_note": null,
+          "fingerprint": "b790fe859559d219551ccc33c9af776ec61769c1fdcfecbebc61b56a82c63b7a",
+          "state_hash": "a505965e6e5ba70b34482d017ad780b9e8dbb0871b5a7d345019228a371f8a4b"
+        }
+      }
+    ],
+    "stale": [],
+    "unchanged": 4,
+    "assets_new": [],
+    "assets_removed": [],
+    "assets_changed": [
+      {
+        "before": {
+          "type": "domain",
+          "key": "perimeterwatch.org",
+          "attributes": {
+            "sources": [],
+            "ips": [],
+            "dns_status": "nodata",
+            "wildcard_match": false,
+            "private_ips": [],
+            "mx": [],
+            "receives_mail": false,
+            "spf_record": null,
+            "spf": "missing",
+            "dmarc_record": null,
+            "dmarc": "missing"
+          },
+          "state": {
+            "resolves": false,
+            "cname": null
+          },
+          "source_module": "subdomains",
+          "facets": {
+            "subdomains": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "dns_resolve": "0c2bde9a2f4ab7dae1dfc7f0bf133e9eae365d3ecfa767e5fd8c6f89121c829c",
+            "email_posture": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+          },
+          "fingerprint": "0ea14752246ad0869372d0c94ab248bc4a2a1869076c7e21aa08abcd17bfb6d1",
+          "state_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        "after": {
+          "type": "domain",
+          "key": "perimeterwatch.org",
+          "attributes": {
+            "sources": [],
+            "ips": [
+              "162.55.43.236",
+              "2a01:4f8:c016:78c3::1"
+            ],
+            "dns_status": "ok",
+            "wildcard_match": false,
+            "private_ips": [],
+            "mx": [
+              "route3.mx.cloudflare.net",
+              "route2.mx.cloudflare.net",
+              "route1.mx.cloudflare.net"
+            ],
+            "receives_mail": true,
+            "spf_record": "v=spf1 include:_spf.mx.cloudflare.net ~all",
+            "spf": "softfail",
+            "spf_dns_lookups": 1,
+            "dmarc_record": "v=DMARC1; p=quarantine; rua=mailto:dmarc@perimeterwatch.org",
+            "dmarc": "quarantine",
+            "dmarc_sp": "quarantine",
+            "dmarc_pct": 100,
+            "mta_sts": "missing",
+            "dkim_selectors": [
+              "resend"
+            ],
+            "url": "https://perimeterwatch.org",
+            "http_status": 200,
+            "http_title": "Perimeterwatch: see what the internet sees of your organisation",
+            "web_server": "",
+            "tech": [
+              "HSTS",
+              "HTTP/3"
+            ],
+            "cdn": "",
+            "redirects_to": "",
+            "cert_expires": "2026-12-29",
+            "cert_issuer": "YE2",
+            "cert_names": [
+              "perimeterwatch.org"
+            ]
+          },
+          "state": {
+            "resolves": true,
+            "cname": null,
+            "web": true,
+            "https": true,
+            "tls": true
+          },
+          "source_module": "subdomains",
+          "facets": {
+            "subdomains": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "dns_resolve": "e05cc7534ba9a3f321f300073e20b814243598eb8c883548a58eda959daa05ea",
+            "email_posture": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "http_probe": "68bd1cf8d44a3d1db370ba5fc94a93134280e708db29f4423efc008c5c468b64",
+            "tls_certs": "3eabd6d4ede5d5d159453184e96ec45fd28126a6cb1a723bf7407dab47829c53"
+          },
+          "fingerprint": "0ea14752246ad0869372d0c94ab248bc4a2a1869076c7e21aa08abcd17bfb6d1",
+          "state_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      }
+    ],
+    "assets_stale": []
+  },
+  "hosts_not_resolving": 1,
+  "coverage": [
+    {
+      "module": "breaches",
+      "title": "Breach exposure",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "requires a verified domain",
+      "hint": "pwatch verify init perimeterwatch.org",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "subdomains",
+      "title": "Subdomain discovery",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "names": 2,
+        "from_crt.sh": 0,
+        "from_subfinder": 1
+      },
+      "seconds": 19.5
+    },
+    {
+      "module": "dns_resolve",
+      "title": "DNS resolution and hygiene",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "names": 2,
+        "resolving": 1,
+        "dns_errors": 0
+      },
+      "seconds": 0.1
+    },
+    {
+      "module": "bucket_exposure",
+      "title": "Public storage buckets",
+      "mode": "active",
+      "status": "skipped",
+      "reason": "active module, not requested",
+      "hint": "add --active to the scan",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "contract_control",
+      "title": "Who controls your contracts",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no contracts configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "domain_registration",
+      "title": "Domain registration",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "nameservers": 2,
+        "findings": 2
+      },
+      "seconds": 1.0
+    },
+    {
+      "module": "email_posture",
+      "title": "Email spoofing protection",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "checks": 3,
+        "failed_checks": 0
+      },
+      "seconds": 169.4
+    },
+    {
+      "module": "http_probe",
+      "title": "Web servers",
+      "mode": "probe",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "contacted": 1,
+        "answered": 1
+      },
+      "seconds": 0.9
+    },
+    {
+      "module": "tls_certs",
+      "title": "TLS certificates",
+      "mode": "probe",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "contacted": 1,
+        "certificates": 1
+      },
+      "seconds": 0.2
+    },
+    {
+      "module": "frontend",
+      "title": "Website scripts and security headers",
+      "mode": "probe",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [
+        "Any script that is added, removed or altered is reported as a change. Many sites put a build code in file names (for example app.3f9a1c.js), so every release changes this list. That is expected: match each reported change to a release. A change that no release explains needs investigating at once. Text after a question mark in a script address is ignored, because it is often only there to refresh caches. Scripts written into the page itself are compared by content, so a page that writes a different value into a script on every visit will be reported as changed at every scan.",
+        "Only the front page of each host was read. Scripts loaded by other pages, or added by another script after the page loads, are not seen."
+      ],
+      "stats": {
+        "hosts": 1,
+        "pages_read": 1,
+        "scripts_fetched": 0
+      },
+      "seconds": 0.0
+    },
+    {
+      "module": "dependencies",
+      "title": "Outside services you rely on",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "services": 2,
+        "sources_read": 6,
+        "sources_missing": 0
+      },
+      "seconds": 0.0
+    },
+    {
+      "module": "dnssec_quality",
+      "title": "DNSSEC signing quality",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "lookups": 4
+      },
+      "seconds": 0.0
+    },
+    {
+      "module": "ens_names",
+      "title": "ENS names",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no ens names configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "frontend_pointers",
+      "title": "Pointers to your website content",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "ens_contenthashes": 0,
+        "dnslink_records": 0,
+        "hostnames_checked": 2
+      },
+      "seconds": 0.0
+    },
+    {
+      "module": "github_org",
+      "title": "GitHub organisation",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no github org configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "github_secrets",
+      "title": "Secrets in public code",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no github org configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "jobs_stack",
+      "title": "Technology named in job postings",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no job board configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "lookalikes",
+      "title": "Lookalike domains",
+      "mode": "passive",
+      "status": "partial",
+      "reason": null,
+      "hint": null,
+      "notes": [
+        "11892 variations exist. The first 6000 were checked.",
+        "672 variations could not be checked because of DNS errors."
+      ],
+      "stats": {
+        "variations_checked": 6000,
+        "registered": 0,
+        "mail_capable": 0,
+        "certificate_matches": 0
+      },
+      "seconds": 169.6
+    },
+    {
+      "module": "nameserver_health",
+      "title": "Nameserver health",
+      "mode": "probe",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "nameservers_asked": 2,
+        "queries_sent": 13
+      },
+      "seconds": 170.6
+    },
+    {
+      "module": "nuclei_safe",
+      "title": "Exposures and misconfigurations",
+      "mode": "active",
+      "status": "skipped",
+      "reason": "active module, not requested",
+      "hint": "add --active to the scan",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "spf_chain",
+      "title": "Domains trusted by your SPF record",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "domains_checked": 1,
+        "lookups": 1,
+        "missing": 0
+      },
+      "seconds": 149.8
+    },
+    {
+      "module": "origin_exposure",
+      "title": "Servers behind your content delivery network",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [
+        "No host was found to be served through a content delivery network, so there is no hidden server to look for."
+      ],
+      "stats": {
+        "behind_cdn": 0,
+        "candidates": 0,
+        "exposed": 0
+      },
+      "seconds": 0.0
+    },
+    {
+      "module": "packages",
+      "title": "Published packages",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no npm or PyPI packages configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "phishing_lists",
+      "title": "Lookalike domains reported for phishing",
+      "mode": "passive",
+      "status": "partial",
+      "reason": null,
+      "hint": null,
+      "notes": [
+        "The lookalike search was incomplete, so some lookalike domains were not compared with the blocklists."
+      ],
+      "stats": {
+        "blocklists_read": 3,
+        "blocklists_failed": 0,
+        "blocklist_names": 548226,
+        "lookalikes_compared": 0,
+        "lookalikes_listed": 0,
+        "name_matches": 0,
+        "own_names_listed": 0
+      },
+      "seconds": 0.2
+    },
+    {
+      "module": "ports",
+      "title": "Open ports",
+      "mode": "active",
+      "status": "skipped",
+      "reason": "active module, not requested",
+      "hint": "add --active to the scan",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "repo_scorecard",
+      "title": "Repository safeguards",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no github org configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "safe_modules",
+      "title": "Safe modules, guard and code",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no safes configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "safe_multisig",
+      "title": "Safe multisig signers",
+      "mode": "passive",
+      "status": "skipped",
+      "reason": "no safes configured for this target",
+      "hint": "pwatch target add perimeterwatch.org --help",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "security_contact",
+      "title": "Where to report security problems",
+      "mode": "probe",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "requests": 1
+      },
+      "seconds": 0.3
+    },
+    {
+      "module": "ssh_audit",
+      "title": "SSH server settings",
+      "mode": "active",
+      "status": "skipped",
+      "reason": "active module, not requested",
+      "hint": "add --active to the scan",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "takeover",
+      "title": "Dangling DNS records",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "aliases_checked": 0,
+        "candidates": 0
+      },
+      "seconds": 0.0
+    },
+    {
+      "module": "tls_config",
+      "title": "TLS versions and cipher suites",
+      "mode": "active",
+      "status": "skipped",
+      "reason": "active module, not requested",
+      "hint": "add --active to the scan",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    },
+    {
+      "module": "web_archive",
+      "title": "Sensitive addresses in web archives",
+      "mode": "passive",
+      "status": "ok",
+      "reason": null,
+      "hint": null,
+      "notes": [],
+      "stats": {
+        "addresses_read": 0,
+        "sensitive_addresses": 0,
+        "groups": 0
+      },
+      "seconds": 0.0
+    },
+    {
+      "module": "zone_transfer",
+      "title": "DNS zone transfer",
+      "mode": "active",
+      "status": "skipped",
+      "reason": "active module, not requested",
+      "hint": "add --active to the scan",
+      "notes": [],
+      "stats": {},
+      "seconds": 0.0
+    }
+  ],
+  "methodology": {
+    "contacted": [
+      "crt.sh (certificate transparency)",
+      "data.iana.org (the list of registration record servers)",
+      "each discovered host, one TLS handshake on port 443",
+      "each discovered host, one web request",
+      "each of your web hosts: the front page and the script files that host serves",
+      "one nameserver of the parent zone, one question",
+      "phish.co.za (Phishing.Database list of active phishing domains, MIT licence)",
+      "polkadot.js.org (polkadot-js/phishing blocklist, Apache licence 2.0)",
+      "public DNS",
+      "public DNS resolvers",
+      "public DNS resolvers (1.1.1.1, 8.8.8.8, 9.9.9.9), at most four lookups",
+      "raw.githubusercontent.com (MetaMask eth-phishing-detect blocklist, DBAD licence 1.2)",
+      "subfinder passive sources",
+      "the domain's own nameservers, about five ordinary DNS questions each",
+      "the registry's public registration record server (RDAP)",
+      "web.archive.org (Internet Archive Wayback Machine index)",
+      "your Ethereum RPC endpoint",
+      "your own domain: one request for /.well-known/security.txt"
+    ],
+    "user_agent": "perimeterwatch/0.1.0 (+https://perimeterwatch.org)",
+    "contact_url": "https://perimeterwatch.org",
+    "abuse_email": null,
+    "retention_days": 90,
+    "mode_meaning": "As passive, plus one ordinary web request and TLS handshake per host."
+  },
+  "assets": [
+    {
+      "type": "domain",
+      "key": "perimeterwatch.org",
+      "attributes": {
+        "sources": [],
+        "ips": [
+          "162.55.43.236",
+          "2a01:4f8:c016:78c3::1"
+        ],
+        "dns_status": "ok",
+        "wildcard_match": false,
+        "private_ips": [],
+        "mx": [
+          "route3.mx.cloudflare.net",
+          "route2.mx.cloudflare.net",
+          "route1.mx.cloudflare.net"
+        ],
+        "receives_mail": true,
+        "spf_record": "v=spf1 include:_spf.mx.cloudflare.net ~all",
+        "spf": "softfail",
+        "spf_dns_lookups": 1,
+        "dmarc_record": "v=DMARC1; p=quarantine; rua=mailto:dmarc@perimeterwatch.org",
+        "dmarc": "quarantine",
+        "dmarc_sp": "quarantine",
+        "dmarc_pct": 100,
+        "mta_sts": "missing",
+        "dkim_selectors": [
+          "resend"
+        ],
+        "url": "https://perimeterwatch.org",
+        "http_status": 200,
+        "http_title": "Perimeterwatch: see what the internet sees of your organisation",
+        "web_server": "",
+        "tech": [
+          "HSTS",
+          "HTTP/3"
+        ],
+        "cdn": "",
+        "redirects_to": "",
+        "cert_expires": "2026-12-29",
+        "cert_issuer": "YE2",
+        "cert_names": [
+          "perimeterwatch.org"
+        ]
+      },
+      "state": {
+        "resolves": true,
+        "cname": null,
+        "web": true,
+        "https": true,
+        "tls": true
+      },
+      "source_module": "subdomains",
+      "facets": {
+        "subdomains": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "dns_resolve": "e05cc7534ba9a3f321f300073e20b814243598eb8c883548a58eda959daa05ea",
+        "email_posture": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "http_probe": "68bd1cf8d44a3d1db370ba5fc94a93134280e708db29f4423efc008c5c468b64",
+        "tls_certs": "3eabd6d4ede5d5d159453184e96ec45fd28126a6cb1a723bf7407dab47829c53"
+      },
+      "fingerprint": "0ea14752246ad0869372d0c94ab248bc4a2a1869076c7e21aa08abcd17bfb6d1",
+      "state_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "type": "subdomain",
+      "key": "mail.perimeterwatch.org",
+      "attributes": {
+        "sources": [
+          "subfinder"
+        ],
+        "ips": [],
+        "dns_status": "nodata",
+        "wildcard_match": false,
+        "private_ips": []
+      },
+      "state": {
+        "resolves": false,
+        "cname": null
+      },
+      "source_module": "subdomains",
+      "facets": {
+        "subdomains": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "dns_resolve": "0c2bde9a2f4ab7dae1dfc7f0bf133e9eae365d3ecfa767e5fd8c6f89121c829c"
+      },
+      "fingerprint": "f1175c58242ea192ede84d6787fb25bb25463968b20e2c829306d11b955f8765",
+      "state_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+  ],
+  "findings": [
+    {
+      "kind": "email.dkim.weak_key",
+      "module": "email_posture",
+      "category": "email",
+      "title": "DKIM key 'resend' for perimeterwatch.org is only 1024 bits",
+      "severity": 2,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {
+        "selector": "resend"
+      },
+      "state": {
+        "bits": 1024
+      },
+      "evidence": {
+        "selector": "resend",
+        "key_type": "rsa",
+        "bits": 1024
+      },
+      "remediation": "Rotate this DKIM key to at least 2048-bit RSA or to Ed25519.",
+      "references": [],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "24012968f33984d39f5f83e2664bac0a05e9d5235f9248e9a208a792ea1dcd02",
+      "state_hash": "27127b1e6b98e92413ae2732d8f852b326da017840f905c2a2e2880e9664d4c7"
+    },
+    {
+      "kind": "dns.dnssec.disabled",
+      "module": "dns_resolve",
+      "category": "surface",
+      "title": "perimeterwatch.org is not signed with DNSSEC",
+      "severity": 1,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {},
+      "state": {},
+      "evidence": {},
+      "remediation": "Enable DNSSEC at your DNS provider and publish the DS record at your registrar. It protects against forged DNS answers.",
+      "references": [
+        "https://frameworks.securityalliance.org/"
+      ],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "aa0e1270609eb69b50c6678b99bf14ef8b6d49c4946438a367f11e6763f4f6b9",
+      "state_hash": "ede0de807492408040925c13f91e20c5a5152f167d2e5fc064c61aa4b71f7267"
+    },
+    {
+      "kind": "domain.registration.no_registry_lock",
+      "module": "domain_registration",
+      "category": "surface",
+      "title": "perimeterwatch.org shows a registrar lock but no lock at the registry",
+      "severity": 1,
+      "confidence": "likely",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {},
+      "state": {},
+      "evidence": {
+        "status": [
+          "add period",
+          "client transfer prohibited"
+        ],
+        "how_decided": "No status set by the registry is published. A registry lock shows as statuses such as 'server transfer prohibited'."
+      },
+      "remediation": "Your domain has a lock at the registrar but none at the registry. A registry lock needs a person to confirm any change by a separate channel, which stops a hijack even when the registrar account is taken over. Ask your registrar whether it offers one.",
+      "references": [
+        "https://frameworks.securityalliance.org/"
+      ],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "263fc52f197dcafda78b62237dff0d9e5e547d80ea229d2be0ea02ae2c560ce6",
+      "state_hash": "ede0de807492408040925c13f91e20c5a5152f167d2e5fc064c61aa4b71f7267"
+    },
+    {
+      "kind": "email.mta_sts.missing",
+      "module": "email_posture",
+      "category": "email",
+      "title": "perimeterwatch.org has no MTA-STS policy",
+      "severity": 1,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {},
+      "state": {},
+      "evidence": {},
+      "remediation": "Publish an MTA-STS policy so sending servers require TLS when delivering to you.",
+      "references": [
+        "https://www.rfc-editor.org/rfc/rfc8461"
+      ],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "5ea7ac99bd18c03787486f45747696b5ee8c3e572cec8b36afc1bfd1a0294fc6",
+      "state_hash": "ede0de807492408040925c13f91e20c5a5152f167d2e5fc064c61aa4b71f7267"
+    },
+    {
+      "kind": "email.spf.softfail",
+      "module": "email_posture",
+      "category": "email",
+      "title": "The SPF record for perimeterwatch.org only soft-fails unlisted senders",
+      "severity": 1,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {},
+      "state": {},
+      "evidence": {
+        "record": "v=spf1 include:_spf.mx.cloudflare.net ~all"
+      },
+      "remediation": "Once legitimate senders are confirmed, change '~all' to '-all'.",
+      "references": [
+        "https://www.rfc-editor.org/rfc/rfc7208"
+      ],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "76a493578bf1b9acba3a7b6e5c043f79419247e1938986b6e588fb88d631a59a",
+      "state_hash": "ede0de807492408040925c13f91e20c5a5152f167d2e5fc064c61aa4b71f7267"
+    },
+    {
+      "kind": "dns.nameserver.single_provider",
+      "module": "dns_resolve",
+      "category": "surface",
+      "title": "All nameservers for perimeterwatch.org are with one provider",
+      "severity": 0,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {},
+      "state": {
+        "provider": "cloudflare.com"
+      },
+      "evidence": {
+        "nameservers": [
+          "felicity.ns.cloudflare.com",
+          "sonia.ns.cloudflare.com"
+        ]
+      },
+      "remediation": "All nameservers belong to one provider. Consider whether a second DNS provider is worth the added resilience.",
+      "references": [],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "aaa3c5ac818baf0246ad64500d2a0267d2e85e26f73b0b12e20f823cc08ec78d",
+      "state_hash": "429bec4d629cf7ff24827a28fe60053ca18cd04574d3c5432fc4a253d8774699"
+    },
+    {
+      "kind": "domain.registration.details",
+      "module": "domain_registration",
+      "category": "surface",
+      "title": "perimeterwatch.org is registered through Cloudflare, Inc.",
+      "severity": 0,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {},
+      "state": {
+        "registrar": "Cloudflare, Inc.",
+        "nameservers": [
+          "felicity.ns.cloudflare.com",
+          "sonia.ns.cloudflare.com"
+        ],
+        "status": [
+          "add period",
+          "client transfer prohibited"
+        ]
+      },
+      "evidence": {
+        "registrar": "Cloudflare, Inc.",
+        "nameservers": [
+          "felicity.ns.cloudflare.com",
+          "sonia.ns.cloudflare.com"
+        ],
+        "status": [
+          "add period",
+          "client transfer prohibited"
+        ],
+        "registrar_iana_id": "1910",
+        "registered_on": "2026-09-29",
+        "expires_on": "2027-09-29"
+      },
+      "remediation": "Informational. A change of registrar or nameservers will be reported as a change. If you did not make it, treat it as a hijack in progress.",
+      "references": [
+        "https://securityalliance.org/our-work/seal-911"
+      ],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "1d31040594fd0196e76c069bddc2611380d6e38d2fe90cb94262b76f66ee95cf",
+      "state_hash": "6639aa86a73cff3adc779fc5a1e05b2b282337dd51ec92fd5331ff551f463c48"
+    },
+    {
+      "kind": "frontend.scripts",
+      "module": "frontend",
+      "category": "supply_chain",
+      "title": "perimeterwatch.org serves 0 scripts",
+      "severity": 0,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {},
+      "state": {
+        "scripts": []
+      },
+      "evidence": {
+        "page": "https://perimeterwatch.org/",
+        "own_script_files": 0,
+        "scripts_written_into_the_page": 0,
+        "scripts_from_other_sites": [],
+        "addresses_that_load_nothing": 0,
+        "base_address_set_by_page": "",
+        "note": "Any script that is added, removed or altered is reported as a change. Many sites put a build code in file names (for example app.3f9a1c.js), so every release changes this list. That is expected: match each reported change to a release. A change that no release explains needs investigating at once. Text after a question mark in a script address is ignored, because it is often only there to refresh caches. Scripts written into the page itself are compared by content, so a page that writes a different value into a script on every visit will be reported as changed at every scan."
+      },
+      "remediation": "Informational. A change to the scripts your site serves will be reported as a change. If no release explains it, take the site offline and investigate: this is how wallet-draining code reaches users.",
+      "references": [
+        "https://securityalliance.org/our-work/seal-911"
+      ],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "1f8bc29e1b285c2d4196cec1f85fdffaa9d5e3a0c8accd0556f2e95b1a4a2372",
+      "state_hash": "e9b8b8fbc6cf6f58db5893dd56e6d59f82a8439a0aac7cd5ceb9f568c827a6be"
+    },
+    {
+      "kind": "security.contact.details",
+      "module": "security_contact",
+      "category": "surface",
+      "title": "perimeterwatch.org publishes where to report security problems",
+      "severity": 0,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {},
+      "state": {
+        "contacts": [
+          "mailto:security@perimeterwatch.org"
+        ],
+        "policy": [
+          "https://perimeterwatch.org/legal/vulnerability-disclosure"
+        ],
+        "canonical": [
+          "https://perimeterwatch.org/.well-known/security.txt"
+        ]
+      },
+      "evidence": {
+        "address": "https://perimeterwatch.org/.well-known/security.txt",
+        "location_used": "/.well-known/security.txt",
+        "contacts_in_order_of_preference": [
+          "mailto:security@perimeterwatch.org"
+        ],
+        "policy": [
+          "https://perimeterwatch.org/legal/vulnerability-disclosure"
+        ],
+        "canonical": [
+          "https://perimeterwatch.org/.well-known/security.txt"
+        ],
+        "expires": "2027-03-01",
+        "encryption_key": [],
+        "preferred_languages": [
+          "en"
+        ],
+        "acknowledgments": [],
+        "lines_that_could_not_be_read": 0
+      },
+      "remediation": "Informational. A change to where vulnerability reports are sent will be reported as a change.",
+      "references": [],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "357d1f4284b3f59e54cc5cbf7e0db2ce4c3c4b615757cb40ddb307f208b9ac44",
+      "state_hash": "e8cbe22def369783dc90d9a312f0d86b77a31ba2ca573bb9010927067fed55fe"
+    },
+    {
+      "kind": "supply_chain.dependencies",
+      "module": "dependencies",
+      "category": "supply_chain",
+      "title": "perimeterwatch.org relies on 2 outside services",
+      "severity": 0,
+      "confidence": "confirmed",
+      "sensitivity": "normal",
+      "asset_type": "domain",
+      "asset_key": "perimeterwatch.org",
+      "identity": {
+        "built_from": "dns_resolve,domain_registration,email_posture,frontend,http_probe,tls_certs"
+      },
+      "state": {
+        "services": [
+          {
+            "service": "Cloudflare",
+            "role": "dns"
+          },
+          {
+            "service": "Cloudflare",
+            "role": "mail"
+          },
+          {
+            "service": "Cloudflare",
+            "role": "mail_sending"
+          },
+          {
+            "service": "Let's Encrypt",
+            "role": "certificates"
+          }
+        ]
+      },
+      "evidence": {
+        "dns": [
+          {
+            "service": "Cloudflare",
+            "revealed_by": [
+              "nameserver felicity.ns.cloudflare.com in the registration record",
+              "nameserver sonia.ns.cloudflare.com in the registration record",
+              "nameserver felicity.ns.cloudflare.com in your NS records",
+              "nameserver sonia.ns.cloudflare.com in your NS records"
+            ]
+          }
+        ],
+        "mail": [
+          {
+            "service": "Cloudflare",
+            "revealed_by": [
+              "mail server route3.mx.cloudflare.net in your MX records",
+              "mail server route2.mx.cloudflare.net in your MX records",
+              "mail server route1.mx.cloudflare.net in your MX records"
+            ]
+          }
+        ],
+        "mail_sending": [
+          {
+            "service": "Cloudflare",
+            "revealed_by": [
+              "include:_spf.mx.cloudflare.net in your SPF record"
+            ]
+          }
+        ],
+        "certificates": [
+          {
+            "service": "Let's Encrypt",
+            "revealed_by": [
+              "issued the certificate served by perimeterwatch.org"
+            ]
+          }
+        ],
+        "read_from": [
+          "DNS resolution",
+          "the domain registration check",
+          "the email check",
+          "the web server check",
+          "the certificate check",
+          "the website script check"
+        ],
+        "not_read_this_time": [],
+        "note": "Each service listed is an outside party your domain depends on. A service that appears or disappears between scans is reported as a change. Match each change to something your team did. One that nobody can explain needs looking into."
+      },
+      "remediation": "Informational. These are the outside services your domain relies on. Each is a party that could take your site or mail down, or be used to attack you. A service being added or removed will be reported as a change.",
+      "references": [],
+      "attribution": null,
+      "severity_note": null,
+      "fingerprint": "b790fe859559d219551ccc33c9af776ec61769c1fdcfecbebc61b56a82c63b7a",
+      "state_hash": "a505965e6e5ba70b34482d017ad780b9e8dbb0871b5a7d345019228a371f8a4b"
+    }
+  ],
+  "attributions": [],
+  "personal_redacted": false
+}

@@ -55,7 +55,7 @@ Adapt the parts in brackets. Keep it short. The first two sentences say what the
 >
 > I have built an open-source tool that shows a crypto organisation what an outsider can already see about it: whether its email can be forged, forgotten web addresses someone else could claim, passwords published by mistake in public code, changes to its treasury signers, and staff emails in known data breaches. It tells the organisation when any of that changes. It only looks at organisations that ask.
 >
-> The software is built: a command-line tool and a web service, with 2,555 passing tests. The web service runs in beta at https://perimeterwatch.org. Here is the code and a sample report: [links].
+> The software is built: a command-line tool and a web service, with 2,560 passing tests. The web service runs in beta at https://perimeterwatch.org. Here is the code and a sample report: [links].
 >
 > I am applying to TheDAO Security Fund's ETHSecurity Initiatives round for $150,000 to have the web service independently reviewed, run it, and offer it to small teams. Half of that amount is paid only if at least 25 organisations are using it and have fixed problems it found.
 >

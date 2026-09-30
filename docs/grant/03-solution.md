@@ -126,11 +126,11 @@ Built, covered by automated tests, and live in beta at https://perimeterwatch.or
 | Scanning engine with all checks listed above | Built. | Released as version 1.0 in M1 |
 | Command-line tool `pwatch` | Built | Maintained |
 | Web service and worker | Built, tested, and live in beta since 30 September 2026. Only the maintainer's own domains are monitored. | Hardened and operated for outside organisations from M1. Production use in M3. |
-| Automated tests | 2,555 pass in public CI on every change | Kept passing through each release |
+| Automated tests | 2,560 pass in public CI on every change | Kept passing through each release |
 | Consent model and safety rules | Built, with a dedicated set of security tests | Reviewed independently in M1 |
 | Separation of organisations | Built in the application, with tests | Reviewed independently in M1. A second barrier in the database (row-level security) is planned hardening work and is not a payment criterion. |
 | Scheduled scans, alerts, automatic retention | Built, tested, and running in the beta for the maintainer's own domains | Shown in a public test report in M2 |
-| HTML and JSON reports, with JSON schema | Built. A sample report on the project's own domain is published at https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report | Maintained |
+| HTML and JSON reports, with JSON schema | Built. A sample report on the project's own domain is published at https://perimeterwatch.org/sample-report | Maintained |
 | Licence, README, security policy, third-party notices | Written and published. Apache-2.0. | Maintained |
 | Public repository | Published at https://github.com/erik1o6/perimeterwatch. CI runs in public on every change and passes. | Tagged 1.0 release, in M1 |
 | CI workflow and Docker deployment files | CI passes, including the image build. The Compose deployment runs the beta. | Backups with a tested restore, and monitoring, in M1 |
@@ -150,9 +150,9 @@ A second breach source is present in the code and switched off by default: Hudso
 
 1. Open https://perimeterwatch.org. The home page lists the checks that run, the addresses scans come from, and how the operator of a scanned host asks to be left alone. Sign-up is open.
 2. Clone the repository: https://github.com/erik1o6/perimeterwatch
-3. Run `make dev`, then `make test`. The expected result is 2,555 tests passed. The same tests run in public under the repository's "Actions" tab.
+3. Run `make dev`, then `make test`. The expected result is 2,560 tests passed. The same tests run in public under the repository's "Actions" tab.
 4. Run a passive scan against a domain the reviewer owns and open the HTML report.
-5. Or open the published sample report: https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report
+5. Or open the published sample report: https://perimeterwatch.org/sample-report
 
 ## Notes for the maintainer (delete before submitting)
 

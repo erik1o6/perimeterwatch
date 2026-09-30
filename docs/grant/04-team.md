@@ -10,7 +10,7 @@ This part is factual and can be checked in the repository.
 
 - The scanning engine is written and works. It has 34 check modules and 104 kinds of finding.
 - The web service and its worker are written, tested, and live in beta at https://perimeterwatch.org since 30 September 2026: sign-in by emailed link, separation of organisations, domain verification, scheduled scans, alerts by email and chat, an audit log, and automatic deletion of old data.
-- 2,555 automated tests pass in public CI on every change. Four test files cover the safety rules of the engine: authorisation, domain validation, the guard against contacting private addresses, and the handling of external tools. One test file tries every route of the web service as a different organisation.
+- 2,560 automated tests pass in public CI on every change. Four test files cover the safety rules of the engine: authorisation, domain validation, the guard against contacting private addresses, and the handling of external tools. One test file tries every route of the web service as a different organisation.
 - Deployment files, a CI workflow, a licence file, a security policy and draft legal documents are written. The legal drafts are published at https://perimeterwatch.org/legal and marked as drafts.
 - The design decisions that take longest to get right are already made and implemented: the consent model, the rule that a secret is never stored, the rule that lookalike domains are never contacted, the filter that admits only read-only exposure checks, and the rule that a finding is not marked as fixed when its check did not run.
 - The report format has a JSON schema, so other tools can read it.
@@ -20,7 +20,7 @@ The limits of the head start are as plain as the head start. The code was publis
 A team chosen through an RFP would start by making these decisions and writing this software. This team starts from software that is published and running, and goes straight to review, hardening and onboarding.
 
 Repository: https://github.com/erik1o6/perimeterwatch
-Sample report: https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report
+Sample report: https://perimeterwatch.org/sample-report
 Live beta: https://perimeterwatch.org
 Date work began: **[TODO]**
 

@@ -183,7 +183,8 @@ uv run pwatch diff perimeterwatch.org
 ```
 
 The findings from the sample report should be listed as resolved. Copy the new report into
-`docs/sample-report/` so that the published sample shows a change being detected.
+`src/perimeterwatch/web/sample/`, which the service serves at `/sample-report`, so that the
+published sample shows a change being detected.
 
 ## Order of work
 

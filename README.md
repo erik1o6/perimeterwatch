@@ -152,7 +152,8 @@ domains you own: see `tests/integration/README.md`.
 - `docs/modules.md`: every check, what it contacts, and every finding it can raise
 - `docs/operations.md`: hosting, keys, backups, abuse reports, updating tools
 - `docs/hosting-perimeterwatch-org.md`: the plan for hosting the service at perimeterwatch.org
-- `docs/sample-report/`: a real report, from a scan of the project's own domain
+- `docs/sample-report/`: about the sample report, a real scan of the project's own domain.
+  Read it at <https://perimeterwatch.org/sample-report>
 - `docs/report.schema.json`: the format of `report.json`
 - `docs/grant/`: funding proposal drafts
 - `src/perimeterwatch/legal/`: terms, privacy and policy drafts, not yet reviewed by a lawyer. The hosted

@@ -2,24 +2,33 @@
 
 A real report, made by scanning the project's own domain, `perimeterwatch.org`.
 
-- [`report.html`](report.html): the report as a person reads it. Download it and open it in a browser.
-- [`report.json`](report.json): the same findings for other tools to read. Its format is in [`../report.schema.json`](../report.schema.json).
+- Read it on the site: <https://perimeterwatch.org/sample-report>
+- The same findings for other tools: <https://perimeterwatch.org/sample-report.json>. The
+  format is in [`../report.schema.json`](../report.schema.json).
+- The files are kept in the package, so the service can serve them:
+  [`report.html`](../../src/perimeterwatch/web/sample/report.html) and
+  [`report.json`](../../src/perimeterwatch/web/sample/report.json).
 
 ## What it shows
 
-The scan ran at probe depth on 29 September 2026, the day the domain was registered. The domain had no web or mail records yet, so the report is short, and its findings are those of any fresh registration:
+The scan ran at probe depth on 30 September 2026, the day after the domain was registered
+and the day the service went live. It is the second report of the domain, so it shows the
+part of Perimeterwatch that matters most: what changed since last time.
 
-| Severity | Finding |
+| Change | Finding |
 |---|---|
-| High | No DMARC record, so mail claiming to come from the domain is not rejected |
-| Medium | No SPF record |
-| Low | No CAA record |
-| Low | Not signed with DNSSEC |
-| Info | Registration details, recorded so that a change of registrar or nameservers is noticed |
-| Info | All nameservers are with one provider |
+| Resolved | No DMARC record. One was published |
+| Resolved | No SPF record. One was published |
+| Resolved | No CAA record. Three were published |
+| New, medium | The DKIM key of the mail service is only 1024 bits long |
+| New, low | The SPF record only soft-fails unlisted senders |
+| New, low | No MTA-STS policy |
+| New, info | The scripts the site serves, recorded so that a change is noticed |
+| New, info | Where to report security problems, read from `security.txt` |
+| Changed | The list of outside services the domain relies on |
 
-Checks that need a GitHub organisation, a Safe, packages or a verified domain did not run. The "Coverage" section of the report lists each one and why.
+Still open from the first report: the domain is not yet signed with DNSSEC, and it has a
+registrar lock but no registry lock.
 
-## What comes next
-
-These findings will be fixed as the domain is set up for the service. The next report will then list them under "Resolved", which is the part of Perimeterwatch that matters most: it tells you what changed since last time.
+Checks that need a GitHub organisation, a Safe, packages or a verified domain did not run.
+The "Coverage" section of the report lists each one and why.

@@ -67,7 +67,7 @@ The blanks below are in the background files.
 These are actions, not text edits.
 
 - Open every link in `SUBMISSION.md` on the day you submit and check that it loads: the service, the repository, the sample report, the legal drafts at https://perimeterwatch.org/legal, and the news sources.
-- Check that the numbers in the submission still match the repository and the service: 34 checks of which 33 run in the beta, 104 kinds of finding, 10 pinned tools, 2,555 tests. The test count rises with each change, so read it from the latest public CI run.
+- Check that the numbers in the submission still match the repository and the service: 34 checks of which 33 run in the beta, 104 kinds of finding, 10 pinned tools, 2,560 tests. The test count rises with each change, so read it from the latest public CI run.
 - The repository, its public CI, the sample report and the beta are all in place, so Milestone 1 pays for what remains: the independent review and its fixes, backups, monitoring, the missing parts of the onboarding flow, and a tagged 1.0 release.
 - After fixing the findings in the sample report, publish the second report, which shows them as resolved.
 - Record a short screen capture of `pwatch` scanning that domain.

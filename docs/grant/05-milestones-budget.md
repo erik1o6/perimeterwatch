@@ -17,7 +17,7 @@ The reasoning behind each value is at the end of the file.
 
 ## What is already done, and is not being paid for
 
-The grant does not pay for work that exists. The following is built and passes 2,555 automated tests in public CI: the scanning engine with its 34 checks, the command-line tool, the web service with sign-in, separation of organisations, domain verification, a scan queue, scheduled scans, alerts and an audit log, and the worker that runs scans and deletes old data. Drafts of the legal documents are written and published at https://perimeterwatch.org/legal, marked as drafts.
+The grant does not pay for work that exists. The following is built and passes 2,560 automated tests in public CI: the scanning engine with its 34 checks, the command-line tool, the web service with sign-in, separation of organisations, domain verification, a scan queue, scheduled scans, alerts and an audit log, and the worker that runs scans and deletes old data. Drafts of the legal documents are written and published at https://perimeterwatch.org/legal, marked as drafts.
 
 The code is published at https://github.com/erik1o6/perimeterwatch. The web service has been live in beta at https://perimeterwatch.org since 30 September 2026, on one server in Germany, with sign-up open. Only the maintainer's own domains are monitored. The CI workflow runs in public on every change and passes: tests on Python 3.13 and 3.14, tests against Postgres, a dependency audit and a build of the container image. No independent person has reviewed any of it. No lawyer has reviewed the legal drafts. No outside organisation relies on it. There is no paid data subscription, so the breach check is built and switched off.
 

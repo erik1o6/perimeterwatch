@@ -370,3 +370,26 @@ class TestTlsReporting:
         result = await run(make_ctx)
         assert "email.tls_rpt.missing" not in kinds(result)
         assert result.status is ModuleStatus.PARTIAL
+
+
+async def test_a_dkim_record_that_holds_only_the_key_is_recognised(
+    monkeypatch: pytest.MonkeyPatch, make_ctx: Any, dns: Any
+) -> None:
+    dns.add(ROOT, "MX", ["10 aspmx.l.google.com."])
+    dns.add(f"resend._domainkey.{ROOT}", "TXT", [f"p={RSA_1024}"])
+    patch_checks(monkeypatch, dns)
+    result = await run(make_ctx)
+    assert "email.dkim.not_found" not in kinds(result)
+    assert result.assets[0].attributes["dkim_selectors"] == ["resend"]
+    weak = next(f for f in result.findings if f.kind == "email.dkim.weak_key")
+    assert weak.evidence["bits"] == 1024
+
+
+async def test_a_txt_record_that_is_not_a_key_is_not_taken_for_one(
+    monkeypatch: pytest.MonkeyPatch, make_ctx: Any, dns: Any
+) -> None:
+    dns.add(ROOT, "MX", ["10 aspmx.l.google.com."])
+    dns.add(f"google._domainkey.{ROOT}", "TXT", ["help=yes; p=not-a-key"])
+    patch_checks(monkeypatch, dns)
+    result = await run(make_ctx)
+    assert "email.dkim.not_found" in kinds(result)

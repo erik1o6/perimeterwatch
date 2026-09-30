@@ -102,7 +102,7 @@ PUBLIC_GROUPS: tuple[tuple[str, str, frozenset[str]], ...] = (
         "mail",
         frozenset({"email_posture", "lookalikes", "phishing_lists", "spf_chain"}),
     ),
-    ("Public code and packages", "code", frozenset()),
+    ("Public code and packages", "code", frozenset({"github_org", "jobs_stack"})),
     ("Web3", "hexagon", frozenset()),
     ("Reachable services", "radar", frozenset()),
 )
@@ -226,6 +226,27 @@ def legal_page(request: Request, db: Db, slug: str) -> Response:
     if found is None:
         raise HTTPException(404, "Not found.")
     return page(request, "legal.html", visitor(request, db), doc=found, documents=legal.DOCUMENTS)
+
+
+# The sample is a real report of the project's own domain, kept in the package.
+# It carries its own styles inline, so it gets the policy the downloads get.
+REPORT_CSP = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
+
+
+@router.get("/sample-report")
+def sample_report() -> Response:
+    html = resources.files("perimeterwatch.web").joinpath("sample/report.html").read_text("utf-8")
+    return Response(
+        html,
+        media_type="text/html",
+        headers={"Content-Security-Policy": REPORT_CSP, "Cache-Control": "max-age=3600"},
+    )
+
+
+@router.get("/sample-report.json")
+def sample_report_json() -> Response:
+    body = resources.files("perimeterwatch.web").joinpath("sample/report.json").read_text("utf-8")
+    return Response(body, media_type="application/json", headers={"Cache-Control": "max-age=3600"})
 
 
 @router.get("/.well-known/security.txt")
@@ -569,7 +590,7 @@ def download_report(
     if fmt == "json":
         return Response(render_json(report), media_type="application/json", headers=headers)
     # The report carries its own styles inline, so it needs a policy of its own.
-    headers["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
+    headers["Content-Security-Policy"] = REPORT_CSP
     return Response(render_html(report), media_type="text/html", headers=headers)
 
 
