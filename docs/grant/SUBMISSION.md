@@ -58,7 +58,9 @@ https://perimeterwatch.org/sample-report
 
 Small Ethereum teams with no security staff end up safer from attacks that start outside their contracts: a hijacked domain, a swapped website script, a leaked credential, a quietly changed treasury signer.
 
-Attackers took over the balancer.fi domain in September 2023 and drained about $238,000 from visitors ([Balancer post mortem](https://medium.com/balancer-protocol/dns-security-incident-post-mortem-1b1feb735aca)). The Aerodrome and Velodrome domains were hijacked in November 2025 ([CoinDesk](https://www.coindesk.com/web3/2025/11/22/aerodrome-finance-hit-by-front-end-attack-users-urged-to-avoid-main-domain)), and early onchain estimates put visitors' losses above $1 million ([Bitcoin.com News](https://news.bitcoin.com/dns-attack-strikes-aerodrome-and-velodrome-as-aero-merger-nears/)). The facts an attacker uses to plan this are public but scattered, and the commercial tools that gather them are priced for companies with security budgets.
+In 2024, attacks that never exploited a contract took 80.5% of the funds lost in the largest DeFi hacks ([Halborn, Top 100 DeFi Hacks Report 2025](https://www.halborn.com/reports/top-100-defi-hacks-2025)). The largest theft on record began the same way: in February 2025 attackers changed one JavaScript file in the Safe web interface and took about $1.5 billion from Bybit ([FBI](https://www.ic3.gov/PSA/2025/PSA250226), [NCC Group](https://www.nccgroup.com/research/in-depth-technical-analysis-of-the-bybit-hack/)). BadgerDAO lost about $120 million in 2021 to a script injected into its website with a compromised Cloudflare API key ([CoinDesk](https://www.coindesk.com/business/2021/12/10/badgerdao-reveals-details-of-how-it-was-hacked-for-120m)). In one week of July 2024, the domains of Compound, Celer Network and Pendle were hijacked at their registrar ([Krebs on Security](https://krebsonsecurity.com/2024/07/researchers-weak-security-defaults-enabled-squarespace-domains-hijacks/)). In November 2025 Aerodrome and Velodrome lost control of their domains ([CoinDesk](https://www.coindesk.com/web3/2025/11/22/aerodrome-finance-hit-by-front-end-attack-users-urged-to-avoid-main-domain)), and early onchain estimates put visitors' losses above $1 million ([Bitcoin.com News](https://news.bitcoin.com/dns-attack-strikes-aerodrome-and-velodrome-as-aero-merger-nears/)).
+
+None of these began with a bug in a contract, so a contract audit would not have caught them. The facts an attacker uses to plan this are public but scattered, and the commercial tools that gather them are priced for companies with security budgets.
 
 A project adds one DNS record. It gets a private list of its weak points, each with a fix, and an alert when a new one appears:
 
@@ -158,4 +160,4 @@ Notes on the block:
 
 - "Backers already committed" is left out on purpose. Nobody has committed money yet.
 - The form letters the milestones A to D itself.
-- The form fields hold about 1,430 words. The fund's guide asks for under 1,200 for an ask above $50,000. Nothing in the form enforces it.
+- The form fields hold about 1,480 words. The fund's guide asks for under 1,200 for an ask above $50,000. Nothing in the form enforces it.
