@@ -8,9 +8,9 @@ Please report privately. Do not open a public issue for a security problem.
 
 | | |
 |---|---|
-| Email | **[TO DECIDE: security contact address]** |
-| Private report through the repository host | **[TO DECIDE: whether private vulnerability reporting is switched on, and its URL]** |
-| Encryption key | **[TO DECIDE: PGP key location, or none]** |
+| Email | security@perimeterwatch.org |
+| Private report through the repository host | Not switched on. Use the email address |
+| Encryption key | None. Reports go by plain email |
 
 Please include:
 
@@ -21,13 +21,14 @@ Please include:
 
 Please do not include real credentials or personal data of other people.
 
-We aim to acknowledge a report within **[TO CONFIRM: 3 working days]**.
+We aim to acknowledge a report within 3 working days. The project has one maintainer, so this is a target and not a guarantee.
 
 ## Supported versions
 
 | Version | Supported |
 |---|---|
-| **[TO DECIDE: supported versions. The current version is 0.1.0.]** | **[TO DECIDE]** |
+| The `main` branch | Yes |
+| Anything older | No |
 
 The project has not yet made a stable release. Until it does, fixes are made on the main branch only.
 

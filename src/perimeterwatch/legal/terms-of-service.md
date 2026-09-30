@@ -2,18 +2,20 @@
 
 # Terms of service
 
-Status: draft for the hosted service. The service has been built but is not yet deployed or open to outside organisations. These terms do not apply to the open-source command-line tool, which is licensed separately under Apache-2.0.
+Status: draft, published for review. The hosted service has been live in beta at https://perimeterwatch.org since 30 September 2026. It is free, and sign-up is open. No lawyer has reviewed these terms, and the service has had no independent security review. The legal documents are drafts under review and are not yet in force. These terms do not apply to the open-source command-line tool, which is licensed separately under Apache-2.0.
 
-Last updated: **[TO DECIDE: date]**
+Last updated: 30 September 2026
+
+Open points are marked in the text. "README open question" followed by a number refers to the [list of open questions](https://github.com/erik1o6/perimeterwatch/blob/main/docs/legal/README.md) in the repository.
 
 ## 1. Who we are
 
-The service is operated by **[TO DECIDE: legal name of the operating entity]**, a **[TO DECIDE: legal form, intended to be non-profit]** established in **[TO DECIDE: jurisdiction]**, with its registered address at **[TO DECIDE: registered address]**.
+There is no legal entity yet. The service is operated by its maintainer, known publicly as code2142, as an individual, while a non-profit entity is being set up. **[TO DECIDE: legal name and legal form of the entity, once established]** Where the entity will be established is not yet known. **[TO DECIDE: jurisdiction]** No registered address exists yet. **[TO DECIDE: registered address]**
 
 In these terms:
 
-- **"We"** and **"the operator"** mean that entity.
-- **"The service"** means the hosted Perimeterwatch service at **[TO DECIDE: service URL]**.
+- **"We"** and **"the operator"** mean whoever operates the service: today the maintainer, and later that entity.
+- **"The service"** means the hosted Perimeterwatch service at https://perimeterwatch.org.
 - **"You"** and **"the customer"** mean the organisation that opens an account.
 - **"Your domain"** means a domain name you add to the service.
 - **"Verified"** means you have proved control of the domain in the way described in section 4.
@@ -28,9 +30,9 @@ The service has three depths. You choose the depth for each scan.
 
 | Depth | What happens |
 |---|---|
-| Passive | The service reads public records and third-party indexes. It makes no connection to your hosts. |
-| Probe | Everything in passive. The service also sends one ordinary web request and one TLS handshake on port 443 to each host found under your domain, and reads your published MTA-STS policy file if you publish one. |
-| Active | Everything in probe. The service also checks which of the 100 most common ports accept a connection, and sends read-only requests that look for known exposures. |
+| Passive | The service reads public records and third-party indexes. It makes no connection to your hosts. The only question sent to your nameservers is the check of the verification record in section 4. |
+| Probe | Everything in passive. The service also sends one ordinary web request and one TLS handshake on port 443 to each host found under your domain. From hosts that answer as web servers it reads the front page and the script files that host serves. From your domain it reads the security.txt file, and the MTA-STS policy file if you publish one. It asks each of your domain's nameservers a few ordinary DNS questions. |
+| Active | Everything in probe. The service also checks which of the 100 most common ports accept a connection, and sends read-only requests that look for known exposures. It makes repeated TLS handshakes to see which versions and cipher suites a host accepts. It reads what your SSH servers offer, without signing in. It asks each nameserver once for a zone transfer. If one of your DNS names points at a storage bucket, it asks the storage provider what an anonymous visitor may do with that bucket. |
 
 The full description is in the [scanning authorisation and acceptable use policy](scanning-authorisation-and-aup.md). That policy is part of these terms.
 
@@ -50,9 +52,9 @@ The service does not:
 
 3.2 The person who opens the account must have authority to bind the organisation to these terms. **[LAWYER: how this works for an organisation with no legal personality.]**
 
-3.2a An account is opened by signing in with a work email address. We send a link to that address. There is no password. Each new account gets its own organisation in the service. **[NOT YET BUILT: showing these terms at sign-in and recording that they were accepted. See README open questions 32 and 33.]**
+3.2a An account is opened by signing in with a work email address. We send a link to that address. There is no password. Each new account gets its own organisation in the service. Every page of the service links to these terms in its footer. **[NOT YET BUILT: asking a new user to accept these terms at sign-in, and recording that they were accepted. See README open questions 32 and 33.]**
 
-3.2b You may add up to 10 domains. **[TO CONFIRM: limit.]**
+3.2b You may add up to 10 domains.
 
 3.3 You may not use the service if the law that applies to you or to us forbids us to provide it to you. **[LAWYER: sanctions and export control wording.]**
 
@@ -89,7 +91,7 @@ You promise that, for every domain you add and for as long as it stays in your a
 
 5.2 You have authority to approve security testing of the hosts under the domain, at the depth you select.
 
-5.3 Where a host under your domain runs on infrastructure owned by someone else, such as a cloud provider, a content delivery network or a software-as-a-service provider, you have checked that provider's terms and the scan depth you select is allowed by them.
+5.3 Where a host under your domain runs on infrastructure owned by someone else, such as a cloud provider, a content delivery network or a software-as-a-service provider, you have checked that provider's terms and the scan depth you select is allowed by them. The same applies to the provider that runs your domain's nameservers, and to the provider of any storage bucket your DNS points at.
 
 5.4 Any staff email addresses you upload are work addresses at your own domain, belonging to people who work for you.
 
@@ -124,9 +126,11 @@ You must follow the [scanning authorisation and acceptable use policy](scanning-
 
 7.6 Alerts. You may have alerts sent to an email address, a Slack or Discord webhook, or a Telegram bot. You choose the channel and you are responsible for who can read it. Alert text holds your domain name, the titles of findings that are not about a person or a credential, counts, and a link. It never holds a person's name or address, a credential or the name of a breach.
 
+7.7 No backups are taken of the service's data yet. If the server is lost, your stored scans and findings are lost with it. Download the reports you need to keep.
+
 ## 8. Third-party data
 
-8.1 Breach data comes from Have I Been Pwned and is licensed under the Creative Commons Attribution 4.0 International licence. Wherever you show or share that data, you must keep the attribution that appears in our reports.
+8.1 The breach exposure check is switched off in the hosted service today. No breach data source is configured. If it is switched on, breach data will come from Have I Been Pwned and is licensed under the Creative Commons Attribution 4.0 International licence. Wherever you show or share that data, you must keep the attribution that appears in our reports.
 
 8.2 You may not use breach findings to offer a breach search service to anyone.
 
@@ -134,11 +138,11 @@ You must follow the [scanning authorisation and acceptable use policy](scanning-
 
 ## 9. Price
 
-The service is provided without charge. **[TO DECIDE: whether any cost recovery or donation model applies.]**
+The service is provided without charge. The service's home page says that it is free and stays free. **[TO DECIDE: whether any cost recovery or donation model will apply, once the entity exists]**
 
 ## 10. No warranty
 
-10.1 The service is provided as it is and as it is available.
+10.1 The service is provided as it is and as it is available. It is in beta.
 
 10.2 A scan shows what could be seen from outside at the time of the scan, using the sources and checks the service has. It is not a penetration test, an audit or a certification.
 
@@ -161,7 +165,7 @@ The service is provided without charge. **[TO DECIDE: whether any cost recovery 
 - loss caused by your reliance on a finding or on the absence of a finding;
 - loss caused by a scan you requested of a host you were not authorised to have scanned.
 
-11.3 Subject to 11.1, our total liability to you in any twelve months is limited to **[TO DECIDE: liability cap amount]**.
+11.3 Subject to 11.1, our total liability to you in any twelve months is limited to an amount that has not been set. **[TO DECIDE: liability cap amount, once the entity and the governing law are known]**
 
 11.4 You will cover our reasonable losses and costs if a third party brings a claim against us because a promise you made in section 5 was untrue. **[LAWYER: indemnity wording and whether it is appropriate.]**
 
@@ -179,9 +183,9 @@ We will tell you what we did and why, unless the law forbids it.
 
 ## 13. Ending the agreement
 
-13.1 You may delete a domain at any time in the service. You may close your account at any time by writing to us. **[NOT YET BUILT: closing an account in the service.]**
+13.1 You may delete a domain at any time in the service. You may close your account at any time by writing to support@perimeterwatch.org from the account's address. We then close it by hand, within 30 days. **[NOT YET BUILT: closing an account in the service.]**
 
-13.2 We may end the agreement by giving you **[TO DECIDE: notice period]** notice.
+13.2 We may end the agreement by giving you 30 days' notice.
 
 13.3 We may end the agreement at once if you seriously break these terms.
 
@@ -193,22 +197,23 @@ We will tell you what we did and why, unless the law forbids it.
 
 14.1 We may change the service. We will not add a new kind of check that contacts your systems at a depth you have not selected.
 
-14.2 We may change these terms. We will give you **[TO DECIDE: notice period]** notice of a change that reduces your rights, by email to the account contact. If you do not agree, you may close your account before the change takes effect.
+14.2 We may change these terms. We will give you 30 days' notice of a change that reduces your rights, by email to the address of your account. If you do not agree, you may close your account before the change takes effect.
 
-14.3 We will keep a list of sub-processors and tell you before adding one. See the [data processing agreement](dpa-outline.md).
+14.3 We will keep a list of sub-processors and tell you at least 30 days before adding one. See the [data processing agreement](dpa-outline.md).
 
 ## 15. Law and disputes
 
-15.1 These terms are governed by the law of **[TO DECIDE: governing law]**.
+15.1 The law that governs these terms has not been chosen. It depends on where the entity is established. **[TO DECIDE: governing law]**
 
-15.2 Disputes will be decided by **[TO DECIDE: courts or arbitration body, and seat]**.
+15.2 The courts or arbitration body that will decide disputes have not been chosen. **[TO DECIDE: courts or arbitration body, and seat]**
 
 ## 16. Contact
 
 | Purpose | Address |
 |---|---|
-| Legal notices | **[TO DECIDE: legal contact address]** |
-| Support | **[TO DECIDE: support contact address]** |
-| Privacy | **[TO DECIDE: privacy contact address]** |
-| Abuse reports | **[TO DECIDE: abuse contact address]** |
-| Security reports | **[TO DECIDE: security contact address]** |
+| Legal notices | legal@perimeterwatch.org |
+| Support | support@perimeterwatch.org |
+| Privacy | privacy@perimeterwatch.org |
+| Abuse reports | abuse@perimeterwatch.org |
+| Security reports | security@perimeterwatch.org |
+| Anything else | hello@perimeterwatch.org |

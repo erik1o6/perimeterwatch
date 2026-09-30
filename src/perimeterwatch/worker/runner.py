@@ -85,7 +85,9 @@ class Worker:
             if row is None:
                 raise PerimeterwatchError("The domain was removed before the scan started.")
             target = repo.target_model(row)
-            authorisation = await resolve_authorisation(repo, row, self.database.keys)
+            authorisation = await resolve_authorisation(
+                repo, row, self.database.keys, self.settings.never_contact
+            )
         # The hosted service accepts proof of domain control only. A typed
         # statement is for the command line, where the operator is the user.
         if authorisation.level is AuthLevel.ACKNOWLEDGED:
@@ -183,7 +185,9 @@ class Worker:
                 row = repo.get_target_by_id(verification.target_id)
                 if row is None:
                     continue
-                await resolve_authorisation(repo, row, self.database.keys)
+                await resolve_authorisation(
+                    repo, row, self.database.keys, self.settings.never_contact
+                )
                 if verification.consecutive_failures >= FAILURES_BEFORE_DOWNGRADE:
                     verification.verified_at = None
                     repo.audit(

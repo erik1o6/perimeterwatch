@@ -233,6 +233,36 @@ class TestBucketExposure:
         dumped = result.model_dump_json()
         assert "customers.csv" not in dumped and "ana.lopez" not in dumped
 
+    @pytest.mark.parametrize(
+        "entry", [f"assets.{ROOT}", "acme-assets.s3.amazonaws.com", "amazonaws.com"]
+    )
+    async def test_a_host_on_the_do_not_contact_list_is_not_asked_about(
+        self, active: Any, monkeypatch: pytest.MonkeyPatch, entry: str
+    ) -> None:
+        active.settings.never_contact = [entry]
+        ctx = self.with_dns(active, alias(f"assets.{ROOT}", "acme-assets.s3.amazonaws.com."))
+        runner = FakeRunner({"s3scanner": bucket_row("acme-assets", read=1)})
+        monkeypatch.setattr(bucket_exposure, "run_tool", runner)
+        result = await BucketExposure().run(TARGET, ctx)
+        assert runner.calls == []
+        assert result.findings == []
+        assert any("do-not-contact" in note for note in result.notes)
+
+    async def test_other_buckets_are_still_checked(
+        self, active: Any, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        active.settings.never_contact = [f"assets.{ROOT}"]
+        ctx = self.with_dns(
+            active,
+            alias(f"assets.{ROOT}", "acme-assets.s3.amazonaws.com"),
+            alias(f"app.{ROOT}", "acme-app.s3.amazonaws.com"),
+        )
+        runner = FakeRunner({"s3scanner": bucket_row("acme-app", read=1)})
+        monkeypatch.setattr(bucket_exposure, "run_tool", runner)
+        result = await BucketExposure().run(TARGET, ctx)
+        assert runner.last("s3scanner")["files"]["buckets-aws.txt"].split() == ["acme-app"]
+        assert [f.evidence["bucket"] for f in result.findings] == ["acme-app"]
+
     async def test_names_are_never_guessed(
         self, active: Any, monkeypatch: pytest.MonkeyPatch
     ) -> None:

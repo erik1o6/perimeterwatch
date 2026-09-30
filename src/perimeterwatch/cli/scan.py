@@ -171,7 +171,7 @@ def scan(
         row = repo.get_target(root) or repo.upsert_target(Target(root_domain=root))
         target = repo.target_model(row)
         authorisation: Authorisation = run_async(
-            resolve_authorisation(repo, row, app.database.keys)
+            resolve_authorisation(repo, row, app.database.keys, app.settings.never_contact)
         )
 
     check_mode_allowed(mode, authorisation, root)

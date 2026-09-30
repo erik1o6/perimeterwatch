@@ -87,11 +87,12 @@ def describe(kind: str, config: dict[str, Any]) -> str:
 def _line(finding: Finding) -> str:
     if finding.sensitivity is not Sensitivity.NORMAL:
         # Say what kind of thing, not who or what.
-        label = (
-            "A credential in public code"
-            if finding.sensitivity is Sensitivity.SECRET
-            else "A staff address in breach data"
-        )
+        if finding.sensitivity is Sensitivity.SECRET:
+            label = "A credential in public code"
+        elif finding.kind.startswith("breach."):
+            label = "A staff address in breach data"
+        else:
+            label = "A finding that names a person"
         return f"[{finding.severity.label}] {label}"
     return f"[{finding.severity.label}] {finding.title}"
 

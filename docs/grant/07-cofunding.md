@@ -36,14 +36,14 @@ Some contributions are worth more than money and are easier for the giver to app
 
 | Contribution | From | Effect on the budget |
 |---|---|---|
-| The security review in Milestone 2 | A security firm | Removes the largest single external cost. Also resolves the question of whether the fund pays for reviews. The firm must be independent of the team. |
+| The security review in Milestone 1 | A security firm | Removes the largest single external cost. Also resolves the question of whether the fund pays for reviews. The firm must be independent of the team. |
 | Breach data access | Have I Been Pwned, or another breach data provider | Removes a recurring cost and resolves the main open risk in `08-risks.md` |
 | Hosting credits | A cloud provider or an ecosystem foundation | Removes a recurring cost |
 | Legal review | A law firm with a crypto practice | Removes a one-off cost |
 
 ## Target
 
-**[TODO: set a co-funding target. A suggestion: 20% to 30% of the total, which at the placeholder of $140,000 is $28,000 to $42,000. State it as "X of the total is sought from co-funders, of which Y is pledged so far". If Y is zero at submission, say zero.]**
+Nothing is pledged so far: $0 is committed against the $150,000 goal, and the submission says so. The fund's drafting guide says to expect roughly 25% or more of the goal from ecosystem stakeholders, which at $150,000 is $37,500 or more. Source: the fund's drafting guide, offered on its submission page and read on 30 September 2026. **[TODO: set a co-funding target and state it as "X of the total is sought from co-funders, of which Y is pledged so far".]**
 
 ## Outreach message to a possible co-funder
 
@@ -55,9 +55,9 @@ Adapt the parts in brackets. Keep it short. The first two sentences say what the
 >
 > I have built an open-source tool that shows a crypto organisation what an outsider can already see about it: whether its email can be forged, forgotten web addresses someone else could claim, passwords published by mistake in public code, changes to its treasury signers, and staff emails in known data breaches. It tells the organisation when any of that changes. It only looks at organisations that ask.
 >
-> The software is built: a command-line tool and a web service, with 1,422 passing tests. The web service is not deployed yet. Here is the code and a sample report: [links].
+> The software is built: a command-line tool and a web service, with 2,555 passing tests. The web service runs in beta at https://perimeterwatch.org. Here is the code and a sample report: [links].
 >
-> I am applying to TheDAO Fund's ETHSecurity Initiatives round for [amount] to deploy the web service, have it independently reviewed, and offer it to small teams. Half of that amount is paid only if [N] named organisations are using it and have fixed problems it found.
+> I am applying to TheDAO Security Fund's ETHSecurity Initiatives round for $150,000 to have the web service independently reviewed, run it, and offer it to small teams. Half of that amount is paid only if at least 25 organisations are using it and have fixed problems it found.
 >
 > I am writing to you because [one sentence: the specific reason this organisation is affected when small projects around it are compromised].
 >
@@ -78,7 +78,7 @@ This one asks for a commitment to use the service and asks for no money.
 >
 > I have built an open-source tool that shows a crypto team what an outsider can already see about it, and warns when that changes. Examples: whether someone can send email in your name, forgotten web addresses, passwords in public code, changes to your Safe signers.
 >
-> I am applying for a grant to run it as a web service, after an independent security review. If it is funded, would you be willing to try it on [domain]? You would add one DNS record to prove the domain is yours. You can remove the domain at any time, which deletes its scans and findings. Your findings are visible only to you.
+> It runs in beta today. I am applying for a grant to have it independently reviewed and to run it for other teams. If it is funded, would you be willing to try it on [domain] once the review is published? You would add one DNS record to prove the domain is yours. You can remove the domain at any time, which deletes its scans and findings. Your findings are visible only to you.
 >
 > If you agree, may I name [organisation] in the application as a team that intends to pilot it?
 >
@@ -89,6 +89,7 @@ This one asks for a commitment to use the service and asks for no money.
 
 ## Notes for the maintainer (delete before submitting)
 
-- Do not send either message until the repository and the sample report are public. The links carry the message.
+- The repository and the sample report are public, so the links can carry the message.
+- The fund's form has a private field, "Who is likely to fund this?", with one funder per line. The named candidates in the table above feed that field. It is not published, so do not write it into this repository.
 - Do not run a scan of an organisation's domain in order to show them their own findings in a first message. Even a passive scan, which reads only public records, would go against the opt-in principle of the project and may be received as a threat.
 - Record every answer, including refusals. A refusal with a reason is useful when setting the total.

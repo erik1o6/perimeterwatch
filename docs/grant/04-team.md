@@ -8,19 +8,20 @@ TheDAO Fund gives a grant, as opposed to an RFP, to a named team "because that t
 
 This part is factual and can be checked in the repository.
 
-- The scanning engine is written and works. It has 27 check modules and 74 kinds of finding.
-- The web service and its worker are written and work in tests: sign-in by emailed link, separation of organisations, domain verification, scheduled scans, alerts by email and chat, an audit log, and automatic deletion of old data.
-- 1,422 automated tests pass on the development machine. Four test files cover the safety rules of the engine: authorisation, domain validation, the guard against contacting private addresses, and the handling of external tools. One test file tries every route of the web service as a different organisation.
-- Deployment files, a CI workflow, a licence file, a security policy and draft legal documents are written.
+- The scanning engine is written and works. It has 34 check modules and 104 kinds of finding.
+- The web service and its worker are written, tested, and live in beta at https://perimeterwatch.org since 30 September 2026: sign-in by emailed link, separation of organisations, domain verification, scheduled scans, alerts by email and chat, an audit log, and automatic deletion of old data.
+- 2,555 automated tests pass in public CI on every change. Four test files cover the safety rules of the engine: authorisation, domain validation, the guard against contacting private addresses, and the handling of external tools. One test file tries every route of the web service as a different organisation.
+- Deployment files, a CI workflow, a licence file, a security policy and draft legal documents are written. The legal drafts are published at https://perimeterwatch.org/legal and marked as drafts.
 - The design decisions that take longest to get right are already made and implemented: the consent model, the rule that a secret is never stored, the rule that lookalike domains are never contacted, the filter that admits only read-only exposure checks, and the rule that a finding is not marked as fixed when its check did not run.
 - The report format has a JSON schema, so other tools can read it.
 
-The limits of the head start are as plain as the head start. The code was published on 29 September 2026. The web service has never been deployed. The CI workflow runs in public on every change and passes: tests on Python 3.13 and 3.14, tests against Postgres, a dependency audit and a build of the container image. The Docker Compose deployment itself has never been started. Nobody outside the team has reviewed the code or used the software.
+The limits of the head start are as plain as the head start. The code was published on 29 September 2026. The web service went live in beta on 30 September 2026, on one server, and monitors only the maintainer's own domains. The CI workflow runs in public on every change and passes: tests on Python 3.13 and 3.14, tests against Postgres, a dependency audit and a build of the container image. Nobody outside the team has reviewed the code, no lawyer has reviewed the legal drafts, and no outside organisation relies on the service.
 
-A team chosen through an RFP would start by making these decisions and writing this software. This team would start by publishing, deploying and submitting for review software that exists.
+A team chosen through an RFP would start by making these decisions and writing this software. This team starts from software that is published and running, and goes straight to review, hardening and onboarding.
 
 Repository: https://github.com/erik1o6/perimeterwatch
-Sample report: **[TODO: URL, once published]**
+Sample report: https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report
+Live beta: https://perimeterwatch.org
 Date work began: **[TODO]**
 
 ## code2142, author and maintainer
@@ -62,7 +63,7 @@ A single maintainer is a risk for a service that organisations will depend on. I
 **[TODO: choose one and delete the others.]**
 
 - Option A: "**[name]** will join as second maintainer. **[biography, prior work, link, hours per week]**."
-- Option B: "There is no second maintainer today. Part of the Milestone 1 budget is set aside to bring one on. The pass criteria for Milestone 2 include a second person with commit and deployment rights."
+- Option B: "There is no second maintainer today. The grant pays for a developer and part-time operations support, and one of them is given commit and deployment rights during Milestone 1." The submitted milestones do not include this as a payment criterion.
 - Option C: "There is no second maintainer. The project reduces the risk by other means: the code is open source, the deployment is documented so that another person could run it, and organisations can export their data and run the command-line tool themselves."
 
 ## The entity
@@ -81,7 +82,7 @@ The original idea was a non-profit entity that does this work for any project th
 
 A short paragraph for the submission form, if it asks.
 
-> The engine, the consent model, the report format and the web service are built and tested. What remains is to publish it, deploy it, have it reviewed, and get organisations to use it. An RFP would ask competing teams to propose building what already exists. A grant with half of the payment held back until adoption is shown puts the risk on the team and not on the fund.
+> The engine, the consent model, the report format and the web service are built, tested, published and running in beta. What remains is to have it reviewed, harden and operate it, and get organisations to use it. An RFP would ask competing teams to propose building what already exists. A grant with half of the payment held back until adoption is shown puts the risk on the team and not on the fund.
 
 ## Notes for the maintainer (delete before submitting)
 

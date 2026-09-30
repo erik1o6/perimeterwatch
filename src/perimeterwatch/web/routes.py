@@ -456,12 +456,14 @@ def verify_start(who: Editor, target_id: str) -> Response:
 
 
 @router.post("/targets/{target_id}/verify/check")
-async def verify_check(db: Db, who: Editor, target_id: str) -> Response:
+async def verify_check(db: Db, who: Editor, settings: Config, target_id: str) -> Response:
     row = target_or_404(who, target_id)
     verification = who.repo.get_verification(row.id)
     if verification is None:
         return back(f"/targets/{row.id}#verify")
-    result = await check_dns(row.root_domain, verification.token)
+    result = await check_dns(
+        row.root_domain, verification.token, never_contact=settings.never_contact
+    )
     now = utcnow()
     verification.last_checked_at = now
     verification.last_result = result.detail[:200]

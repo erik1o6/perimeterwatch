@@ -27,6 +27,13 @@
 
 	log {
 		output stdout
-		format json
+		# The address of a sign-in link contains a one-time token. The token is
+		# kept out of the log.
+		format filter {
+			wrap json
+			fields {
+				request>uri regexp "^/auth/[^/?]+" "/auth/[removed]"
+			}
+		}
 	}
 }

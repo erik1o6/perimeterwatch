@@ -79,8 +79,9 @@
         </li>
         <li>
           <h3>Choose how deep to look</h3>
-          <p><b>Passive</b> reads public records and sends nothing to your hosts. <b>Probe</b> makes one
-          ordinary request per host. <b>Active</b> checks open ports and known misconfigurations, read-only.</p>
+          <p><b>Passive</b> reads public records and connects to none of your hosts. <b>Probe</b> makes a few
+          ordinary requests per host, as a visitor would. <b>Active</b> checks open ports and known
+          misconfigurations, read-only.</p>
         </li>
         <li>
           <h3>Read the report, then hear about changes</h3>
@@ -115,7 +116,7 @@ Since the last scan: 2 new, 1 resolved, 1 changed.</pre>
     <h2>{{ check_count }} checks, from your DNS to your multisig.</h2>
     <p class="lead">Each check says what it contacts and what it found. None of them gives your organisation a
     score or a grade.</p>
-    <p class="legend"><span><i class="d-passive"></i>Passive: public records only</span><span><i class="d-probe"></i>Probe: one request per host</span><span><i class="d-active"></i>Active: ports and misconfigurations</span></p>
+    <p class="legend"><span><i class="d-passive"></i>Passive: public records only</span><span><i class="d-probe"></i>Probe: ordinary requests to your hosts</span><span><i class="d-active"></i>Active: ports and misconfigurations</span></p>
     <div class="grid">
     {% for label, name, items in checks %}
       <div class="cell">
@@ -140,7 +141,7 @@ Since the last scan: 2 new, 1 resolved, 1 changed.</pre>
     <div class="principles">
       <div>{{ icon("shield") }}<h3>Never scans without proof</h3><p>No domain is scanned until its owner proves control by DNS record. The proof is checked again before every scan.</p></div>
       <div>{{ icon("target") }}<h3>Never guesses</h3><p>It reads names from public records. It does not guess hostnames, passwords or paths, and sends read-only requests.</p></div>
-      <div>{{ icon("ban") }}<h3>Never strays</h3><p>It refuses private addresses, hosts outside your domain, and any host whose operator asked to be left alone.</p></div>
+      <div>{{ icon("ban") }}<h3>Never strays</h3><p>It refuses private addresses and any host whose operator asked to be left alone. Beyond your own hosts it asks only your nameservers and the storage buckets your DNS points at.</p></div>
       <div>{{ icon("lock") }}<h3>Never keeps a secret</h3><p>A leaked credential is reported by where it is, not by what it is. No password is stored or shown.</p></div>
       <div>{{ icon("download") }}<h3>Never hands your name to a list</h3><p>Blocklists are downloaded whole and matched here. Your domain is not sent to a lookup service.</p></div>
       <div>{{ icon("split") }}<h3>Never mixes organisations</h3><p>One organisation cannot see anything about another. Sensitive fields are encrypted at rest, and views of them are logged.</p></div>
@@ -152,8 +153,8 @@ Since the last scan: 2 new, 1 resolved, 1 changed.</pre>
   <div class="wrap">
     <p class="kicker">Roadmap</p>
     <h2>Free now. Funding decides how far it goes.</h2>
-    <p class="lead">{{ product }} is applying for grant funding. The service is free and stays free. What waits is
-    what costs money: data, outside review and time.</p>
+    <p class="lead">{{ product }} is applying for grant funding. The service is free during the beta, and the funding
+    is what keeps it free for small teams. What waits is what costs money: data, outside review and time.</p>
     <div class="roadmap">
       <div class="col">
         <h3><span class="state resolved">Live</span> In the beta today</h3>

@@ -1,22 +1,74 @@
-# Perimeterwatch: Private External Exposure Monitoring for Ethereum Projects
+# Perimeterwatch: paste-ready submission
 
-Grant submission to TheDAO Security Fund, in the structure of the fund's form as read on 30 September 2026. The same text, split into one block per form field for pasting, is in `SUBMISSION.md`.
+Text for the form at https://initiatives.thedao.fund/submit, in the order the form asks for it. The same text, laid out for reading, is in `10-resubmission.md`. The two files carry the same wording.
 
-| | |
-|---|---|
-| **Type** | Grant |
-| **Funding goal** | $150,000 USD |
-| **Expected duration** | 6 months |
-| **Recipient team** | Perimeterwatch |
-| **Categories** | OpSec, Detection & Response |
-| **Backers already committed** | None. $0 is committed against the goal. |
-| **Live beta** | https://perimeterwatch.org |
-| **Code** | https://github.com/erik1o6/perimeterwatch |
-| **Sample report** | https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report |
+The form was read on 30 September 2026. It has changed since the first submission of 9 September: a grant now has the sections "The team", "Why a grant: what already exists" and "Commitments", and the site adds the process and review rules itself.
+
+## How to paste
+
+1. Connect the wallet, sign in, and set the name and picture. They are shown in public with the initiative, so use the ones that belong to code2142.
+2. Set the two fields under "By hand, before pasting".
+3. Open this file as plain text, so that the `##` headings come along. Copy everything between the two rules under "The paste block", from `## Title` to the last milestone criterion, and paste it into the box labelled "Your whole draft as one text". The form sorts it into its fields. The "Unsorted text" box should stay empty.
+4. Check what the form read: the goal shows $150,000, the four milestone amounts total $150,000, and "Verified adoption" is flagged as the adoption milestone.
+5. Fill the fields under "By hand, after pasting". Two of them are private and are not written in this file, because this file is public.
+6. Use the form's preview, then submit.
+
+## Short texts
+
+One-sentence tagline. The form has no field for it. Use it wherever a one-line description is wanted.
+
+> Perimeterwatch shows an Ethereum project what any outsider can already find out about its systems, and warns the project when that changes.
+
+One-paragraph summary, 66 words. This is the text of the "Short summary" field below, which the fund shows on the board card.
+
+> Perimeterwatch is a free, open-source service that shows an Ethereum project what any outsider can already find out about its domains, email, public code, contracts and multisigs, and warns it when that changes. A project proves control of its domain and gets a private report, each finding with a fix. It runs in beta at perimeterwatch.org. This grant hardens it and brings 25 organisations onto it.
+
+## By hand, before pasting
+
+### By hand: Type
+
+Grant
+
+### By hand: Work is already under way with another funder
+
+Leave unticked. No other funder pays for this work.
+
+## The paste block
+
+**Copy from the line after the rule below.**
+
+---
+
+## Title
+
+Perimeterwatch: Private External Exposure Monitoring for Ethereum Projects
 
 ## Short summary
 
 Perimeterwatch is a free, open-source service that shows an Ethereum project what any outsider can already find out about its domains, email, public code, contracts and multisigs, and warns it when that changes. A project proves control of its domain and gets a private report, each finding with a fix. It runs in beta at perimeterwatch.org. This grant hardens it and brings 25 organisations onto it.
+
+## Categories
+
+OpSec
+Detection & Response
+
+## Funding goal (USD)
+
+$150,000
+
+## Expected duration (months)
+
+6
+
+## Recipient team
+
+Perimeterwatch
+
+## Links
+
+https://perimeterwatch.org
+https://github.com/erik1o6/perimeterwatch
+https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report
 
 ## Why this matters
 
@@ -105,8 +157,6 @@ Budget allocations are planning estimates, not signed supplier quotes. Indicativ
 
 ## Milestones
 
-The four amounts add up to $150,000. The adoption milestone pays $75,000, which is 50% of the total. The fund's site adds the rules on review, payment and the proposal window to every grant, so they are not repeated here.
-
 ### Hardened service, ready for outside organisations - $30,000
 
 - [ ] An independent security assessment and retest report on the service and its separation between organisations is published, with every critical and high finding fixed and confirmed by the assessor.
@@ -131,3 +181,35 @@ The four amounts add up to $150,000. The adoption milestone pays $75,000, which 
 - [ ] A public end-of-phase report documents the monitoring delivered through month 6, source coverage, limitations and release history, without participant identities or findings.
 - [ ] A published maintenance plan names code2142 and Perimeterwatch, assigns ongoing responsibilities, and states the recurring operating costs and the funding needed after month 6.
 - [ ] A public access policy states free service while externally funded, the more-than-20-person threshold, the free month and retained report for larger organisations, the price of monitoring after that, and the funding-shortfall condition that activates charges.
+
+---
+
+**Stop copying at the line above the rule.**
+
+Notes on the block:
+
+- The form's label for the "Links" field is "Other links". The pasted heading must be "Links" for the form to sort it.
+- "Backers already committed" is left out on purpose. Nobody has committed money.
+- The form letters the milestones A to D itself.
+
+## By hand, after pasting
+
+### By hand: Recipient link
+
+https://perimeterwatch.org
+
+### By hand: Discussion link
+
+Optional. Leave it empty unless there is a public thread about this initiative to link.
+
+### By hand: Who is likely to fund this? (private, never published)
+
+Not written here, because this file is public. The form wants one funder per line, in this shape:
+
+`name | why they care | your relationship | warm intro? | likely amount`
+
+The candidates and the state of each conversation are for the maintainer to fill in. `07-cofunding.md` lists the kinds of organisation that benefit and why.
+
+### By hand: Contact (private, never published)
+
+Not written here, because this file is public. The form wants an email address or a handle for questions about the submission. Use a contact that belongs to the pseudonym code2142 or to the project.

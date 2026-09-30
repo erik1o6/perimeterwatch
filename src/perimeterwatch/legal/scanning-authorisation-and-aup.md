@@ -2,52 +2,84 @@
 
 # Scanning authorisation and acceptable use policy
 
-Status: draft for the hosted service, which has been built but is not yet deployed. It describes what the software does today.
+Status: draft, published for review. The hosted service has been live in beta at https://perimeterwatch.org since 30 September 2026. It is free, and sign-up is open. No lawyer has reviewed this policy, and the service has had no independent security review. The legal documents are drafts under review and are not yet in force. This policy describes what the software does today.
+
+Last updated: 30 September 2026
 
 This policy is part of the [terms of service](terms-of-service.md).
+
+Open points are marked in the text. "README open question" followed by a number refers to the [list of open questions](https://github.com/erik1o6/perimeterwatch/blob/main/docs/legal/README.md) in the repository. Every check is also described in the repository, in [docs/modules.md](https://github.com/erik1o6/perimeterwatch/blob/main/docs/modules.md).
 
 ## 1. The three depths
 
 A **host** is a named machine or service, such as `app.example.org`. A host is **under your domain** if its name ends with your domain.
 
+A **nameserver** is a server that answers DNS questions about your domain. Nameservers are often run by a DNS provider, and their names are often not under your domain.
+
 ### Passive
 
-The service reads public records and indexes kept by others. It makes no connection to your hosts. DNS records are read through public resolvers.
+The service reads public records and indexes kept by others. It makes no connection to your hosts. DNS records are read through public resolvers. The only question sent to your own nameservers is the check of the verification record, described in section 3.
 
 | Check | Where the request goes |
 |---|---|
 | Hostnames | crt.sh (certificate transparency logs) and the passive sources behind subfinder |
-| DNS records | Public DNS resolvers |
-| Email security records: SPF, DMARC, DKIM, and whether an MTA-STS record exists | Public DNS resolvers |
+| DNS records, and how well a signed zone is signed | Public DNS resolvers |
+| Email security records: SPF and the domains it trusts, DMARC, DKIM, the TLS reporting record, and whether an MTA-STS record exists | Public DNS resolvers |
 | DNS records that point at a resource that no longer exists | Public DNS resolvers |
+| Domain registration: expiry, transfer lock, registrar and nameservers | IANA's list of registration record servers, and the public registration record server of your domain's registry. Contact details in the record are not read. |
 | Lookalike domains | Public DNS resolvers and crt.sh. Lookalike domains themselves are never contacted. |
+| Public phishing blocklists | Three lists are downloaded whole and compared on our server: MetaMask eth-phishing-detect, polkadot-js/phishing and Phishing.Database. Your domain name is not sent to them. |
+| Addresses on your domain that web archives have recorded | The Internet Archive's index (web.archive.org). The addresses themselves are never fetched. |
+| Servers behind your content delivery network, and the outside services you rely on | Worked out from what the other checks collected, and public DNS resolvers |
+| DNS records that say where website content on IPFS lives | Public DNS resolvers. The content is never fetched. |
 | GitHub organisation and public repositories | GitHub |
-| Credentials in public repositories | GitHub. Repositories are downloaded, read and deleted. |
-| Safe multisig owners and threshold | An Ethereum RPC provider. Two read-only calls per wallet. |
+| Repository safeguards | OpenSSF Scorecard's published results, and GitHub |
+| Credentials in public repositories | GitHub. Repositories are downloaded, read by one or two scanning tools, and deleted. |
+| Safe multisig owners, threshold, modules and guard | An Ethereum RPC provider. Read-only calls. No RPC provider is configured in the hosted service today, so these checks do not run. |
 | Technology names in job postings | Greenhouse or Lever |
-| Breach exposure | Have I Been Pwned. Needs a verified domain. |
+| Breach exposure | Have I Been Pwned. Needs a verified domain. Switched off in the hosted service today: no breach data source is configured. |
+
+The software has three more passive checks: published npm and PyPI packages, who controls a smart contract, and ENS names. They need settings that only the command-line tool offers. The hosted service does not run them today.
 
 In the hosted service, passive scans run only for a verified domain. The command-line tool can run a passive scan without verification.
 
 ### Probe
 
-Everything in passive, and for each host under your domain:
+Everything in passive, and the following.
+
+For each host under your domain, at most 500 in one scan:
 
 - one ordinary web request, as a browser would make. The request is tried over HTTPS first. If the host does not answer over HTTPS, it is tried over plain HTTP. Redirects are not followed. No retry.
 - one TLS handshake on port 443, to read the certificate. One retry if it fails.
 
-And once per scan, if you publish an MTA-STS record: one request for the policy file at `https://mta-sts.<your domain>/.well-known/mta-sts.txt`. It is sent by the service's own web client, with its User-Agent, without following redirects, and only if that host resolves to public addresses and is not on the do-not-contact list. Every mail server that sends you mail makes the same request.
+For each host that answered as a web server, at most 50 in one scan:
+
+- one request for the front page, and one request for each script file that the page loads from that same host, at most 40. Scripts hosted elsewhere are noted by address and are never fetched. A redirect is followed only if it stays on the same host, and at most three times. The service keeps a hash of each script, not the script.
+
+Once per scan, for your domain itself:
+
+- one request for `/.well-known/security.txt`. If that does not exist, one request for `/security.txt`. A redirect is followed only if it stays on your domain or goes from your domain to its own `www` host, and at most three times.
+- if you publish an MTA-STS record: one request for the policy file at `https://mta-sts.<your domain>/.well-known/mta-sts.txt`. Redirects are not followed. Every mail server that sends you mail makes the same request.
+
+Once per scan, for your domain's nameservers:
+
+- each nameserver that the registry lists for your domain, at most eight, is sent about five ordinary DNS questions: the zone's SOA record over UDP and over TCP, the zone's NS records, and one question about a name outside your zone, to see whether the server looks up names for strangers. Only public IPv4 addresses are asked.
+- one nameserver of the parent zone (the registry) is asked one question, to read the registry's list of your nameservers. If it does not answer, up to two others are tried.
+
+Every web request above is sent by the service's own web client or web probe, with its User-Agent. A host is contacted only if every address it resolves to is public and it is not on the do-not-contact list.
 
 In the hosted service, probe scans run only for a verified domain.
-
-At most 500 hosts are contacted in one scan.
 
 ### Active
 
 Everything in probe, and:
 
 - **Open ports.** The service tries an ordinary TCP connection to each of the 100 most common ports on each address. At most 100 connection attempts per second across the whole scan, and at most 200 addresses. For addresses that belong to a content delivery network, only ports 80 and 443 are tried.
-- **Known exposures.** The service sends plain GET and HEAD requests for things such as a readable `.git` directory or an open administration page. At most 20 requests per second across the whole scan. No request carries a body or a payload. No out-of-band callbacks are used.
+- **Known exposures.** The service sends plain GET and HEAD requests for things such as a readable `.git` directory or an open administration page. At most 20 requests per second across the whole scan. No request carries a body or a payload. No out-of-band callbacks are used. Some of these checks read the TLS certificate or make a DNS lookup instead of a web request.
+- **TLS versions and cipher suites.** The service makes repeated ordinary TLS handshakes on port 443, one for each version and suite tried, on at most 50 hosts. None carries a malformed message.
+- **SSH server settings.** Where the port check found an SSH server on port 22 or 2222, the service connects, reads the server's banner and the list of algorithms it offers, and disconnects. At most 50 servers. It never tries to sign in.
+- **DNS zone transfer.** Each of your domain's nameservers, at most eight, is asked once for a copy of the zone. This is a standard DNS request. If a server answers it, only the number of records is kept.
+- **Storage buckets.** If a DNS name under your domain is an alias for a storage bucket at Amazon S3, Google Cloud Storage or DigitalOcean Spaces, the service asks the storage provider what an anonymous visitor may do with that bucket. At most 50 buckets at each provider. Bucket names are taken only from your own DNS records and are never guessed. The check is set up not to list the bucket's contents and not to write anything.
 
 Active depth always needs a verified domain.
 
@@ -66,12 +98,12 @@ The hosted service scans a domain only once control of it is proved. This holds 
 - No attempt to exploit a weakness.
 - No password guessing and no login attempts.
 - No testing of a found credential.
-- No requests that change data: only GET and HEAD.
+- No web requests that change data: only GET and HEAD.
 - No denial-of-service testing.
-- No contact with a host outside your domain.
+- No web request, TLS handshake, port check or SSH connection to a host whose name is outside your domain. Two kinds of system outside your domain name can be contacted, because your own DNS names them: the nameservers that serve your domain, and a storage bucket that one of your DNS names points at. See sections 1 and 5.
 - No contact with a host that resolves to a private or reserved address. If even one of a host's addresses is private or reserved, the host is skipped.
 - No contact with lookalike domains.
-- No contact with a host or address on the do-not-contact list. See the [opt-out policy](opt-out.md).
+- No contact with a host, nameserver or address on the do-not-contact list. See the [opt-out policy](opt-out.md). The list also covers the check of the verification record, which asks public resolvers when a nameserver is on the list, and the storage bucket check.
 
 ## 3. Domain verification
 
@@ -86,7 +118,7 @@ You create a DNS TXT record:
 
 ### How it is checked
 
-The answer must come from your domain's own authoritative nameservers. If they cannot be reached, at least two of three independent public resolvers must return the record. A local resolver cannot satisfy the check.
+The service asks your domain's own authoritative nameservers for the record, with one ordinary DNS question each, to at most six addresses. If that does not find the record, at least two of three independent public resolvers must return it. A local resolver cannot satisfy the check.
 
 The record is checked again before every scan, and once a day. Keep it in place.
 
@@ -99,13 +131,14 @@ Only one organisation at a time can hold verification of a domain. If another or
 ### What verification authorises
 
 - Scans of the domain and of hosts under it, at the depth you select.
+- The DNS questions to your domain's nameservers, and the storage bucket check, described in section 1.
 - Scheduled scans at probe depth.
 - Findings that name individual email addresses at the verified domain.
 
 ### What verification does not authorise
 
 - Scanning any other domain, including other domains you own. Each domain is verified separately.
-- Scanning hosts that your DNS records point to but whose names are not under your domain.
+- Scanning hosts that your DNS records point to but whose names are not under your domain. The nameservers and storage buckets described in section 1 are the only exceptions.
 - Anything listed in section 2.
 - Anything that the owner of the underlying infrastructure forbids. See section 5.
 
@@ -136,7 +169,9 @@ A host under your domain often runs on someone else's infrastructure. Examples:
 
 - a content delivery network in front of your website;
 - a cloud provider's virtual machine or load balancer;
-- a software-as-a-service product on a name such as `status.<your domain>` or `shop.<your domain>`.
+- a software-as-a-service product on a name such as `status.<your domain>` or `shop.<your domain>`;
+- the nameservers of your DNS provider;
+- a storage bucket at a cloud provider that one of your DNS names points at.
 
 Your verification covers your domain name. It does not override the terms of the provider that owns the machine. Those terms also apply.
 
@@ -144,6 +179,8 @@ What the service does about this:
 
 - For addresses that belong to a known content delivery network, the port check tries only ports 80 and 443.
 - Exposure checks use only plain GET and HEAD requests.
+- Nameservers receive only ordinary DNS questions and, at active depth, one zone transfer request each.
+- The storage provider is asked only what an anonymous visitor may do with the bucket.
 
 What the service does not do:
 
@@ -152,10 +189,12 @@ What the service does not do:
 
 What you must do before selecting probe or active depth:
 
-1. Check which providers host your systems.
+1. Check which providers host your systems, your DNS and your storage buckets.
 2. Read each provider's policy on security testing.
 3. If a provider requires notice or approval, obtain it.
 4. If a provider forbids it, do not select that depth.
+
+**[LAWYER: see README open question 15.]**
 
 ## 6. Prohibited uses
 
@@ -179,16 +218,16 @@ You must not:
 Web requests sent by the service carry a User-Agent in this form:
 
 ```
-perimeterwatch/<version> (+<contact URL>; abuse: <abuse address>)
+perimeterwatch/<version> (+https://perimeterwatch.org; abuse: abuse@perimeterwatch.org)
 ```
 
 | | |
 |---|---|
-| Contact URL | **[TO DECIDE: contact URL]** |
-| Abuse address | **[TO DECIDE: abuse contact address]** |
-| Source IP addresses | **[TO DECIDE: published list of addresses the hosted service scans from]** |
+| Contact URL | https://perimeterwatch.org |
+| Abuse address | abuse@perimeterwatch.org |
+| Source IP addresses | `162.55.43.236` and `2a01:4f8:c016:78c3::1`. Scan traffic comes only from these two addresses. They are also published on the home page. |
 
-TLS handshakes, port checks and DNS queries cannot carry a User-Agent. They can be recognised by source IP address. Requests to third-party sources made by the bundled subdomain tool and repository scanner carry those tools' own User-Agent.
+TLS handshakes, port checks, SSH connections, and DNS questions and zone transfer requests sent to nameservers cannot carry a User-Agent. They can be recognised by source IP address. The storage bucket check is made by a bundled tool with that tool's own identification. Requests to third-party sources made by the bundled subdomain tool and repository scanners carry those tools' own User-Agent.
 
 Outside development mode, the web service refuses to start unless an abuse address is set.
 
@@ -198,7 +237,7 @@ An **abuse report** is a message saying that the service was used against a syst
 
 ### How to report
 
-Write to **[TO DECIDE: abuse contact address]**. Please include:
+Write to abuse@perimeterwatch.org. Please include:
 
 - the host name or IP address that received traffic;
 - the date, time and time zone;
@@ -211,14 +250,16 @@ You do not need to prove who you are to make a report. We will need proof that y
 
 | Step | Target time |
 |---|---|
-| Acknowledge the report | **[TO CONFIRM: 2 working days]** |
-| Check the audit log for scans that match | **[TO CONFIRM: 2 working days]** |
-| If traffic is continuing, add the host to the do-not-contact list while we look into it | **[TO CONFIRM: 1 working day]** |
-| Tell you the outcome | **[TO CONFIRM: 10 working days]** |
+| Acknowledge the report | 2 working days |
+| Check the audit log for scans that match | 2 working days |
+| If traffic is continuing, add the host to the do-not-contact list while we look into it | 2 working days |
+| Tell you the outcome | 10 working days |
+
+These are targets, not guarantees. The service is run by one person.
 
 The do-not-contact list is described in the [opt-out policy](opt-out.md).
 
-**[NOT YET BUILT: a function for our staff to suspend a domain or an account. Until it exists, suspension is done by hand in the database.]**
+**[NOT YET BUILT: a function for the operator to suspend a domain or an account. Until it exists, suspension is done by hand in the database.]**
 
 ### Possible outcomes
 
@@ -232,4 +273,4 @@ We confirm whether the traffic came from the service and what kind of check it w
 
 ### Records
 
-We keep abuse reports and our replies for **[TO DECIDE: retention period for abuse reports]**.
+We keep abuse reports and our replies for 12 months after the matter is closed.

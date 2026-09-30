@@ -10,14 +10,14 @@ It is opt-in. The web service scans a domain only once the organisation has prov
 
 It can be used in two ways, and both are built:
 
-- a command-line program, `perimeterwatch`, that an organisation runs on its own machine;
+- a command-line program, `pwatch`, that an organisation runs on its own machine;
 - a web service with a worker that runs scans on a schedule and sends alerts.
 
-The web service has never been deployed. It runs in automated tests on the development machine and nowhere else. No organisation uses it. The grant pays to publish the code, deploy the service, have it reviewed by an independent firm, and get organisations onto it.
+The web service has been live in beta at https://perimeterwatch.org since 30 September 2026. It runs on one server in Germany and monitors only the maintainer's own domains. No outside organisation relies on it. The grant pays to have it reviewed by an independent firm, harden and operate it, and get organisations onto it.
 
 ## What it checks
 
-Every check in this table is built and works today. The command-line tool and the web service run the same engine.
+Every check in this table is built and works today. The command-line tool and the web service run the same engine. The table shows the main areas as first written. The full list, generated from the code, is in `docs/modules.md`.
 
 | Area | What is checked | Where the information comes from | Depth |
 |---|---|---|---|
@@ -31,12 +31,14 @@ Every check in this table is built and works today. The command-line tool and th
 | GitHub settings | Whether two-factor login is required, public repositories that have gone stale | GitHub | Passive |
 | Treasury signers | Owners and threshold of the organisation's Safe multisig. Any change to the signers is reported. | Read directly from the chain with two read-only calls per Safe | Passive |
 | Job postings | Technologies the organisation names in its own job advertisements | Greenhouse and Lever job boards | Passive |
-| Breached staff accounts | Staff email addresses that appear in known breaches and in logs from password-stealing malware. The report shows breach name, date and kinds of data. It never shows a password. | Have I Been Pwned | Passive, and per-person detail only for a verified domain |
+| Breached staff accounts | Staff email addresses that appear in known breaches and in logs from password-stealing malware. The report shows breach name, date and kinds of data. It never shows a password. Built, and switched off in the hosted service: it needs a paid key, and no subscription is taken out before funding. | Have I Been Pwned | Passive, and per-person detail only for a verified domain |
 | Web servers and certificates | Certificate expiry and mismatch, missing redirect to HTTPS | One ordinary web request and one TLS handshake per host | Probe |
-| Open ports | The 100 most common ports, by ordinary connection attempts | The organisation's hosts | Active |
+| Open ports | The 100 most common ports, by ordinary connection attempts, over IPv4 and IPv6 | The organisation's hosts | Active |
 | Exposure checks | Read-only checks for exposed files and misconfiguration | nuclei, limited by the project's own rules to plain GET and HEAD requests | Active |
 
-There are 27 check modules and 74 kinds of finding. Each kind has a default severity and a written fix, held in one table in the code (`src/perimeterwatch/core/severity.py`) so that the rating rules can be reviewed.
+There are 34 check modules at three depths (23 passive, 5 probe, 6 active) and 104 kinds of finding. Each kind has a default severity and a written fix, held in one table in the code (`src/perimeterwatch/core/severity.py`) so that the rating rules can be reviewed.
+
+Checks added since the table above was written, all built: Safe modules and guard, changes to an ENS content hash or a DNSLink record, `security.txt`, DNSSEC signing quality, nameserver health, origin servers behind a content delivery network, an inventory of outside services, domain registration and registry lock, the SPF chain, phishing lists, web archives, packages and their provenance, repository safeguards, contract control, ENS names, website scripts and security headers, TLS versions and cipher suites, zone transfer, SSH server settings, and storage buckets. Ten third-party tools are pinned by version and verified by checksum.
 
 **The exposure checks.** These use a public collection of check templates, nuclei-templates version 10.4.9. The project reads every template and admits one only if each request in it is a plain GET or HEAD with nothing attached. Of the templates in that version, 2,093 are admitted and 654 are refused. No flag or setting widens these rules.
 
@@ -90,7 +92,7 @@ Other safety rules, all built:
 
 ## The web service
 
-Built and covered by automated tests. Never deployed.
+Built, covered by automated tests, and live in beta at https://perimeterwatch.org since 30 September 2026.
 
 | Feature | Detail |
 |---|---|
@@ -101,7 +103,7 @@ Built and covered by automated tests. Never deployed.
 | Scans | A queue, and scheduled scans: daily, every 3 days, weekly, or on request only. |
 | Alerts | By email, Slack, Discord and Telegram. An alert says what kind of thing changed and links to the service. It never carries names, addresses or credentials. |
 | Audit log | Records sign-ins, scans, changes, each view of a finding about a person, and each report download. |
-| Deployment | Docker Compose files are written and the container image builds in CI. **The deployment itself has never been started.** |
+| Deployment | Docker Compose on one Hetzner server in Germany, behind HTTPS. The container image builds in CI. Sign-up is open. **Only the maintainer's own domains are monitored so far.** |
 
 ## What it will not do
 
@@ -122,34 +124,37 @@ Built and covered by automated tests. Never deployed.
 | Item | Status today | What the grant adds |
 |---|---|---|
 | Scanning engine with all checks listed above | Built. | Released as version 1.0 in M1 |
-| Command-line tool `perimeterwatch` | Built | Maintained |
-| Web service and worker | Built and tested. Never deployed. | First deployment in M1. Production use in M2 and M3. |
-| Automated tests | 1,422 pass on the development machine | Run in public on every change, in M1 |
-| Consent model and safety rules | Built, with a dedicated set of security tests | Reviewed independently in M2 |
-| Separation of organisations | Built in the application, with tests | A second barrier in the database (row-level security) in M1. Reviewed independently in M2. |
-| Scheduled scans, alerts, automatic retention | Built and tested | Shown working in a real deployment in M1 and M2 |
-| HTML and JSON reports, with JSON schema | Built | A sample report on the team's own domain, published in M1 |
-| Licence, README, security policy, third-party notices | Written. Apache-2.0. | Published with the repository in M1 |
+| Command-line tool `pwatch` | Built | Maintained |
+| Web service and worker | Built, tested, and live in beta since 30 September 2026. Only the maintainer's own domains are monitored. | Hardened and operated for outside organisations from M1. Production use in M3. |
+| Automated tests | 2,555 pass in public CI on every change | Kept passing through each release |
+| Consent model and safety rules | Built, with a dedicated set of security tests | Reviewed independently in M1 |
+| Separation of organisations | Built in the application, with tests | Reviewed independently in M1. A second barrier in the database (row-level security) is planned hardening work and is not a payment criterion. |
+| Scheduled scans, alerts, automatic retention | Built, tested, and running in the beta for the maintainer's own domains | Shown in a public test report in M2 |
+| HTML and JSON reports, with JSON schema | Built. A sample report on the project's own domain is published at https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report | Maintained |
+| Licence, README, security policy, third-party notices | Written and published. Apache-2.0. | Maintained |
 | Public repository | Published at https://github.com/erik1o6/perimeterwatch. CI runs in public on every change and passes. | Tagged 1.0 release, in M1 |
-| CI workflow and Docker deployment files | CI passes, including the image build. The Compose deployment has never been started | First real deployment, in M1 |
+| CI workflow and Docker deployment files | CI passes, including the image build. The Compose deployment runs the beta. | Backups with a tested restore, and monitoring, in M1 |
 | Inviting colleagues to an organisation | Not built. Each account is its own organisation. | M1 |
-| Sign-in with a wallet | Not built | M1 |
-| Terms of service, privacy notice and other policies | Drafts exist in `docs/legal/`. No lawyer has reviewed them. | Reviewed by a lawyer in M2 |
-| Independent security review | Not done | M2 |
-| Integration with another tool or body | Not built | M3 |
-| Organisations using it | None **[TODO: correct this if any organisation has already run the tool.]** | M3 |
+| Sign-in with a wallet | Not built | Not part of the submitted milestones |
+| Staff list upload in the web service | Not built. Only the command-line tool can load a staff list. | M1 |
+| Closing an account | Not built | M1 |
+| Terms of service, privacy notice and other policies | Drafts exist in `src/perimeterwatch/legal/` and are published at https://perimeterwatch.org/legal, marked as drafts. No lawyer has reviewed them. | Reviewed by a lawyer in M2 |
+| Breach data | The check is built and switched off. There is no paid subscription. | A licensed source in production in M2, once a supplier confirms in writing that use by a hosted service for several organisations is allowed |
+| Independent security review | Not done | M1 |
+| Integration with another tool or body | Not built | Not a payment criterion. Pursued alongside M3. |
+| Organisations using it | None outside the team. Only the maintainer's own domains are monitored. | At least 25 in M3 |
 
 A second breach source is present in the code and switched off by default: Hudson Rock's free lookup, which gives counts only. Its terms for use by a hosted service are not published, so the hosted service will not use it without written permission from Hudson Rock.
 
 ## How a reviewer can check the prototype
 
-These steps work once the repository is published, which is the first item of Milestone 1. Until then the maintainer can show the same steps on a call.
-
-1. Clone the repository: https://github.com/erik1o6/perimeterwatch
-2. Run `make dev`, then `make test`. The expected result is 2,532 tests passed.
-3. Run a passive scan against a domain the reviewer owns and open the HTML report.
-4. Or open the published sample report: **[TODO: URL, once published]**.
+1. Open https://perimeterwatch.org. The home page lists the checks that run, the addresses scans come from, and how the operator of a scanned host asks to be left alone. Sign-up is open.
+2. Clone the repository: https://github.com/erik1o6/perimeterwatch
+3. Run `make dev`, then `make test`. The expected result is 2,555 tests passed. The same tests run in public under the repository's "Actions" tab.
+4. Run a passive scan against a domain the reviewer owns and open the HTML report.
+5. Or open the published sample report: https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report
 
 ## Notes for the maintainer (delete before submitting)
 
-- `docs/legal/README.md` is out of date. It says the hosted service does not exist, that the uploaded staff list is not used, that there is no do-not-contact list, that retention is a manual command, that views of findings are not logged, and that passive depth fetches the MTA-STS file. The code has moved past all of these. Update it before a lawyer or reviewer reads it.
+- The legal drafts live in `src/perimeterwatch/legal/` and are published at https://perimeterwatch.org/legal. `docs/legal/README.md` is their index, with the open questions for the lawyer.
+- The milestone labels in the table above follow `10-resubmission.md`: M1 is the hardened service with the independent review, M2 is breach monitoring and legal review, M3 is adoption, M4 is continued operation.

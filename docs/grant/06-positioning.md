@@ -12,6 +12,7 @@ No partnership or endorsement exists with any body named here. **[TODO: if any c
 |---|---|---|---|
 | OPSEC Ratings Coalition (Round Two RFP, $150,000) | Auditing firms agree one public rating standard | Produces facts about one organisation, for that organisation. Publishes no rating. | A data input, with consent |
 | Auditware privacy-preserving EDR (Round Two grant, $300,000) | Detects threats on staff devices | Looks at the organisation from outside | Complementary |
+| A Unified Platform for Web3 OpSec (Round Two grant, $250,000, recipient Auditware) | One task tracker for compliance frameworks, training, scanning and breach monitoring. Its listing includes an outside view of domains, DNS, certificates, lookalike domains, GitHub and multisigs. | The outside view only, opt-in by DNS proof, with no rating | Overlaps in part. A data input, with consent |
 | SEAL Certifications | Accredited firms assess an organisation against published controls | Produces reports that can serve as evidence for some controls | Evidence |
 | SEAL 911 | Free emergency help during an incident | Points the organisation to it when a finding looks like an incident in progress | Escalation path |
 | SEAL-ISAC | Members share threat intelligence | None built | Possible later |
@@ -50,6 +51,21 @@ The two meet at one point. Perimeterwatch reports staff addresses that appear in
 
 Perimeterwatch asks less of an organisation than device protection does, so an organisation can start with it and add device protection later. Neither replaces the other.
 
+## A Unified Platform for Web3 OpSec
+
+This Round Two grant of $250,000 names Auditware as recipient. Its listing describes one platform that turns framework requirements, scan findings, breach alerts and training into tasks with owners. The listing says the existing product already includes an outside view of an organisation: domains and discovered subdomains, DNS, TLS certificates, certificate records, lookalike domains, GitHub repositories, multisig monitoring and breach detection, with health ratings. Source: https://initiatives.thedao.fund/, read on 30 September 2026.
+
+This overlaps with part of what Perimeterwatch does, and a reviewer will ask about it. What can be said from public facts:
+
+| | A Unified Platform for Web3 OpSec | Perimeterwatch |
+|---|---|---|
+| Scope | Compliance tracking, training, scanning, monitoring, incident playbooks | The outside view only |
+| Output | Tasks, posture reports and ratings that a team may publish | Findings and fixes, private to the organisation. No rating. |
+| Who can be scanned | Not stated in the listing | Only a domain whose control is proved by a DNS record, checked again before every scan |
+| Code | To be opened under the grant, according to its listing | Public today under Apache-2.0, with the tests |
+
+Perimeterwatch does not build a task tracker, training or compliance mapping. Its reports follow a published JSON schema, so a platform of that kind can import them with the organisation's consent.
+
 ## SEAL Certifications
 
 SEAL (Security Alliance) maintains a certification framework with six modules: Multisig Ops, Treasury Ops, Incident Response, DevOps and Infrastructure, DNS and Registrar, and Identity and Accounts. Accredited firms carry out the assessments. The protocol team gathers evidence that its practices meet the controls. Source: [SEAL Certification Framework](https://frameworks.securityalliance.org/certs/overview/).
@@ -62,7 +78,7 @@ Source: [SFC: DNS Registrar](https://frameworks.securityalliance.org/certs/sfc-d
 |---|---|
 | DNS security standards: DNSSEC on critical domains, CAA records | Whether DNSSEC is on. Whether a CAA record exists. |
 | Email authentication: SPF, DKIM, DMARC, with MTA-STS where feasible | The state of each, including whether DMARC is set to reject or only to monitor |
-| Monitoring for unauthorised changes to DNS records and security settings | Changes in findings between scheduled scans, with an alert. Scheduled scans and alerts are built in the web service, which is not yet deployed. |
+| Monitoring for unauthorised changes to DNS records and security settings | Changes in findings between scheduled scans, with an alert. Scheduled scans and alerts run in the web service, which is live in beta. |
 | Monitoring certificate records for unauthorised certificates | Hosts that newly appear in certificate records, and certificates issued to lookalike names |
 
 Perimeterwatch does not cover the parts of the module about registrar account access, such as multi-factor login at the registrar. Those cannot be seen from outside.
@@ -77,7 +93,7 @@ Perimeterwatch reads the owners and threshold of a Safe and reports changes. **[
 
 ### What is claimed
 
-A Perimeterwatch report is a dated, reproducible record that an assessor can accept as evidence for the controls above. Perimeterwatch does not certify anything and is not an accredited assessor. No accredited firm has yet agreed to accept its reports. Getting one to do so is a candidate for the integration in Milestone 3.
+A Perimeterwatch report is a dated, reproducible record that an assessor can accept as evidence for the controls above. Perimeterwatch does not certify anything and is not an accredited assessor. No accredited firm has yet agreed to accept its reports. Getting one to do so is an aim alongside the adoption milestone. It is not a payment criterion.
 
 One DNS finding in the software already links to SEAL Frameworks as a reference. Linking each relevant finding to the specific SEAL control is planned and not built.
 
@@ -85,7 +101,7 @@ One DNS finding in the software already links to SEAL Frameworks as a reference.
 
 SEAL 911 is a free emergency hotline, reached through a Telegram bot, that connects an organisation facing an incident with volunteer security researchers. Source: [SEAL 911](https://securityalliance.org/our-work/seal-911).
 
-Perimeterwatch is not an incident response service and the maintainer will not act as one. Where a finding suggests an attack may be under way or in preparation, the report points the organisation to SEAL 911. Today three kinds of finding carry the link: a lookalike domain that can receive email, a certificate issued for a name containing the brand, and a staff address found in malware logs. **[TODO: consider adding the link to the finding for a change of treasury signers, which does not carry it today.]**
+Perimeterwatch is not an incident response service and the maintainer will not act as one. Where a finding suggests an attack may be under way or in preparation, the report points the organisation to SEAL 911. Today 14 kinds of finding carry the link. Among them: a lookalike domain that can receive email or is on a phishing list, a certificate issued for a name containing the brand, a staff address found in malware logs, a change of registrar or nameservers, a change to the scripts a website serves, and a change to a Safe's modules or to who controls a contract. **[TODO: consider adding the link to the finding for a change of treasury signers, which does not carry it today.]**
 
 The aim is to send SEAL 911 fewer and better-informed calls: an organisation that arrives with a dated report of what changed.
 

@@ -63,7 +63,9 @@ def check(domain: Annotated[str, typer.Argument()]) -> None:
         verification = repo.get_verification(row.id) if row else None
         if row is None or verification is None:
             raise ValidationError(f"Start with 'pwatch verify init {root}'.")
-        result = run_async(check_dns(root, verification.token))
+        result = run_async(
+            check_dns(root, verification.token, never_contact=app.settings.never_contact)
+        )
         now = utcnow()
         verification.last_checked_at = now
         verification.last_result = result.detail[:200]

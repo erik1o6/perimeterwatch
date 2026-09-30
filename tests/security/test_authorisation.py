@@ -27,7 +27,7 @@ def patch_dns(
 ) -> list[str]:
     asked: list[str] = []
 
-    async def zone_nameservers(domain: str, client: Any) -> list[str]:
+    async def zone_nameservers(domain: str, client: Any, never_contact: Any = ()) -> list[str]:
         return nameservers
 
     async def ask(server: str, name: str, timeout: float) -> Any:
@@ -138,6 +138,40 @@ class TestDnsVerification:
                 return ["10.0.0.53", "169.254.169.254", "127.0.0.1", "198.41.0.4"], DnsStatus.OK
 
         assert await auth._zone_nameservers(ROOT, Client()) == ["198.41.0.4"]  # type: ignore[arg-type]
+
+    @pytest.mark.parametrize("entry", ["ns1.dns-host.net", "dns-host.net", "198.41.0.0/24"])
+    async def test_nameservers_on_the_do_not_contact_list_are_never_queried(
+        self, entry: str
+    ) -> None:
+        class Client:
+            async def query(self, name: str, rdtype: str) -> DnsAnswer:
+                return DnsAnswer(name, rdtype, DnsStatus.OK, ("ns1.dns-host.net.",))
+
+            async def addresses(self, name: str) -> tuple[list[str], DnsStatus]:
+                return ["198.41.0.4"], DnsStatus.OK
+
+        assert await auth._zone_nameservers(ROOT, Client(), [entry]) == []  # type: ignore[arg-type]
+        assert await auth._zone_nameservers(ROOT, Client(), ["elsewhere.example"]) == [  # type: ignore[arg-type]
+            "198.41.0.4"
+        ]
+
+    async def test_the_list_reaches_the_lookup(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        seen: list[Any] = []
+
+        async def zone_nameservers(domain: str, client: Any, never_contact: Any = ()) -> list[str]:
+            seen.append(list(never_contact))
+            return []
+
+        patch_dns(
+            monkeypatch,
+            nameservers=[],
+            authoritative={},
+            public={"1.1.1.1": [GOOD], "8.8.8.8": [GOOD]},
+        )
+        monkeypatch.setattr(auth, "_zone_nameservers", zone_nameservers)
+        result = await auth.check_dns(ROOT, TOKEN, never_contact=["ns1.dns-host.net"])
+        assert seen == [["ns1.dns-host.net"]]
+        assert result.verified and result.source == "public resolvers"
 
     def test_tokens_are_long_and_unique(self) -> None:
         tokens = {auth.new_token() for _ in range(50)}

@@ -12,6 +12,7 @@ import getpass
 import secrets
 import socket
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import timedelta
 
@@ -25,6 +26,7 @@ from perimeterwatch.branding import VERIFY_LABEL, VERIFY_PREFIX
 from perimeterwatch.clients.dns import PUBLIC_RESOLVERS, DnsClient
 from perimeterwatch.core.models import AuthLevel, Authorisation, utcnow
 from perimeterwatch.safety.netguard import is_public_ip
+from perimeterwatch.safety.targets import blocked_by
 from perimeterwatch.storage.crypto import DataKeys
 from perimeterwatch.storage.repo import TenantRepo, _aware
 from perimeterwatch.storage.tables import AuthorisationAck, TargetRow
@@ -56,8 +58,14 @@ class VerificationResult:
     detail: str
 
 
-async def _zone_nameservers(domain: str, client: DnsClient) -> list[str]:
-    """Addresses of the nameservers for the zone holding `domain`."""
+async def _zone_nameservers(
+    domain: str, client: DnsClient, never_contact: Sequence[str] = ()
+) -> list[str]:
+    """Addresses of the nameservers for the zone holding `domain`.
+
+    A nameserver on the do-not-contact list is left out. If none remains, the
+    caller falls back to public resolvers, which contact nobody's servers for us.
+    """
     labels = domain.split(".")
     for i in range(len(labels) - 1):
         zone = ".".join(labels[i:])
@@ -67,6 +75,8 @@ async def _zone_nameservers(domain: str, client: DnsClient) -> list[str]:
         addresses: list[str] = []
         for server in answer.records[:MAX_NAMESERVERS]:
             ips, _ = await client.addresses(server)
+            if blocked_by(server.rstrip(".").lower(), ips, list(never_contact)):
+                continue
             # Never send queries to an address a hostile zone could aim inward.
             addresses.extend(ip for ip in ips if is_public_ip(ip) and ":" not in ip)
         if addresses:
@@ -93,18 +103,20 @@ async def _ask(server: str, name: str, timeout: float) -> tuple[bool, list[str]]
     return bool(response.flags & dns.flags.AA), values
 
 
-async def check_dns(domain: str, token: str, *, timeout: float = 4.0) -> VerificationResult:
+async def check_dns(
+    domain: str, token: str, *, timeout: float = 4.0, never_contact: Sequence[str] = ()
+) -> VerificationResult:
     """Look for the verification record.
 
     The answer must come from the domain's own nameservers, or failing that
     from at least two independent public resolvers. A local resolver or hosts
-    file cannot satisfy this.
+    file cannot satisfy this. Nameservers on the do-not-contact list are not asked.
     """
     name = record_name(domain)
     expected = record_value(token)
     client = DnsClient(timeout_s=timeout)
 
-    servers = await _zone_nameservers(domain, client)
+    servers = await _zone_nameservers(domain, client, never_contact)
     answers = await asyncio.gather(*(_ask(s, name, timeout) for s in servers))
     authoritative = [values for a in answers if a is not None for aa, values in [a] if aa]
     if authoritative:
@@ -188,13 +200,15 @@ def ack_is_valid(ack: AuthorisationAck, domain: str, keys: DataKeys) -> bool:
 
 
 async def resolve_authorisation(
-    repo: TenantRepo, target: TargetRow, keys: DataKeys
+    repo: TenantRepo, target: TargetRow, keys: DataKeys, never_contact: Sequence[str] = ()
 ) -> Authorisation:
     """The authorisation in force right now. DNS proof is re-checked every time."""
     now = utcnow()
     verification = repo.get_verification(target.id)
     if verification is not None:
-        result = await check_dns(target.root_domain, verification.token)
+        result = await check_dns(
+            target.root_domain, verification.token, never_contact=never_contact
+        )
         verification.last_checked_at = now
         verification.last_result = result.detail[:200]
         if result.verified:

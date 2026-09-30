@@ -2,7 +2,11 @@
 
 # Legitimate interest assessment: template
 
-Status: draft template for customers of the hosted service, which has been built but is not yet deployed.
+Status: draft template for customers of the hosted service. The service has been live in beta at https://perimeterwatch.org since 30 September 2026. No lawyer has reviewed this template, and the service has had no independent security review. The legal documents are drafts under review and are not yet in force.
+
+Last updated: 30 September 2026
+
+**The breach exposure check is switched off in the hosted service today.** No breach data source is configured, so the processing this template assesses does not take place yet. Customers will be told before the check is switched on. Write your assessment before that date, not after it.
 
 ## What this is
 
@@ -28,7 +32,7 @@ Your organisation is the controller for data about your staff. If you rely on "l
 |---|---|
 | Organisation (controller) | **[YOU: legal name]** |
 | Processing assessed | Checking work email addresses at **[YOU: domain]** against known data breaches and malware logs, using Perimeterwatch |
-| Processor | **[TO DECIDE: legal name of the operating entity]** |
+| Processor | The operator of Perimeterwatch. There is no legal entity yet. The service is operated by its maintainer, known publicly as code2142, as an individual, while a non-profit entity is being set up. **[TO DECIDE: legal name of the entity, once established]** |
 | Assessment written by | **[YOU: name and role]** |
 | Date | **[YOU: date]** |
 | Approved by | **[YOU: name and role]** |
@@ -43,8 +47,9 @@ Your organisation is the controller for data about your staff. If you rely on "l
 | What is not included? | Passwords, password hashes, and any other value that was exposed. The service does not receive or store them. The names of other websites found in malware logs are discarded and never stored. |
 | Where does it come from? | Have I Been Pwned. It is not collected from the person. |
 | Who sees it? | **[YOU: roles in your organisation with access to the account, by role, not by name. Today an account has one user.]** Lists mask addresses. Full detail is shown one finding at a time, and each view is recorded. |
-| How long is it kept? | Stored scans: 90 days by default, and the latest scan of the domain for longer. A finding that has been resolved for longer than that period is deleted. A finding that is still open is kept while it stays open. Everything is deleted when we delete the domain. |
-| How is it protected? | Findings are encrypted in the service's database. Findings that name a person are produced only while our domain is verified. Reports are downloaded with addresses masked unless we ask for them to be shown. Alerts never name a person, an address or a breach. The service has not had an independent security review. |
+| How long is it kept? | Stored scans: 90 days, and the latest scan of the domain for longer. The period is one setting for the whole service. We cannot change it. A finding that has been resolved for longer than that period is deleted. A finding that is still open is kept while it stays open. Everything is deleted when we delete the domain. |
+| How is it protected? | Findings are encrypted in the service's database. Findings that name a person are produced only while our domain is verified. Reports are downloaded with addresses masked unless we ask for them to be shown. Alerts never name a person, an address or a breach. The service has not had an independent security review, and no backups of it are taken yet. |
+| Where is it kept? | In Germany, on one server at Hetzner Online GmbH. The privacy policy lists the other companies involved. |
 | Do we supply a staff list? | **[YOU: yes or no. If yes, who is on it and where it comes from.]** With a list, each finding says whether the address belongs to current staff. Today a list can be loaded with the command-line tool only. |
 
 ## Part 1: purpose test

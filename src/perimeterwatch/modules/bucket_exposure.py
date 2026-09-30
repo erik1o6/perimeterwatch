@@ -24,6 +24,7 @@ from perimeterwatch.core.models import (
 )
 from perimeterwatch.core.module import ModuleSpec, ScanModule, register
 from perimeterwatch.safety.subprocess import run_tool
+from perimeterwatch.safety.targets import blocked_by
 
 ALLOWED = 1  # the tool's value for "permission granted"
 MAX_BUCKETS = 50
@@ -75,17 +76,36 @@ class BucketExposure(ScanModule):
             return self.result(ModuleStatus.FAILED, skip_reason="DNS resolution did not complete")
 
         buckets: dict[tuple[str, str], list[str]] = {}
+        left_alone: set[tuple[str, str]] = set()
+        never = ctx.settings.never_contact
         for asset in resolved.assets:
             cname = asset.state.get("cname")
             if not cname or not ctx.in_scope(asset.key):
                 continue
             found = bucket_from(asset.key, str(cname))
-            if found:
-                buckets.setdefault(found, []).append(asset.key)
+            if not found:
+                continue
+            buckets.setdefault(found, []).append(asset.key)
+            alias = str(cname).rstrip(".").lower()
+            if blocked_by(asset.key, [], never) or blocked_by(alias, [], never):
+                left_alone.add(found)
+        notes: list[str] = []
+        if left_alone:
+            # The question goes to the storage provider, but it is about this
+            # host. An operator who asked to be left alone is left alone.
+            for key in left_alone:
+                del buckets[key]
+            notes.append(
+                f"{len(left_alone)} bucket(s) were not checked, because a name that points "
+                "at them is on the do-not-contact list."
+            )
         if not buckets:
-            return self.result(notes=["None of your DNS names points at a storage bucket."])
+            notes.append("None of your DNS names points at a storage bucket that may be checked.")
+            return self.result(notes=notes)
 
         truncated = len(buckets) > MAX_BUCKETS
+        if truncated:
+            notes.append(f"Only the first {MAX_BUCKETS} buckets were checked.")
         findings: list[Finding] = []
         checked = 0
         for provider in sorted({p for p, _ in buckets}):
@@ -108,7 +128,7 @@ class BucketExposure(ScanModule):
         return self.result(
             ModuleStatus.PARTIAL if truncated else ModuleStatus.OK,
             findings=findings,
-            notes=[f"Only the first {MAX_BUCKETS} buckets were checked."] if truncated else [],
+            notes=notes,
             stats={"buckets_found": len(buckets), "buckets_checked": checked},
         )
 
