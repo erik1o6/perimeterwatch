@@ -215,3 +215,43 @@ class TestHeaders:
     def test_api_documentation_is_not_served(self, alice: Browser) -> None:
         for path in ("/docs", "/redoc", "/openapi.json"):
             assert alice.client.get(path).status_code == 404
+
+
+class TestPublicPage:
+    def test_signed_out_visitors_get_the_public_page(self, browser: Any) -> None:
+        b: Browser = browser()
+        response = b.get("/")
+        assert response.status_code == 200
+        body = response.text
+        assert "What it checks today" in body
+        assert "Coming with funding" in body
+        assert "Breach and malware-log alerts" in body
+        assert "Breach exposure" not in body, "the paid check is not listed as available"
+        assert 'href="/login"' in body
+        assert 'content="index, follow"' in body
+        assert "Content-Security-Policy" in response.headers
+
+    def test_every_check_but_breach_is_listed(self, browser: Any) -> None:
+        from perimeterwatch.core.module import all_modules
+
+        body = browser().get("/").text
+        for module in all_modules().values():
+            spec = module.spec
+            assert (spec.title in body) == (spec.category.value != "breach"), spec.name
+
+    def test_signed_in_visitors_go_to_their_domains(self, alice: Browser) -> None:
+        response = alice.get("/")
+        assert response.status_code == 303
+        assert response.headers["location"] == "/targets"
+
+    def test_scan_sources_and_abuse_address_are_shown_when_set(
+        self, browser: Any, app: Any
+    ) -> None:
+        app.state.settings.scan_sources = ["203.0.113.7", "2001:db8::7"]
+        app.state.settings.abuse_email = "abuse@acme-protocol.xyz"
+        body = browser().get("/").text
+        assert "203.0.113.7" in body and "2001:db8::7" in body
+        assert "mailto:abuse@acme-protocol.xyz" in body
+
+    def test_other_pages_stay_out_of_search_engines(self, browser: Any) -> None:
+        assert 'content="noindex, nofollow"' in browser().get("/login").text

@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 <title>{% block title %}{{ product }}{% endblock %}</title>
 <link rel="stylesheet" href="/report.css">
 <link rel="stylesheet" href="/static/app.css">

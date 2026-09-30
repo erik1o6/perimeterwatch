@@ -20,6 +20,7 @@ from perimeterwatch.config import Settings
 from perimeterwatch.core.diff import compute_diff
 from perimeterwatch.core.errors import ValidationError
 from perimeterwatch.core.models import (
+    Category,
     Finding,
     JobBoardRef,
     SafeRef,
@@ -29,6 +30,7 @@ from perimeterwatch.core.models import (
     Target,
     utcnow,
 )
+from perimeterwatch.core.module import all_modules
 from perimeterwatch.report.build import ReportData, _redact_personal, build_report
 from perimeterwatch.report.render_html import render_html
 from perimeterwatch.report.render_json import render_json
@@ -46,6 +48,7 @@ from perimeterwatch.storage.tables import AlertDelivery, Scan, TargetRow
 from perimeterwatch.web import auth, mail
 from perimeterwatch.web.deps import (
     Auth,
+    NotSignedIn,
     client_ip,
     get_db,
     get_settings,
@@ -65,6 +68,27 @@ SignedIn = Annotated[Auth, Depends(require_auth)]
 Editor = Annotated[Auth, Depends(require_editor)]
 Db = Annotated[Session, Depends(get_db)]
 Config = Annotated[Settings, Depends(get_settings)]
+
+# How the public page groups the checks. Breach exposure is left out: it needs
+# paid data and is presented as coming later.
+PUBLIC_GROUPS: tuple[tuple[str, tuple[Category, ...]], ...] = (
+    ("Domains, DNS and servers", (Category.SURFACE, Category.TAKEOVER)),
+    ("Email", (Category.EMAIL,)),
+    ("Lookalikes and phishing", (Category.LOOKALIKE,)),
+    ("Public code and packages", (Category.SECRETS, Category.SUPPLY_CHAIN)),
+    ("Web3", (Category.WEB3,)),
+    ("Reachable services", (Category.VULN,)),
+)
+
+
+def public_checks() -> list[tuple[str, list[tuple[str, str]]]]:
+    """(group, [(title, depth)]) for every check the public page lists."""
+    specs = sorted((m.spec for m in all_modules().values()), key=lambda s: (s.mode.rank, s.title))
+    return [
+        (label, [(s.title, s.mode.value) for s in specs if s.category in cats])
+        for label, cats in PUBLIC_GROUPS
+    ]
+
 
 SENT_MESSAGE = (
     "If that address can sign in, a link is on its way. It works once and expires in 15 minutes."
@@ -123,7 +147,20 @@ def healthz() -> dict[str, str]:
 
 
 @router.get("/", response_class=HTMLResponse)
-def home(who: SignedIn) -> Response:
+def home(request: Request, db: Db, settings: Config) -> Response:
+    """The public page: what the service does, and how to reach its operator."""
+    try:
+        require_auth(request, db)
+    except NotSignedIn:
+        return page(
+            request,
+            "home.html",
+            None,
+            checks=public_checks(),
+            scan_sources=settings.scan_sources,
+            abuse_email=settings.abuse_email,
+            signup_open=settings.signup_open,
+        )
     return back("/targets")
 
 

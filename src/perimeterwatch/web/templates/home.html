@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block robots %}<meta name="robots" content="index, follow">{% endblock %}
+{% block title %}{{ product }}: see what the internet sees of your organisation{% endblock %}
+{% block content %}
+<div class="masthead">
+  <div class="eyebrow">{{ product }} · open source · non-profit · beta</div>
+  <h1>See what the internet sees of your organisation, and hear when it changes.</h1>
+  <p class="lede">{{ product }} watches the public attack surface of a crypto organisation: its domains,
+  mail, certificates, public code, packages, multisigs and contracts. It scans only domains whose owners
+  asked, and reports every change since the last scan.</p>
+  <p class="actions"><a class="button" href="/login">Sign in or create an account</a>
+  <a class="button quiet" href="https://github.com/erik1o6/perimeterwatch">Source code</a>
+  <a class="button quiet" href="https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report">Sample report</a></p>
+</div>
+
+<h2>How it works</h2>
+<ol class="steps">
+  <li><strong>Prove control of a domain.</strong> Add one DNS record. Nothing is scanned before it is
+  in place, and it is checked again before every scan.</li>
+  <li><strong>Choose how deep to look.</strong> <em>Passive</em> reads public records only and sends
+  nothing to your hosts. <em>Probe</em> makes one ordinary request per host. <em>Active</em> checks
+  open ports and known misconfigurations, read-only.</li>
+  <li><strong>Read the report, then hear about changes.</strong> The first report is the map. After
+  that, scans repeat on a schedule and you are told what is new, what was fixed, and what changed:
+  a new signer on a Safe, a certificate about to expire, a lookalike domain that started taking mail.</li>
+</ol>
+
+<h2>What it checks today</h2>
+<p class="lede">{{ checks | map(attribute=1) | map('length') | sum }} checks. Each one says what it
+contacts and what it found, and none of them gives your organisation a score or a grade.</p>
+<div class="checks">
+{% for label, items in checks %}
+  <div class="card">
+    <h3>{{ label }}</h3>
+    <ul>
+    {% for title, depth in items %}<li>{{ title }} <span class="tag depth-{{ depth }}">{{ depth }}</span></li>{% endfor %}
+    </ul>
+  </div>
+{% endfor %}
+</div>
+
+<h2>What it never does</h2>
+<ul class="plain">
+  <li>It never scans a domain without proof of control, and it never guesses hostnames.</li>
+  <li>It never contacts private addresses, the addresses of other organisations, or a host whose
+  operator asked to be left alone.</li>
+  <li>It never stores a password or a secret. A leaked credential is reported by where it is, not by
+  what it is.</li>
+  <li>It never sends your domain to a third-party lookup service to be matched against a list.
+  Lists are downloaded and matched here.</li>
+  <li>It never shows one organisation anything about another.</li>
+</ul>
+
+<h2>Coming with funding</h2>
+<p class="lede">{{ product }} is applying for grant funding. The service is free now and will stay free.
+These parts wait for the money to pay for data, reviews and time.</p>
+<ul class="soon">
+  <li><span class="tag soon">coming soon</span> <strong>Breach and malware-log alerts.</strong> Staff
+  addresses seen in a breach or in the logs of infostealer malware. The check is built and switched
+  off, because the data costs money.</li>
+  <li><span class="tag soon">coming soon</span> <strong>Independent security review</strong> of the
+  service itself, before organisations beyond the pilot group are onboarded.</li>
+  <li><span class="tag soon">coming soon</span> <strong>Terms of service and privacy policy</strong>
+  reviewed by a lawyer. Drafts exist and are public in the repository.</li>
+  <li><span class="tag soon">coming soon</span> <strong>Build pipeline audit.</strong> Workflows in your
+  public repositories that could run an outsider's code with your publishing secrets.</li>
+  <li><span class="tag soon">coming soon</span> <strong>Timelock watch.</strong> Operations queued on
+  your timelock, shortened delays and new role holders, before they execute.</li>
+  <li><span class="tag soon">coming soon</span> <strong>Evidence for others.</strong> A report format
+  that security ratings and certification efforts can read, with your consent, so you prove your
+  posture once.</li>
+</ul>
+
+<h2>For operators of scanned hosts</h2>
+<p>If {{ product }} appears in your logs, the owner of the domain it was scanning asked for the scan.
+Every request carries a User-Agent that names this page{% if abuse_email %} and an address for
+complaints{% endif %}.</p>
+{% if scan_sources %}
+<p>Scans come from these addresses only:</p>
+<ul class="plain mono">{% for a in scan_sources %}<li>{{ a }}</li>{% endfor %}</ul>
+{% endif %}
+{% if abuse_email %}
+<p>To have a host left alone, write to <a href="mailto:{{ abuse_email }}">{{ abuse_email }}</a>.
+The host goes on a list that no scan will contact. No explanation is needed.</p>
+{% endif %}
+<p>To report a vulnerability in {{ product }} itself, see
+<a href="/.well-known/security.txt">/.well-known/security.txt</a>.</p>
+
+<footer class="foot">
+  <p>{{ product }} is open source under the Apache License 2.0. The service is in beta{% if not signup_open %} and
+  accounts are created by invitation{% endif %}. Legal documents are drafts under review and not yet in force.</p>
+</footer>
+{% endblock %}

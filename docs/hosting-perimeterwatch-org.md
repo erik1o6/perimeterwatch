@@ -132,11 +132,11 @@ PW_BASE_URL=https://perimeterwatch.org
 PW_CONTACT_URL=https://perimeterwatch.org
 PW_ABUSE_EMAIL=abuse@perimeterwatch.org
 PW_MAIL_FROM=Perimeterwatch <no-reply@perimeterwatch.org>
-PW_SIGNUP_OPEN=false
+PW_SCAN_SOURCES=["162.55.43.236","2a01:4f8:c016:78c3::1"]
 ```
 
-`PW_SIGNUP_OPEN=false` keeps strangers from creating accounts while the service is for
-your own use. Create your own account first, then set it.
+Add `PW_SIGNUP_OPEN=false` to stop strangers creating accounts. It is left open during
+the beta so that pilot organisations can join.
 
 Then point the domain at the server:
 
@@ -167,9 +167,10 @@ scanner in their logs will open it. The page should say, briefly:
   request is honoured by adding the host to a list no scan will contact;
 - how to report a vulnerability in the service.
 
-The sign-in page is what the service serves at `/` today. This page does not exist yet.
-Until it does, `/.well-known/security.txt` is served by the proxy: replace the
-placeholders in `docs/legal/security.txt` before going live.
+The service serves this page at `/` to visitors who are not signed in. Set
+`PW_SCAN_SOURCES` to the server's addresses so the page can show them. The proxy serves
+`/.well-known/security.txt`: replace the placeholders in `docs/legal/security.txt` before
+going live.
 
 ## Step 6: check the result
 

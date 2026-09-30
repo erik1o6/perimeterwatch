@@ -79,6 +79,9 @@ class Settings(BaseSettings):
 
     contact_url: str = "https://perimeterwatch.org"
     abuse_email: str | None = None
+    # Addresses that scan traffic leaves from, shown on the public page so that
+    # operators of scanned hosts can recognise the scanner in their logs.
+    scan_sources: list[str] = Field(default_factory=list)
 
     retention_days: int = 90
     concurrency: int = 4
