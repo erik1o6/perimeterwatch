@@ -9,9 +9,11 @@ looks for lookalike domains, dangling DNS records, credentials left in public co
 to your multisig signers, and staff addresses in breach data. Each scan is compared with the
 last, so you see what is new.
 
-> **Status: prototype.** The command-line tool and the hosted web service both work and are
-> covered by automated tests. Neither has had an independent security review, and the legal
-> documents in `docs/legal/` are unreviewed drafts. Do not offer it to other organisations yet.
+> **Status: beta.** The command-line tool works, and the hosted service runs at
+> [perimeterwatch.org](https://perimeterwatch.org). Both are covered by automated tests.
+> Neither has had an independent security review, and the
+> [legal documents](https://perimeterwatch.org/legal) are drafts that no lawyer has reviewed.
+> Rely on it accordingly.
 
 ## What it checks
 
@@ -153,7 +155,8 @@ domains you own: see `tests/integration/README.md`.
 - `docs/sample-report/`: a real report, from a scan of the project's own domain
 - `docs/report.schema.json`: the format of `report.json`
 - `docs/grant/`: funding proposal drafts
-- `docs/legal/`: terms, privacy and policy drafts, not yet reviewed by a lawyer
+- `src/perimeterwatch/legal/`: terms, privacy and policy drafts, not yet reviewed by a lawyer. The hosted
+  service serves them at `/legal`. `docs/legal/README.md` lists what is still open
 
 ## Licence
 

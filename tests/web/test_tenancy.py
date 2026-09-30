@@ -28,7 +28,7 @@ SAMPLE = {
 # Routes that take no identifier and only ever act on the caller's own tenant.
 NO_IDENTIFIER = {
     "/", "/login", "/logout", "/healthz", "/report.css", "/targets", "/alerts", "/audit",
-    "/auth/{token}",
+    "/auth/{token}", "/legal", "/legal/{slug}", "/.well-known/security.txt",
 }  # fmt: skip
 
 

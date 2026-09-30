@@ -23,8 +23,8 @@ from perimeterwatch.storage.db import Database
 from perimeterwatch.web.deps import ANON_CSRF_COOKIE, NotSignedIn
 
 PAGE_CSP = (
-    "default-src 'none'; style-src 'self'; img-src 'self' data:; form-action 'self'; "
-    "base-uri 'none'; frame-ancestors 'none'"
+    "default-src 'none'; style-src 'self'; img-src 'self' data:; font-src 'self'; "
+    "form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
 )
 MAX_BODY_BYTES = 1_200_000
 
@@ -40,6 +40,17 @@ def make_templates() -> Jinja2Templates:
     env.filters.update(when=_when, label=_label, value=_value, ucfirst=_ucfirst)
     env.globals.update(product=PRODUCT_NAME, version=__version__)
     return Jinja2Templates(env=env)
+
+
+def site_context(request: Request) -> dict[str, Any]:
+    """What the shared header and footer need on every page."""
+    settings: Settings = request.app.state.settings
+    return {
+        "abuse_email": settings.abuse_email,
+        "security_email": settings.security_email,
+        "contact_email": settings.contact_email,
+        "signup_open": settings.signup_open,
+    }
 
 
 def create_app(settings: Settings, database: Database) -> FastAPI:
@@ -97,7 +108,7 @@ def create_app(settings: Settings, database: Database) -> FastAPI:
         return app.state.templates.TemplateResponse(  # type: ignore[no-any-return]
             request, "error.html",
             {"status": status, "message": message, "who": None,
-             "csrf": getattr(request.state, "anon_csrf", "")},
+             "csrf": getattr(request.state, "anon_csrf", ""), **site_context(request)},
             status_code=status,
         )  # fmt: skip
 

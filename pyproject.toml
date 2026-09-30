@@ -32,6 +32,7 @@ dependencies = [
     "python-multipart>=0.0.20",
     "websockets>=14",
     "ssh-audit==3.9.0",
+    "markdown-it-py>=3.0",
 ]
 
 [project.scripts]

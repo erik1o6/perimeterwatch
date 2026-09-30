@@ -91,7 +91,7 @@ jobs:
       - name: Every legal document is marked as a draft
         run: |
           status=0
-          for file in docs/legal/*; do
+          for file in docs/legal/*.md src/perimeterwatch/legal/*.md; do
             if ! head -n 1 "$file" | grep -q "DRAFT. Not legal advice. Requires review by a qualified lawyer"; then
               echo "::error file=$file::missing the draft banner on its first line"
               status=1

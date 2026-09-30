@@ -23,6 +23,8 @@ Every setting is an environment variable. Update this file when a setting is add
 | `PW_NEVER_CONTACT` | empty | Hosts, addresses or networks that must never be contacted, as a JSON list. |
 | `PW_LICENSED_SOURCES` | empty | Data sources whose licence you hold allows use in a service for other organisations, as a JSON list. Without an entry, a hosted deployment does not use the VirusTotal or SecurityTrails keys. |
 | `PW_SCAN_SOURCES` | empty | Addresses scan traffic leaves from, as a JSON list. Shown on the public page. |
+| `PW_SECURITY_EMAIL` | none | Where to report a vulnerability in the service. When set, the service answers `/.well-known/security.txt`. |
+| `PW_CONTACT_EMAIL` | none | A general contact address, shown on the public pages. |
 | `PW_BREACH_PROVIDERS` | ['hibp'] | Breach sources to use, as a JSON list. |
 | `PW_HUDSONROCK_ENABLED` | false | Use Hudson Rock's count-only lookup. Needs their written permission in a hosted service. |
 | `PW_BASE_URL` | http://127.0.0.1:8000 | Public address of the web service. Used in sign-in links and alerts. |

@@ -4,7 +4,7 @@ This service will hold a map of the weak points of every organisation that uses 
 the server as a target.
 
 > Do not take on outside organisations until an independent security review is done and a
-> lawyer has reviewed the documents in `docs/legal/`.
+> lawyer has reviewed the legal drafts in `src/perimeterwatch/legal/`.
 
 ## Before the first deployment
 
@@ -36,8 +36,10 @@ docker run --rm perimeterwatch:local db new-key
 Put it in `PW_DATA_KEYS`. **If this key is lost, stored findings cannot be read.** Keep a
 copy somewhere other than the server.
 
-Replace the placeholders in `docs/legal/security.txt` before going live. The proxy serves
-it at `/.well-known/security.txt`.
+Set `PW_SECURITY_EMAIL`, and the service answers `/.well-known/security.txt` (RFC 9116)
+with that contact, a link to the disclosure policy and an expiry date that it keeps current.
+Set `PW_ABUSE_EMAIL`, `PW_CONTACT_EMAIL` and `PW_SCAN_SOURCES` too: the public page and the
+legal pages show them.
 
 Check the result:
 
@@ -114,8 +116,8 @@ entries about it remain.
 
 ## Abuse reports and opt-outs
 
-Someone whose host received scan traffic may ask for it to stop. `docs/legal/opt-out.md`
-is the draft policy. To act on a request:
+Someone whose host received scan traffic may ask for it to stop.
+`src/perimeterwatch/legal/opt-out.md` is the draft policy, served at `/legal/opt-out`. To act on a request:
 
 1. Add the host name, address or network to `PW_NEVER_CONTACT` and restart the worker.
    From then on no scan contacts it, whatever domain it appears under.

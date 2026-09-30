@@ -51,7 +51,15 @@ to publish your changes.
 
 Installed from PyPI under their own licences. The full list with versions is in `uv.lock`.
 The main ones: pydantic, SQLAlchemy, Alembic, FastAPI, Uvicorn, httpx, dnspython, checkdmarc,
-dnstwist, cryptography, Jinja2, Typer, structlog, tldextract, PyYAML, eth-utils.
+dnstwist, cryptography, Jinja2, Typer, structlog, tldextract, PyYAML, eth-utils,
+markdown-it-py.
+
+## Typeface
+
+The pages of the hosted service use Inter, by The Inter Project Authors, under the SIL Open
+Font License 1.1. The file `src/perimeterwatch/web/static/fonts/InterVariable-latin.woff2`
+is a subset of `InterVariable.woff2` from release 4.1 (https://github.com/rsms/inter),
+cut down to Latin characters. The licence text is beside it.
 
 `src/perimeterwatch/data/takeover_services.json`, `dkim_selectors.txt` and
 `tech_keywords.json` were written for this project.

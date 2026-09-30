@@ -43,26 +43,3 @@ button.link { border: 0; background: none; color: var(--accent); padding: 0; mar
 .muted { color: var(--muted); }
 td form { margin: 0; }
 td button { margin: 0; padding: 6px 10px; }
-
-/* Public page */
-.actions { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
-a.button {
-  display: inline-block; font: 600 0.9rem/1 ui-sans-serif, system-ui, sans-serif; padding: 10px 16px;
-  color: var(--bg); background: var(--accent); border: 1px solid var(--accent); border-radius: 4px;
-  text-decoration: none;
-}
-a.button.quiet { color: var(--accent); background: transparent; }
-.steps { padding-left: 1.4em; max-width: 72ch; }
-.steps li { margin: 0 0 12px; }
-.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
-.checks .card { margin: 0; }
-.checks ul { margin: 0; padding-left: 1.2em; font-size: 0.95rem; }
-.checks li { margin: 4px 0; }
-.tag.depth-passive { background: var(--code-bg); color: var(--muted); }
-.tag.depth-probe { background: var(--code-bg); color: var(--ink); }
-.tag.depth-active { background: var(--ink); color: var(--bg); }
-.tag.soon { background: var(--accent); color: var(--bg); }
-ul.plain { padding-left: 1.2em; max-width: 72ch; }
-ul.plain li, ul.soon li { margin: 0 0 8px; }
-ul.soon { list-style: none; padding: 0; max-width: 72ch; }
-.foot { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }

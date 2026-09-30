@@ -8,13 +8,6 @@
 {$SITE_ADDRESS} {
 	encode gzip
 
-	# RFC 9116. Replace the placeholders in docs/legal/security.txt before going live.
-	handle /.well-known/security.txt {
-		root * /srv/well-known
-		rewrite * /security.txt
-		file_server
-	}
-
 	handle {
 		reverse_proxy app:8000 {
 			# Replace, never append: the app trusts the last entry of this header.

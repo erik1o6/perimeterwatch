@@ -44,8 +44,8 @@ The project has not yet made a stable release. Until it does, fixes are made on 
 
 ## Full policy
 
-The full draft policy, including scope, safe harbour, response targets and what not to do, is in [docs/legal/vulnerability-disclosure.md](docs/legal/vulnerability-disclosure.md). That document is a draft and has not yet had legal review.
+The full draft policy, including scope, safe harbour, response targets and what not to do, is in [src/perimeterwatch/legal/vulnerability-disclosure.md](src/perimeterwatch/legal/vulnerability-disclosure.md). That document is a draft and has not yet had legal review.
 
 ## Not a security report
 
-If you operate a host that received traffic from a Perimeterwatch scan and you want it to stop, see [docs/legal/opt-out.md](docs/legal/opt-out.md).
+If you operate a host that received traffic from a Perimeterwatch scan and you want it to stop, see [src/perimeterwatch/legal/opt-out.md](src/perimeterwatch/legal/opt-out.md).

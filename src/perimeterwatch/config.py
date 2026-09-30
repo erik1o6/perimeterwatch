@@ -79,6 +79,11 @@ class Settings(BaseSettings):
 
     contact_url: str = "https://perimeterwatch.org"
     abuse_email: str | None = None
+    # A general contact address, shown on the public pages.
+    contact_email: str | None = None
+    # Where to report a vulnerability in the service. When set, the service
+    # answers /.well-known/security.txt (RFC 9116) with it.
+    security_email: str | None = None
     # Addresses that scan traffic leaves from, shown on the public page so that
     # operators of scanned hosts can recognise the scanner in their logs.
     scan_sources: list[str] = Field(default_factory=list)

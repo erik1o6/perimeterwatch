@@ -1,93 +1,234 @@
 {% extends "base.html" %}
+{% from "icons.html" import icon %}
 {% block robots %}<meta name="robots" content="index, follow">{% endblock %}
 {% block title %}{{ product }}: see what the internet sees of your organisation{% endblock %}
+{% block description %}<meta name="description" content="Opt-in monitoring of the public attack surface of crypto organisations: domains, mail, certificates, public code, packages, multisigs and contracts. Open source and free.">{% endblock %}
+{% block body_class %}landing{% endblock %}
+{% block main_class %}landing-main{% endblock %}
 {% block content %}
-<div class="masthead">
-  <div class="eyebrow">{{ product }} · open source · non-profit · beta</div>
-  <h1>See what the internet sees of your organisation, and hear when it changes.</h1>
-  <p class="lede">{{ product }} watches the public attack surface of a crypto organisation: its domains,
-  mail, certificates, public code, packages, multisigs and contracts. It scans only domains whose owners
-  asked, and reports every change since the last scan.</p>
-  <p class="actions"><a class="button" href="/login">Sign in or create an account</a>
-  <a class="button quiet" href="https://github.com/erik1o6/perimeterwatch">Source code</a>
-  <a class="button quiet" href="https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report">Sample report</a></p>
-</div>
 
-<h2>How it works</h2>
-<ol class="steps">
-  <li><strong>Prove control of a domain.</strong> Add one DNS record. Nothing is scanned before it is
-  in place, and it is checked again before every scan.</li>
-  <li><strong>Choose how deep to look.</strong> <em>Passive</em> reads public records only and sends
-  nothing to your hosts. <em>Probe</em> makes one ordinary request per host. <em>Active</em> checks
-  open ports and known misconfigurations, read-only.</li>
-  <li><strong>Read the report, then hear about changes.</strong> The first report is the map. After
-  that, scans repeat on a schedule and you are told what is new, what was fixed, and what changed:
-  a new signer on a Safe, a certificate about to expire, a lookalike domain that started taking mail.</li>
-</ol>
+<section class="hero">
+  <div class="wrap">
+    <p class="pill">Open source <span>·</span> Non-profit <span>·</span> Beta</p>
+    <h1>See what the internet sees of you. <span class="accent">Hear when it changes.</span></h1>
+    <p class="sub">{{ product }} watches the public attack surface of a crypto organisation: its domains,
+    mail, certificates, public code, packages, multisigs and contracts. It scans only domains whose owners
+    asked, and it is free.</p>
+    <p class="cta">
+      <a class="button" href="/login">Start monitoring a domain</a>
+      <a class="button ghost" href="https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report">See a sample report</a>
+    </p>
+    <p class="trust">Opt-in only <span>·</span> Proof of domain control <span>·</span> No scores <span>·</span> Apache-2.0</p>
 
-<h2>What it checks today</h2>
-<p class="lede">{{ checks | map(attribute=1) | map('length') | sum }} checks. Each one says what it
-contacts and what it found, and none of them gives your organisation a score or a grade.</p>
-<div class="checks">
-{% for label, items in checks %}
-  <div class="card">
-    <h3>{{ label }}</h3>
-    <ul>
-    {% for title, depth in items %}<li>{{ title }} <span class="tag depth-{{ depth }}">{{ depth }}</span></li>{% endfor %}
-    </ul>
+    <div class="panel" role="img" aria-label="Example of a report: four changes since the last scan of an example domain">
+      <div class="panel-bar">
+        <span class="dots"><i></i><i></i><i></i></span>
+        <span class="panel-title">acme-protocol.xyz</span>
+        <span class="panel-note">Example report</span>
+      </div>
+      <div class="panel-body">
+        <div class="panel-meta">
+          <div><span>Scan</span>30 September 2026, 06:00 UTC</div>
+          <div><span>Depth</span>Active</div>
+          <div><span>Authorisation</span>DNS verified</div>
+          <div><span>Open findings</span><b class="c-high">2 high</b> <b class="c-medium">3 medium</b> <b class="c-low">6 low</b></div>
+        </div>
+        <h2 class="panel-h">Since the last scan</h2>
+        <ul class="changes">
+          <li>
+            <span class="state new">New</span><span class="tag sev-high">high</span>
+            <span class="what">A module was enabled on your treasury Safe. A module can move funds without an owner's signature.<code>web3.safe.module_enabled</code></span>
+          </li>
+          <li>
+            <span class="state changed">Changed</span><span class="tag sev-high">high</span>
+            <span class="what">The scripts served by app.acme-protocol.xyz changed. Two files are new since yesterday.<code>frontend.scripts</code></span>
+          </li>
+          <li>
+            <span class="state new">New</span><span class="tag sev-medium">medium</span>
+            <span class="what">The lookalike domain acme-protoco1.xyz now accepts mail and is on a phishing blocklist.<code>lookalike.reported_phishing</code></span>
+          </li>
+          <li>
+            <span class="state resolved">Resolved</span><span class="tag sev-high">high</span>
+            <span class="what">Your DMARC policy now rejects mail that pretends to come from you.<code>email.dmarc.missing</code></span>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
-{% endfor %}
-</div>
+</section>
 
-<h2>What it never does</h2>
-<ul class="plain">
-  <li>It never scans a domain without proof of control, and it never guesses hostnames.</li>
-  <li>It never contacts private addresses, the addresses of other organisations, or a host whose
-  operator asked to be left alone.</li>
-  <li>It never stores a password or a secret. A leaked credential is reported by where it is, not by
-  what it is.</li>
-  <li>It never sends your domain to a third-party lookup service to be matched against a list.
-  Lists are downloaded and matched here.</li>
-  <li>It never shows one organisation anything about another.</li>
-</ul>
+<section class="band">
+  <div class="wrap stats">
+    <div><b>{{ check_count }}</b><span>checks running today</span></div>
+    <div><b>{{ kind_count }}</b><span>kinds of finding, each with a fix</span></div>
+    <div><b>3</b><span>depths, chosen by you</span></div>
+    <div><b>0</b><span>scores, grades or public listings</span></div>
+  </div>
+</section>
 
-<h2>Coming with funding</h2>
-<p class="lede">{{ product }} is applying for grant funding. The service is free now and will stay free.
-These parts wait for the money to pay for data, reviews and time.</p>
-<ul class="soon">
-  <li><span class="tag soon">coming soon</span> <strong>Breach and malware-log alerts.</strong> Staff
-  addresses seen in a breach or in the logs of infostealer malware. The check is built and switched
-  off, because the data costs money.</li>
-  <li><span class="tag soon">coming soon</span> <strong>Independent security review</strong> of the
-  service itself, before organisations beyond the pilot group are onboarded.</li>
-  <li><span class="tag soon">coming soon</span> <strong>Terms of service and privacy policy</strong>
-  reviewed by a lawyer. Drafts exist and are public in the repository.</li>
-  <li><span class="tag soon">coming soon</span> <strong>Build pipeline audit.</strong> Workflows in your
-  public repositories that could run an outsider's code with your publishing secrets.</li>
-  <li><span class="tag soon">coming soon</span> <strong>Timelock watch.</strong> Operations queued on
-  your timelock, shortened delays and new role holders, before they execute.</li>
-  <li><span class="tag soon">coming soon</span> <strong>Evidence for others.</strong> A report format
-  that security ratings and certification efforts can read, with your consent, so you prove your
-  posture once.</li>
-</ul>
+<section id="how" class="section">
+  <div class="wrap two">
+    <div>
+      <p class="kicker">How it works</p>
+      <h2>One DNS record. Then it watches.</h2>
+      <ol class="steps">
+        <li>
+          <h3>Prove control of a domain</h3>
+          <p>Add one TXT record where your DNS is managed. Nothing is scanned before it is in place, and it is
+          checked again before every scan.</p>
+        </li>
+        <li>
+          <h3>Choose how deep to look</h3>
+          <p><b>Passive</b> reads public records and sends nothing to your hosts. <b>Probe</b> makes one
+          ordinary request per host. <b>Active</b> checks open ports and known misconfigurations, read-only.</p>
+        </li>
+        <li>
+          <h3>Read the report, then hear about changes</h3>
+          <p>The first report is the map. After that, scans repeat on a schedule and you are told what is new,
+          what was fixed and what changed, by email, Slack, Discord or Telegram.</p>
+        </li>
+      </ol>
+    </div>
+    <div class="term" aria-label="Example of the DNS record and of a scan from the command line">
+      <div class="panel-bar"><span class="dots"><i></i><i></i><i></i></span><span class="panel-title">dns and terminal</span></div>
+<pre><span class="c">; 1. prove control</span>
+_perimeterwatch-verify.acme-protocol.xyz.
+  300  IN  TXT  <span class="s">"pw-verify=3kP9vX…"</span>
 
-<h2>For operators of scanned hosts</h2>
-<p>If {{ product }} appears in your logs, the owner of the domain it was scanning asked for the scan.
-Every request carries a User-Agent that names this page{% if abuse_email %} and an address for
-complaints{% endif %}.</p>
+<span class="c"># 2. scan, from the site or your own machine</span>
+<span class="p">$</span> pwatch scan acme-protocol.xyz --active
+  <span class="ok">ok</span>  email_posture      2 findings
+  <span class="ok">ok</span>  safe_modules       1 finding
+  <span class="ok">ok</span>  lookalikes         3 findings
+  <span class="ok">ok</span>  ports              0 findings
+
+<span class="c"># 3. what changed</span>
+acme-protocol.xyz: <span class="h">2 high</span>  <span class="m">3 medium</span>  6 low
+Since the last scan: 2 new, 1 resolved, 1 changed.</pre>
+    </div>
+  </div>
+</section>
+
+<section id="checks" class="section alt">
+  <div class="wrap">
+    <p class="kicker">What it checks today</p>
+    <h2>{{ check_count }} checks, from your DNS to your multisig.</h2>
+    <p class="lead">Each check says what it contacts and what it found. None of them gives your organisation a
+    score or a grade.</p>
+    <p class="legend"><span><i class="d-passive"></i>Passive: public records only</span><span><i class="d-probe"></i>Probe: one request per host</span><span><i class="d-active"></i>Active: ports and misconfigurations</span></p>
+    <div class="grid">
+    {% for label, name, items in checks %}
+      <div class="cell">
+        {{ icon(name) }}
+        <h3>{{ label }}</h3>
+        <ul>
+        {% for title, depth in items %}<li><i class="d-{{ depth }}" title="{{ depth }}"></i>{{ title }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+    </div>
+    <p class="more"><a href="https://github.com/erik1o6/perimeterwatch/blob/main/docs/modules.md">Every check, what it contacts and every finding it can raise →</a></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <p class="kicker">Safeguards</p>
+    <h2>What it never does.</h2>
+    <p class="lead">A service that maps weak points has to be safe to say yes to. These rules are enforced in the
+    code and covered by tests, not only promised.</p>
+    <div class="principles">
+      <div>{{ icon("shield") }}<h3>Never scans without proof</h3><p>No domain is scanned until its owner proves control by DNS record. The proof is checked again before every scan.</p></div>
+      <div>{{ icon("target") }}<h3>Never guesses</h3><p>It reads names from public records. It does not guess hostnames, passwords or paths, and sends read-only requests.</p></div>
+      <div>{{ icon("ban") }}<h3>Never strays</h3><p>It refuses private addresses, hosts outside your domain, and any host whose operator asked to be left alone.</p></div>
+      <div>{{ icon("lock") }}<h3>Never keeps a secret</h3><p>A leaked credential is reported by where it is, not by what it is. No password is stored or shown.</p></div>
+      <div>{{ icon("download") }}<h3>Never hands your name to a list</h3><p>Blocklists are downloaded whole and matched here. Your domain is not sent to a lookup service.</p></div>
+      <div>{{ icon("split") }}<h3>Never mixes organisations</h3><p>One organisation cannot see anything about another. Sensitive fields are encrypted at rest, and views of them are logged.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap" class="section alt">
+  <div class="wrap">
+    <p class="kicker">Roadmap</p>
+    <h2>Free now. Funding decides how far it goes.</h2>
+    <p class="lead">{{ product }} is applying for grant funding. The service is free and stays free. What waits is
+    what costs money: data, outside review and time.</p>
+    <div class="roadmap">
+      <div class="col">
+        <h3><span class="state resolved">Live</span> In the beta today</h3>
+        <ul>
+          <li><b>{{ check_count }} checks at three depths</b>Domains, mail, certificates, code, packages, multisigs, contracts.</li>
+          <li><b>Change alerts</b>Email, Slack, Discord and Telegram, with no sensitive detail in the message.</li>
+          <li><b>Scheduled scans</b>Daily or weekly, with proof of control checked each time.</li>
+          <li><b>Reports to keep</b>HTML and JSON, with a published schema.</li>
+          <li><b>Audit log</b>Who looked at what, and when.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3><span class="state soon">Coming soon</span> First, with funding</h3>
+        <ul>
+          <li><b>Breach and malware-log alerts</b>Staff addresses seen in a breach or in infostealer logs. Built and switched off: the data costs money.</li>
+          <li><b>Independent security review</b>Of the service itself, with the fixes published.</li>
+          <li><b>Lawyer-reviewed terms and privacy policy</b>The <a href="/legal">drafts</a> are public now.</li>
+          <li><b>Backups and monitoring</b>So that organisations can rely on it.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3><span class="state soon">Coming soon</span> Then</h3>
+        <ul>
+          <li><b>Build pipeline audit</b>Workflows in your public repositories that could run an outsider's code with your publishing secrets.</li>
+          <li><b>Timelock watch</b>Operations queued on your timelock, shortened delays and new role holders, before they execute.</li>
+          <li><b>Evidence for others</b>A report format that security ratings and certification efforts can read, with your consent.</li>
+          <li><b>More voices</b>A second maintainer, and a non-profit to hold the service.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="operators" class="section">
+  <div class="wrap two">
+    <div>
+      <p class="kicker">For operators of scanned hosts</p>
+      <h2>Found us in your logs?</h2>
+      <p class="lead">Then the owner of the domain being scanned asked for the scan. Every web request carries a
+      User-Agent that names this site{% if abuse_email %} and an address for complaints{% endif %}.</p>
+      {% if abuse_email %}
+      <p>To have a host left alone, write to <a href="mailto:{{ abuse_email }}">{{ abuse_email }}</a>. The host
+      goes on a list that no scan will contact. No explanation is needed. The
+      <a href="/legal/opt-out">opt-out page</a> has the details.</p>
+      {% endif %}
+      {% if security_email %}
+      <p>To report a vulnerability in {{ product }} itself, see the
+      <a href="/legal/vulnerability-disclosure">disclosure policy</a> or
+      <a href="/.well-known/security.txt">security.txt</a>.</p>
+      {% endif %}
+    </div>
+    <div class="term">
+      <div class="panel-bar"><span class="dots"><i></i><i></i><i></i></span><span class="panel-title">how to recognise the scanner</span></div>
+<pre class="wrap"><span class="c"># User-Agent of every web request</span>
+perimeterwatch/{{ version }} (+{{ contact_url }}{% if abuse_email %}; abuse: {{ abuse_email }}{% endif %})
 {% if scan_sources %}
-<p>Scans come from these addresses only:</p>
-<ul class="plain mono">{% for a in scan_sources %}<li>{{ a }}</li>{% endfor %}</ul>
-{% endif %}
-{% if abuse_email %}
-<p>To have a host left alone, write to <a href="mailto:{{ abuse_email }}">{{ abuse_email }}</a>.
-The host goes on a list that no scan will contact. No explanation is needed.</p>
-{% endif %}
-<p>To report a vulnerability in {{ product }} itself, see
-<a href="/.well-known/security.txt">/.well-known/security.txt</a>.</p>
 
-<footer class="foot">
-  <p>{{ product }} is open source under the Apache License 2.0. The service is in beta{% if not signup_open %} and
-  accounts are created by invitation{% endif %}. Legal documents are drafts under review and not yet in force.</p>
-</footer>
+<span class="c"># scans come from these addresses only</span>
+{% for address in scan_sources %}
+{{ address }}
+{% endfor %}
+{% endif %}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <h2>Add your first domain in five minutes.</h2>
+    <p>{% if signup_open %}Sign in with a work email address, add a DNS record, and read your first report.{% else %}Accounts are created by invitation during the beta.{% endif %}
+    Or run the same engine yourself: it is one command-line tool.</p>
+    <p class="cta">
+      <a class="button" href="/login">{{ "Start monitoring a domain" if signup_open else "Sign in" }}</a>
+      <a class="button ghost" href="https://github.com/erik1o6/perimeterwatch#readme">Run it yourself</a>
+    </p>
+  </div>
+</section>
 {% endblock %}

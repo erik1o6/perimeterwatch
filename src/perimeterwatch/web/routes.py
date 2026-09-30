@@ -31,6 +31,7 @@ from perimeterwatch.core.models import (
     utcnow,
 )
 from perimeterwatch.core.module import all_modules
+from perimeterwatch.core.severity import KINDS
 from perimeterwatch.report.build import ReportData, _redact_personal, build_report
 from perimeterwatch.report.render_html import render_html
 from perimeterwatch.report.render_json import render_json
@@ -45,7 +46,8 @@ from perimeterwatch.safety.domains import (
 from perimeterwatch.storage.claims import release_other_claims
 from perimeterwatch.storage.repo import TenantRepo, _aware
 from perimeterwatch.storage.tables import AlertDelivery, Scan, TargetRow
-from perimeterwatch.web import auth, mail
+from perimeterwatch.web import auth, legal, mail
+from perimeterwatch.web.app import site_context
 from perimeterwatch.web.deps import (
     Auth,
     NotSignedIn,
@@ -69,25 +71,63 @@ Editor = Annotated[Auth, Depends(require_editor)]
 Db = Annotated[Session, Depends(get_db)]
 Config = Annotated[Settings, Depends(get_settings)]
 
-# How the public page groups the checks. Breach exposure is left out: it needs
-# paid data and is presented as coming later.
-PUBLIC_GROUPS: tuple[tuple[str, tuple[Category, ...]], ...] = (
-    ("Domains, DNS and servers", (Category.SURFACE, Category.TAKEOVER)),
-    ("Email", (Category.EMAIL,)),
-    ("Lookalikes and phishing", (Category.LOOKALIKE,)),
-    ("Public code and packages", (Category.SECRETS, Category.SUPPLY_CHAIN)),
-    ("Web3", (Category.WEB3,)),
-    ("Reachable services", (Category.VULN,)),
+# How the public page groups the checks: (label, icon, module names). A check that
+# is named nowhere falls into the group of its category, so a new check appears
+# on the page without anyone editing this table. Breach exposure is left out:
+# it needs paid data and is presented as coming later.
+PUBLIC_GROUPS: tuple[tuple[str, str, frozenset[str]], ...] = (
+    (
+        "Domains and DNS",
+        "globe",
+        frozenset(
+            {
+                "dns_resolve",
+                "dnssec_quality",
+                "domain_registration",
+                "nameserver_health",
+                "subdomains",
+                "takeover",
+            }
+        ),
+    ),
+    (
+        "Servers and certificates",
+        "server",
+        frozenset(
+            {"http_probe", "origin_exposure", "security_contact", "tls_certs", "web_archive"}
+        ),
+    ),
+    (
+        "Email and lookalikes",
+        "mail",
+        frozenset({"email_posture", "lookalikes", "phishing_lists", "spf_chain"}),
+    ),
+    ("Public code and packages", "code", frozenset()),
+    ("Web3", "hexagon", frozenset()),
+    ("Reachable services", "radar", frozenset()),
 )
+CATEGORY_GROUP = {
+    Category.SURFACE: "Domains and DNS",
+    Category.TAKEOVER: "Domains and DNS",
+    Category.EMAIL: "Email and lookalikes",
+    Category.LOOKALIKE: "Email and lookalikes",
+    Category.SECRETS: "Public code and packages",
+    Category.SUPPLY_CHAIN: "Public code and packages",
+    Category.WEB3: "Web3",
+    Category.VULN: "Reachable services",
+}
 
 
-def public_checks() -> list[tuple[str, list[tuple[str, str]]]]:
-    """(group, [(title, depth)]) for every check the public page lists."""
+def public_checks() -> list[tuple[str, str, list[tuple[str, str]]]]:
+    """(group, icon, [(title, depth)]) for every check the public page lists."""
+    named = {name: label for label, _, names in PUBLIC_GROUPS for name in names}
+    grouped: dict[str, list[tuple[str, str]]] = {label: [] for label, _, _ in PUBLIC_GROUPS}
     specs = sorted((m.spec for m in all_modules().values()), key=lambda s: (s.mode.rank, s.title))
-    return [
-        (label, [(s.title, s.mode.value) for s in specs if s.category in cats])
-        for label, cats in PUBLIC_GROUPS
-    ]
+    for spec in specs:
+        label = named.get(spec.name) or CATEGORY_GROUP.get(spec.category)
+        if label is not None:
+            grouped[label].append((spec.title, spec.mode.value))
+    return [(label, icon, grouped[label]) for label, icon, _ in PUBLIC_GROUPS]
 
 
 SENT_MESSAGE = (
@@ -100,6 +140,8 @@ def page(
 ) -> HTMLResponse:
     templates = request.app.state.templates
     context.update(who=who, csrf=who.csrf if who else getattr(request.state, "anon_csrf", ""))
+    for key, value in site_context(request).items():
+        context.setdefault(key, value)
     return templates.TemplateResponse(request, name, context, status_code=status)  # type: ignore[no-any-return]
 
 
@@ -146,22 +188,71 @@ def healthz() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def visitor(request: Request, db: Session) -> Auth | None:
+    """Who is looking at a public page, if they are signed in."""
+    try:
+        return require_auth(request, db)
+    except NotSignedIn:
+        return None
+
+
 @router.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Db, settings: Config) -> Response:
     """The public page: what the service does, and how to reach its operator."""
-    try:
-        require_auth(request, db)
-    except NotSignedIn:
-        return page(
-            request,
-            "home.html",
-            None,
-            checks=public_checks(),
-            scan_sources=settings.scan_sources,
-            abuse_email=settings.abuse_email,
-            signup_open=settings.signup_open,
-        )
-    return back("/targets")
+    if visitor(request, db) is not None:
+        return back("/targets")
+    checks = public_checks()
+    return page(
+        request,
+        "home.html",
+        None,
+        checks=checks,
+        check_count=sum(len(items) for _, _, items in checks),
+        kind_count=len(KINDS),
+        scan_sources=settings.scan_sources,
+        contact_url=settings.contact_url,
+    )
+
+
+@router.get("/legal", response_class=HTMLResponse)
+def legal_index(request: Request, db: Db) -> Response:
+    pages = [legal.page(document.slug) for document in legal.DOCUMENTS]
+    return page(request, "legal_index.html", visitor(request, db), pages=pages)
+
+
+@router.get("/legal/{slug}", response_class=HTMLResponse)
+def legal_page(request: Request, db: Db, slug: str) -> Response:
+    found = legal.page(slug)
+    if found is None:
+        raise HTTPException(404, "Not found.")
+    return page(request, "legal.html", visitor(request, db), doc=found, documents=legal.DOCUMENTS)
+
+
+@router.get("/.well-known/security.txt")
+def security_txt(settings: Config) -> Response:
+    """RFC 9116. Answered only when the operator has named a contact."""
+    if not settings.security_email:
+        raise HTTPException(404, "Not found.")
+    base = settings.base_url.rstrip("/")
+    # The first day of a month about half a year ahead, so the text is the same all month.
+    now = utcnow()
+    month = now.month + 6
+    expires = now.replace(
+        year=now.year + (month - 1) // 12, month=(month - 1) % 12 + 1, day=1,
+        hour=0, minute=0, second=0, microsecond=0,
+    )  # fmt: skip
+    lines = [
+        f"Contact: mailto:{settings.security_email}",
+        f"Expires: {expires.strftime('%Y-%m-%dT%H:%M:%S.000Z')}",
+        "Preferred-Languages: en",
+        f"Canonical: {base}/.well-known/security.txt",
+        f"Policy: {base}/legal/vulnerability-disclosure",
+    ]
+    return Response(
+        "\n".join(lines) + "\n",
+        media_type="text/plain; charset=utf-8",
+        headers={"Cache-Control": "max-age=3600"},
+    )
 
 
 @router.get("/login", response_class=HTMLResponse)

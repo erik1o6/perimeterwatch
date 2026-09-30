@@ -7,7 +7,8 @@ The domain is registered with Cloudflare, which also runs its DNS. Every DNS ste
 done in the Cloudflare dashboard under the domain's **DNS** section.
 
 > Do not onboard outside organisations until the independent security review is done and a
-> lawyer has reviewed `docs/legal/`. Until then, use the deployment for your own domains.
+> lawyer has reviewed the legal drafts in `src/perimeterwatch/legal/`. Until then the service is a beta:
+> say so to anyone who joins.
 
 ## What costs money
 
@@ -133,6 +134,8 @@ PW_CONTACT_URL=https://perimeterwatch.org
 PW_ABUSE_EMAIL=abuse@perimeterwatch.org
 PW_MAIL_FROM=Perimeterwatch <no-reply@perimeterwatch.org>
 PW_SCAN_SOURCES=["162.55.43.236","2a01:4f8:c016:78c3::1"]
+PW_SECURITY_EMAIL=security@perimeterwatch.org
+PW_CONTACT_EMAIL=hello@perimeterwatch.org
 ```
 
 Add `PW_SIGNUP_OPEN=false` to stop strangers creating accounts. It is left open during
@@ -168,9 +171,9 @@ scanner in their logs will open it. The page should say, briefly:
 - how to report a vulnerability in the service.
 
 The service serves this page at `/` to visitors who are not signed in. Set
-`PW_SCAN_SOURCES` to the server's addresses so the page can show them. The proxy serves
-`/.well-known/security.txt`: replace the placeholders in `docs/legal/security.txt` before
-going live.
+`PW_SCAN_SOURCES` to the server's addresses so the page can show them, and
+`PW_SECURITY_EMAIL` so the service answers `/.well-known/security.txt`. The legal drafts
+are served at `/legal`.
 
 ## Step 6: check the result
 

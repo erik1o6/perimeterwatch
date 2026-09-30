@@ -1,5 +1,6 @@
 {% macro csrf_field() %}<input type="hidden" name="csrf" value="{{ csrf }}">{% endmacro %}
 {% macro sev(f) %}<span class="tag sev-{{ f.severity.label }}">{{ f.severity.label }}</span>{% endmacro %}
+{% macro mark() %}<svg class="mark" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="44 12.5"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>{% endmacro %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,13 +8,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 <title>{% block title %}{{ product }}{% endblock %}</title>
+{% block description %}{% endblock %}
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/report.css">
 <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/site.css">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
+<a class="skip" href="#main">Skip to content</a>
 {% if who %}
 <header class="topbar">
-  <a class="brand" href="/targets">{{ product }}</a>
+  <a class="brand" href="/targets">{{ mark() }}<span>{{ product }}</span></a>
   <nav>
     <a href="/targets">Domains</a>
     <a href="/alerts">Alerts</a>
@@ -22,11 +27,66 @@
   <span class="who">{{ who.user.email }}</span>
   <form method="post" action="/logout">{{ csrf_field() }}<button class="link" type="submit">Sign out</button></form>
 </header>
+{% else %}
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/">{{ mark() }}<span>{{ product }}</span></a>
+    <nav aria-label="Site">
+      <a href="/#how">How it works</a>
+      <a href="/#checks">Checks</a>
+      <a href="/#roadmap">Roadmap</a>
+      <a href="/legal">Legal</a>
+      <a href="https://github.com/erik1o6/perimeterwatch">Source</a>
+    </nav>
+    <a class="button small" href="/login">Sign in</a>
+  </div>
+</header>
 {% endif %}
-<main class="page">
+<main id="main" class="{% block main_class %}page{% endblock %}">
 {% if error is defined and error %}<p class="banner error" role="alert">{{ error }}</p>{% endif %}
 {% if notice is defined and notice %}<p class="banner ok" role="status">{{ notice }}</p>{% endif %}
 {% block content %}{% endblock %}
 </main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="/">{{ mark() }}<span>{{ product }}</span></a>
+        <p>Opt-in monitoring of the public attack surface of crypto organisations. Open source, non-profit, in beta.</p>
+      </div>
+      <div>
+        <h4>Service</h4>
+        <ul>
+          <li><a href="/#how">How it works</a></li>
+          <li><a href="/#checks">What it checks</a></li>
+          <li><a href="/#roadmap">Roadmap</a></li>
+          <li><a href="/#operators">For operators of scanned hosts</a></li>
+          <li><a href="/login">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal drafts</h4>
+        <ul>
+          <li><a href="/legal/terms-of-service">Terms of service</a></li>
+          <li><a href="/legal/privacy-policy">Privacy policy</a></li>
+          <li><a href="/legal/scanning-authorisation-and-aup">Acceptable use</a></li>
+          <li><a href="/legal/opt-out">Opt-out</a></li>
+          <li><a href="/legal">All documents</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Open source</h4>
+        <ul>
+          <li><a href="https://github.com/erik1o6/perimeterwatch">Source code</a></li>
+          <li><a href="https://github.com/erik1o6/perimeterwatch/tree/main/docs/sample-report">Sample report</a></li>
+          <li><a href="https://github.com/erik1o6/perimeterwatch/blob/main/docs/modules.md">Every check, documented</a></li>
+          {% if security_email %}<li><a href="/legal/vulnerability-disclosure">Report a vulnerability</a></li>{% endif %}
+          {% if contact_email %}<li><a href="mailto:{{ contact_email }}">{{ contact_email }}</a></li>{% endif %}
+        </ul>
+      </div>
+    </div>
+    <p class="fine">Apache License 2.0. The legal documents are drafts, not yet reviewed by a lawyer and not yet in force. This site uses no JavaScript, no analytics and no trackers.</p>
+  </div>
+</footer>
 </body>
 </html>

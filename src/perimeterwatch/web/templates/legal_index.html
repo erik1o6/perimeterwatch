@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Legal and policy documents (drafts) · {{ product }}{% endblock %}
+{% block main_class %}page wide{% endblock %}
+{% block content %}
+<div class="eyebrow">{{ product }}</div>
+<h1>Legal and policy documents</h1>
+<p class="lede">These are the terms the service intends to work under. They describe what the software does today,
+and they say plainly what is not settled yet.</p>
+<div class="draft-banner" role="note"><b>Drafts</b><span>Not legal advice, not yet reviewed by a lawyer, and not yet in
+force. The service is in beta. Every open point is marked in the text, so that nothing unsettled reads as a promise.</span></div>
+
+<div class="doc-list">
+{% for item in pages %}
+  <a href="/legal/{{ item.document.slug }}">
+    <h3>{{ item.document.title }}</h3>
+    <p>{{ item.document.summary }}</p>
+    <small>For: {{ item.document.readers }}{% if item.open_points %} · {{ item.open_points }} open point{{ "s" if item.open_points != 1 }}{% endif %}</small>
+  </a>
+{% endfor %}
+</div>
+
+<h2>How open points are marked</h2>
+<p class="key">
+  <span class="open-point op-decide"><span class="op-label">Not yet decided</span> a fact or choice the operator has not settled</span>
+  <span class="open-point op-confirm"><span class="op-label">To be confirmed</span> a proposed value</span>
+  <span class="open-point op-unbuilt"><span class="op-label">Not yet built</span> something the text needs that the software does not do yet</span>
+  <span class="open-point op-lawyer"><span class="op-label">For legal review</span> a point that needs a lawyer's judgement</span>
+</p>
+<p>The source of every document is in the <a href="https://github.com/erik1o6/perimeterwatch/tree/main/src/perimeterwatch/legal">public repository</a>,
+with its history. To ask about any of them, write to {% if contact_email %}<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>{% else %}the operator{% endif %}.</p>
+{% endblock %}
