@@ -118,6 +118,11 @@ uv run pwatch scan perimeterwatch.org --active
 
 ## Step 4: the server
 
+The server exists: a Hetzner CX23 in Falkenstein, created from `deploy/cloud-init.yml`,
+which installs Docker, keeps the system patched, and blocks the containers from reaching
+private address ranges and the cloud metadata address. Scans leave from 162.55.43.236
+and 2a01:4f8:c016:78c3::1.
+
 Follow `operations.md`. The values for this domain, in `deploy/.env`:
 
 ```sh

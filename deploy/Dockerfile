@@ -39,6 +39,9 @@ RUN apt-get update \
 
 COPY --from=build /app/.venv /app/.venv
 COPY --from=tools /opt/pw-tools /opt/pw-tools
+# The installer keeps its directories private to the user that ran it. The
+# service runs as another user, which must be able to read and run the tools.
+RUN chmod -R a+rX /opt/pw-tools
 # trufflehog is AGPL-3.0 and is shipped unmodified. The notices name its source.
 COPY LICENSE THIRD_PARTY_NOTICES.md /app/
 

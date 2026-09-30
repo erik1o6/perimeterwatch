@@ -1,0 +1,76 @@
+#cloud-config
+# First boot of the Perimeterwatch server. Debian 13 on Hetzner Cloud.
+#
+#   hcloud server create --name perimeterwatch --type cx23 --location fsn1 \
+#     --image debian-13 --ssh-key perimeterwatch-deploy --firewall perimeterwatch \
+#     --user-data-from-file deploy/cloud-init.yml
+#
+# What it does: keeps the system patched on its own, installs Docker from
+# Docker's own repository, and adds a host firewall rule so that nothing the
+# containers send can reach private address ranges or the cloud metadata
+# address, whatever DNS answers. Everything else is done over SSH afterwards,
+# as operations.md describes.
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - unattended-upgrades
+  - nftables
+  - fail2ban
+  - git
+
+write_files:
+  - path: /etc/apt/apt.conf.d/52unattended-upgrades-local
+    content: |
+      Unattended-Upgrade::Automatic-Reboot "true";
+      Unattended-Upgrade::Automatic-Reboot-Time "04:30";
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+  - path: /etc/ssh/sshd_config.d/10-perimeterwatch.conf
+    content: |
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitRootLogin prohibit-password
+      X11Forwarding no
+  - path: /etc/nftables.conf
+    permissions: "0644"
+    content: |
+      #!/usr/sbin/nft -f
+      # Docker manages its own tables. This one only blocks forwarded traffic
+      # from the containers to addresses no scan may ever contact. It matches
+      # the public interface, because the containers' own addresses are in a
+      # private range and their replies must not be dropped.
+      table inet perimeterwatch {
+        chain forward {
+          type filter hook forward priority -10; policy accept;
+          oifname != "eth0" accept
+          ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16,
+                     172.16.0.0/12, 192.0.0.0/24, 192.0.2.0/24, 192.168.0.0/16,
+                     198.18.0.0/15, 198.51.100.0/24, 203.0.113.0/24, 224.0.0.0/3 } drop
+          ip6 daddr { ::/128, ::1/128, ::ffff:0:0/96, 64:ff9b::/96, 64:ff9b:1::/48,
+                      100::/64, 2001::/32, 2001:db8::/32, 2002::/16, fc00::/7,
+                      fe80::/10, ff00::/8 } drop
+        }
+      }
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": { "max-size": "20m", "max-file": "5" },
+        "live-restore": true
+      }
+
+runcmd:
+  - install -m 0755 -d /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  - sh -c 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list'
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  - systemctl enable --now nftables
+  - systemctl enable --now fail2ban
+  - systemctl restart ssh
+  - mkdir -p /srv/perimeterwatch
