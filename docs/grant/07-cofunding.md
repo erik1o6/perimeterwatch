@@ -36,14 +36,14 @@ Some contributions are worth more than money and are easier for the giver to app
 
 | Contribution | From | Effect on the budget |
 |---|---|---|
-| The security review in Milestone 1 | A security firm | Removes the largest single external cost. Also resolves the question of whether the fund pays for reviews. The firm must be independent of the team. |
+| The security review in Milestone 2 | A security firm | Removes the largest single external cost. Also resolves the question of whether the fund pays for reviews. The firm must be independent of the team. |
 | Breach data access | Have I Been Pwned, or another breach data provider | Removes a recurring cost and resolves the main open risk in `08-risks.md` |
 | Hosting credits | A cloud provider or an ecosystem foundation | Removes a recurring cost |
 | Legal review | A law firm with a crypto practice | Removes a one-off cost |
 
 ## Target
 
-Nothing is pledged so far: $0 is committed against the $150,000 goal, and the submission says so. The fund's drafting guide says to expect roughly 25% or more of the goal from ecosystem stakeholders, which at $150,000 is $37,500 or more. Source: the fund's drafting guide, offered on its submission page and read on 30 September 2026. **[TODO: set a co-funding target and state it as "X of the total is sought from co-funders, of which Y is pledged so far".]**
+Nothing is pledged so far against the $150,000 goal, and the submission lists no backers. The fund's drafting guide says to expect roughly 25% or more of the goal from ecosystem stakeholders, which at $150,000 is $37,500 or more. Source: the fund's drafting guide, offered on its submission page and read on 30 September 2026. **[TODO: set a co-funding target and state it as "X of the total is sought from co-funders, of which Y is pledged so far".]**
 
 ## Outreach message to a possible co-funder
 
@@ -57,7 +57,7 @@ Adapt the parts in brackets. Keep it short. The first two sentences say what the
 >
 > The software is built: a command-line tool and a web service, with 2,560 passing tests. The web service runs in beta at https://perimeterwatch.org. Here is the code and a sample report: [links].
 >
-> I am applying to TheDAO Security Fund's ETHSecurity Initiatives round for $150,000 to have the web service independently reviewed, run it, and offer it to small teams. Half of that amount is paid only if at least 25 organisations are using it and have fixed problems it found.
+> I am applying to TheDAO Security Fund's ETHSecurity Initiatives round for $150,000 to have the web service independently reviewed, run it, and offer it to small teams. Half of that amount is paid only if at least 25 organisations are using it, at least 10 of them securing over $1 million onchain, and they have fixed problems it found.
 >
 > I am writing to you because [one sentence: the specific reason this organisation is affected when small projects around it are compromised].
 >

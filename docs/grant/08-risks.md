@@ -10,11 +10,11 @@ Each risk is given with what is done about it and what remains unsolved. The uns
 |---|---|---|---|
 | 1 | Breach data cannot be used by a hosted service in the way planned | Own-key use works in the command-line tool | Terms for a hosted service are unconfirmed |
 | 2 | The software is misused for reconnaissance | The web service scans only domains whose control is proved. Active checks and personal detail need authorisation everywhere. | Passive scans of any domain are possible with the command-line tool |
-| 3 | The hosted service is itself breached | Encryption of stored findings, no secrets stored, organisations kept apart, alerts carry no detail | No independent review yet. Live in beta with the maintainer's own domains only. |
+| 3 | The hosted service is itself breached | Encryption of stored findings, no secrets stored, organisations kept apart, alerts carry no detail | No independent review yet. Live in beta with sign-up open, and the maintainer's own domains only. |
 | 4 | Single maintainer | Open source, tested, documented | No second maintainer named |
 | 5 | Scanning hosts the organisation does not own | Low request volume, read-only, do-not-contact list, limited port checks on content delivery networks | Other shared platforms are not detected |
 | 6 | A typed statement of authority is false | The web service does not accept typed statements | Remains possible in the command-line tool |
-| 7 | The adoption milestone is missed | Early outreach, onboarding that needs one DNS record | The target of 25 organisations is demanding. Half of the grant is at risk |
+| 7 | The adoption milestone is missed | Outreach and onboarding into the open beta from month 1, onboarding that needs one DNS record | The target of 25 organisations, 10 of them securing over $1 million onchain, is demanding. Half of the grant is at risk |
 | 8 | False comfort from a clean report | The report says what it is not | Readers may still over-trust it |
 | 9 | Personal data and legal exposure | Minimal data, organisation supplies staff list, site names in malware logs reduced to a count, views logged | No legal review yet |
 | 10 | No funding after the grant | Low running cost, and a stated fallback fee for larger organisations | No funding after month 6 is confirmed |
@@ -67,7 +67,7 @@ The code is open source, so anyone can also alter it to remove the authorisation
 
 ## 3. The hosted service becomes a target
 
-**The risk.** The hosted service is live in beta and today stores findings for the maintainer's own domains only. Once outside organisations join, it will store a list of weak points for many crypto organisations. A breach of the service would hand that list to an attacker.
+**The risk.** The hosted service is live in beta and today stores findings for the maintainer's own domains only. Sign-up is open, so an outside organisation can add and verify a domain before the service has been reviewed. The site says that it has had no independent review. Once outside organisations join, the service will store a list of weak points for many crypto organisations. A breach of the service would hand that list to an attacker.
 
 **Mitigation.**
 
@@ -81,17 +81,18 @@ The code is open source, so anyone can also alter it to remove the authorisation
 - Alerts never carry names, addresses or credentials. A breach of an email or chat account therefore reveals that something changed and not what. This is built.
 - Each view of a finding about a person and each report download is written to an audit log. This is built.
 - The deployment files put the database on a network with no route to the internet, and give the worker its own network. The beta is deployed from these files.
-- An independent security review and retest is a pass criterion of Milestone 1. No organisation outside the team is onboarded before its report is published. That is a pass criterion of the same milestone.
-- An organisation that does not want its findings held by anyone can run the command-line tool on its own machine.
+- An independent security review and retest is a pass criterion of Milestone 2. Organisations may join the open beta before then, and the submission commits that none counts toward adoption until the report is published.
+- An organisation that does not want its findings stored by anyone can run the command-line tool on its own machine.
 
 **Unsolved.**
 
 - The web service has been live in beta since 30 September 2026 and nobody outside the team has reviewed it. Tests written by the author of the code show what the author thought to test.
+- Sign-up stays open during the beta, by the maintainer's decision. An organisation that signs up before the review does so on the strength of the site's statement that the service is unreviewed. The review is in Milestone 2, so this period lasts about three months from the start of funding.
 - A tested restore from backup, and monitoring that alerts the maintainers, have not yet been shown for the beta. They are work for Milestone 1.
 - Separation of organisations is enforced in the application only. A second barrier in the database (row-level security) is not built. It is planned hardening work in Milestone 1 and is not a payment criterion.
 - Hostnames, scan history and the audit log are not encrypted in the database. Only finding bodies, staff lists, verification tokens and alert settings are.
 - The audit log is never pruned, and nothing in the database prevents an entry being altered.
-- Encryption of stored data protects against theft of the database. It does not protect against an attacker who takes over the running service, which holds the keys.
+- Encryption of stored data protects against theft of the database. It does not protect against an attacker who takes over the running service, which has the keys.
 - A review is a snapshot. The service needs a review every year, and the cost after the grant is not yet covered. See risk 10.
 - **[TODO: decide whether the design should go further, for example by encrypting each organisation's findings with a key that only the organisation holds. This would limit what the service can do with the data, including sending alerts that describe the finding.]**
 
@@ -115,7 +116,7 @@ The code is open source, so anyone can also alter it to remove the authorisation
 
 **Mitigation.**
 
-- Passive scans contact nothing.
+- Passive scans connect to none of the organisation's hosts.
 - A probe scan sends one ordinary request per host, which is normal use of any public website.
 - Active scans use ordinary connection attempts to 100 ports at a limited rate, and read-only requests.
 - Every request identifies the tool and gives a contact address for complaints.
@@ -139,11 +140,11 @@ The web service does not accept typed statements. It accepts proof of domain con
 
 ## 7. The adoption milestone is missed
 
-**The risk.** Half of the grant depends on at least 25 outside organisations each verifying a domain and receiving at least 4 scheduled updates, and on at least 30 fixed findings. Small teams are busy and security work is easy to postpone.
+**The risk.** Half of the grant depends on at least 25 outside organisations each verifying a domain and receiving at least 4 scheduled reports since the assessment report was published, on at least 10 of them securing over $1 million onchain, and on at least 30 fixed findings. Small teams are busy and security work is easy to postpone. Larger organisations take longer to agree to anything.
 
-**Mitigation.** Outreach starts during Milestone 1 so that organisations are waiting when the security assessment is published. Onboarding needs one DNS record and no software. The funded developer and operations role shares the onboarding work. See `09-adoption-plan.md`.
+**Mitigation.** Outreach and onboarding into the open beta start in month 1, and each organisation is told that the service has had no independent review. An organisation that is already on the service counts once it has received 4 scheduled reports after the security assessment is published. Onboarding needs one DNS record and no software. The funded developer and operations role shares the onboarding work. Organisations over the $1 million bar are reached through referrals from security firms that already work with them. See `09-adoption-plan.md`.
 
-**Unsolved.** No organisation has committed yet. **[TODO: correct this if any has.]** The target of 25 is the figure from the first submission and is demanding for the time available: see the reasoning in `05-milestones-budget.md`. The project carries the financial loss if the milestone fails.
+**Unsolved.** No organisation has committed yet. **[TODO: correct this if any has.]** The target of 25 is the figure from the first submission. Twenty-five organisations, 10 of them securing over $1 million onchain, is ambitious for one person and a funded developer, even with onboarding from month 1. Some organisations will not join a service that has not been reviewed, and the larger ones are the most likely to wait for the report. See the reasoning in `05-milestones-budget.md`. The fund fixes the timeline in the grant agreement. The project carries the financial loss if the milestone fails.
 
 ## 8. False comfort
 

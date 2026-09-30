@@ -6,17 +6,17 @@
 
 Perimeterwatch is open-source software for small crypto teams that have no security staff. It shows a team what any stranger on the internet can already find out about it, and warns the team when that changes.
 
-A team enters its own web address and gets back a plain list of weak points, each with a fix. Examples: settings that let anyone send email in the team's name, forgotten web addresses that someone else could claim, passwords published by mistake in public code, changes to who can sign for the treasury, and staff email addresses found in known data breaches.
+A team enters its web address and gets a plain list of weak points, each with a fix. Examples: settings that let anyone send email in the team's name, forgotten web addresses that someone else could claim, passwords published by mistake in public code, changes to who can sign for the treasury, and staff email addresses found in known data breaches.
 
-It only looks at teams that ask. The web service scans nothing until the team proves the web address is its own. There is no score or grade.
+It only looks at teams that ask. The web service scans nothing until the team proves the address is its own. There is no score.
 
 **What exists today.** A web service, live in beta at https://perimeterwatch.org since 30 September 2026, and a command-line tool. 34 checks. 2,560 automated tests pass in public. Code: https://github.com/erik1o6/perimeterwatch
 
-**What does not exist yet.** No outside organisation relies on it. It has had no independent security review and no lawyer's review. The breach check is built and switched off.
+**What does not exist yet.** No outside organisation relies on it. It has had no independent security review and no lawyer's review. The breach check is switched off.
 
-**What the grant pays for.** An independent security review, hardening and running the service, legal review, a breach data licence, and getting teams onto it.
+**What the grant pays for.** Hardening and running the service, an independent security review, legal review, a breach data licence, and getting teams onto it.
 
-**The ask.** $150,000 over 6 months, in four milestones. Half is paid only if at least 25 outside organisations are monitored and have fixed at least 30 problems the software found.
+**The ask.** $150,000 over 6 months, in four milestones. Half is paid only if at least 25 outside organisations are monitored, 10 of them securing over $1 million onchain, and they have fixed at least 30 problems it found.
 
 **Team.** code2142, author and maintainer.
 

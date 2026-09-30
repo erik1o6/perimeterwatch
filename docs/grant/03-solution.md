@@ -36,7 +36,7 @@ Every check in this table is built and works today. The command-line tool and th
 | Open ports | The 100 most common ports, by ordinary connection attempts, over IPv4 and IPv6 | The organisation's hosts | Active |
 | Exposure checks | Read-only checks for exposed files and misconfiguration | nuclei, limited by the project's own rules to plain GET and HEAD requests | Active |
 
-There are 34 check modules at three depths (23 passive, 5 probe, 6 active) and 104 kinds of finding. Each kind has a default severity and a written fix, held in one table in the code (`src/perimeterwatch/core/severity.py`) so that the rating rules can be reviewed.
+There are 34 check modules at three depths (23 passive, 5 probe, 6 active) and 104 kinds of finding. Each kind has a default severity and a written fix, kept in one table in the code (`src/perimeterwatch/core/severity.py`) so that the rating rules can be reviewed.
 
 Checks added since the table above was written, all built: Safe modules and guard, changes to an ENS content hash or a DNSLink record, `security.txt`, DNSSEC signing quality, nameserver health, origin servers behind a content delivery network, an inventory of outside services, domain registration and registry lock, the SPF chain, phishing lists, web archives, packages and their provenance, repository safeguards, contract control, ENS names, website scripts and security headers, TLS versions and cipher suites, zone transfer, SSH server settings, and storage buckets. Ten third-party tools are pinned by version and verified by checksum.
 
@@ -80,7 +80,7 @@ There is no flag that skips these checks.
 
 Other safety rules, all built:
 
-- A host is contacted only if it is under the scanned domain and every address it resolves to is public. One private or reserved address disqualifies the host.
+- A host is contacted only if it is under the scanned domain and every address it resolves to is public. One private or reserved address disqualifies the host. Beyond the domain's own hosts, a scan asks only the domain's nameservers and the storage buckets its DNS points at.
 - A do-not-contact list holds hosts, addresses or networks that no scan will contact, whatever domain they appear under. This is how a request to opt out from the operator of a host is honoured.
 - Hosts behind a content delivery network are skipped by the port check apart from ports 80 and 443, because those addresses are shared with the network's other customers.
 - At most 500 hosts are contacted per scan, and requests are rate limited.
@@ -125,11 +125,11 @@ Built, covered by automated tests, and live in beta at https://perimeterwatch.or
 |---|---|---|
 | Scanning engine with all checks listed above | Built. | Released as version 1.0 in M1 |
 | Command-line tool `pwatch` | Built | Maintained |
-| Web service and worker | Built, tested, and live in beta since 30 September 2026. Only the maintainer's own domains are monitored. | Hardened and operated for outside organisations from M1. Production use in M3. |
+| Web service and worker | Built, tested, and live in beta since 30 September 2026. Only the maintainer's own domains are monitored. | Hardened in M1. Reviewed in M2. Production use by outside organisations in M3. |
 | Automated tests | 2,560 pass in public CI on every change | Kept passing through each release |
-| Consent model and safety rules | Built, with a dedicated set of security tests | Reviewed independently in M1 |
-| Separation of organisations | Built in the application, with tests | Reviewed independently in M1. A second barrier in the database (row-level security) is planned hardening work and is not a payment criterion. |
-| Scheduled scans, alerts, automatic retention | Built, tested, and running in the beta for the maintainer's own domains | Shown in a public test report in M2 |
+| Consent model and safety rules | Built, with a dedicated set of security tests | Reviewed independently in M2 |
+| Separation of organisations | Built in the application, with tests | Reviewed independently in M2. A second barrier in the database (row-level security) is planned hardening work and is not a payment criterion. |
+| Scheduled scans, alerts, automatic retention | Built, tested, and running in the beta for the maintainer's own domains | Operated for outside organisations from M3 |
 | HTML and JSON reports, with JSON schema | Built. A sample report on the project's own domain is published at https://perimeterwatch.org/sample-report | Maintained |
 | Licence, README, security policy, third-party notices | Written and published. Apache-2.0. | Maintained |
 | Public repository | Published at https://github.com/erik1o6/perimeterwatch. CI runs in public on every change and passes. | Tagged 1.0 release, in M1 |
@@ -140,9 +140,9 @@ Built, covered by automated tests, and live in beta at https://perimeterwatch.or
 | Closing an account | Not built | M1 |
 | Terms of service, privacy notice and other policies | Drafts exist in `src/perimeterwatch/legal/` and are published at https://perimeterwatch.org/legal, marked as drafts. No lawyer has reviewed them. | Reviewed by a lawyer in M2 |
 | Breach data | The check is built and switched off. There is no paid subscription. | A licensed source in production in M2, once a supplier confirms in writing that use by a hosted service for several organisations is allowed |
-| Independent security review | Not done | M1 |
+| Independent security review | Not done | M2 |
 | Integration with another tool or body | Not built | Not a payment criterion. Pursued alongside M3. |
-| Organisations using it | None outside the team. Only the maintainer's own domains are monitored. | At least 25 in M3 |
+| Organisations using it | None outside the team. Only the maintainer's own domains are monitored. | At least 25 in M3, at least 10 of them securing over $1 million onchain |
 
 A second breach source is present in the code and switched off by default: Hudson Rock's free lookup, which gives counts only. Its terms for use by a hosted service are not published, so the hosted service will not use it without written permission from Hudson Rock.
 
@@ -157,4 +157,4 @@ A second breach source is present in the code and switched off by default: Hudso
 ## Notes for the maintainer (delete before submitting)
 
 - The legal drafts live in `src/perimeterwatch/legal/` and are published at https://perimeterwatch.org/legal. `docs/legal/README.md` is their index, with the open questions for the lawyer.
-- The milestone labels in the table above follow `10-resubmission.md`: M1 is the hardened service with the independent review, M2 is breach monitoring and legal review, M3 is adoption, M4 is continued operation.
+- The milestone labels in the table above follow `SUBMISSION.md`: M1 is the hardened service, M2 is the security assessment, breach monitoring and legal review, M3 is verified adoption, M4 is continued operation.

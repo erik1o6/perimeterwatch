@@ -36,7 +36,7 @@ The first submission, on 9 September 2026, was called xWatch. The reviewer's fee
 
 1. Read `10-resubmission.md`. It has no blanks. Check every claim in it against what you know.
 2. Read its short summary aloud to someone outside security. If they cannot say back what the project is after the first two sentences, rewrite those sentences before anything else.
-3. The numbers are set: $150,000 over 6 months, four milestones of $30,000, $30,000, $75,000 and $15,000, at least 25 organisations and at least 30 fixes. The reasoning is in `05-milestones-budget.md`. If you change one, that file lists the others to change with it.
+3. The numbers are set: $150,000 over 6 months, four milestones of $30,000, $30,000, $75,000 and $15,000, at least 25 organisations, at least 10 of them securing over $1 million onchain, and at least 30 fixes. The reasoning is in `05-milestones-budget.md`. If you change one, that file lists the others to change with it.
 4. Do the items under "Before submitting" below.
 5. Follow the steps in `SUBMISSION.md` to paste the text into the form at https://initiatives.thedao.fund/submit. The form sorts a pasted draft into its fields by heading. Its field names and rules are described in the fund's drafting guide, which the submission page offers to copy.
 6. Files `01` to `09` still contain `[TODO:` marks. They are background and are not pasted into the form. Fill them before pointing a reviewer at them.
@@ -68,7 +68,7 @@ These are actions, not text edits.
 
 - Open every link in `SUBMISSION.md` on the day you submit and check that it loads: the service, the repository, the sample report, the legal drafts at https://perimeterwatch.org/legal, and the news sources.
 - Check that the numbers in the submission still match the repository and the service: 34 checks of which 33 run in the beta, 104 kinds of finding, 10 pinned tools, 2,560 tests. The test count rises with each change, so read it from the latest public CI run.
-- The repository, its public CI, the sample report and the beta are all in place, so Milestone 1 pays for what remains: the independent review and its fixes, backups, monitoring, the missing parts of the onboarding flow, and a tagged 1.0 release.
+- The repository, its public CI, the sample report and the beta are all in place, so Milestone 1 pays for what remains before review: backups, monitoring, the missing parts of the onboarding flow, and a tagged 1.0 release. The independent security assessment is in Milestone 2.
 - After fixing the findings in the sample report, publish the second report, which shows them as resolved.
 - Record a short screen capture of `pwatch` scanning that domain.
 - Send the email to Have I Been Pwned (see `08-risks.md`).

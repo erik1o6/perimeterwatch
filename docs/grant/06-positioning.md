@@ -4,7 +4,7 @@
 
 This file explains how Perimeterwatch relates to other work in the same area. In each case the aim is to supply something the other party can use, and to avoid doing their job.
 
-No partnership or endorsement exists with any body named here. **[TODO: if any conversation has taken place, say so in the relevant section, with the other party's permission.]**
+No partnership or endorsement exists with any body named here. code2142 has no relationship with Auditware or SEAL.
 
 ## At a glance
 
@@ -123,7 +123,7 @@ Prices were checked on 29 September 2026. Most vendors do not publish prices. Th
 
 | Product or source | Price | Source |
 |---|---|---|
-| Hexiosec ASM, Premium plan | £329 per month, up to 300 domains, subdomains and addresses. A free plan covers up to 50 with weekly scans. | [Hexiosec pricing](https://hexiosec.com/asm/pricing/) |
+| Hexiosec ASM, Premium plan | About $437 per month, up to 300 domains, subdomains and addresses. The vendor's price is in pounds and is converted at the European Central Bank's reference rates of 30 September 2026. A free plan covers up to 50 with weekly scans. | [Hexiosec pricing](https://hexiosec.com/asm/pricing/) |
 | Microsoft Defender External Attack Surface Management | $0.011 per asset per day | [Microsoft pricing](https://www.microsoft.com/en-us/security/pricing/microsoft-defender-external-attack-surface-management) |
 | Intruder, for a small business | From about $10,000 per year, as stated by a competitor's comparison | [Attaxion vendor comparison](https://attaxion.com/top-external-attack-surface-management-vendors/) |
 | Mid-market products in general | $25,000 to $75,000 per year, as stated by a vendor | [CyCognito, how to budget](https://www.cycognito.com/blog/how-to-budget-for-easm/) |
